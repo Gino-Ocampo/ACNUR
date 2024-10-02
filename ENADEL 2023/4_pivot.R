@@ -1,3 +1,5 @@
+WENA WENA REPOSITORIO
+
 # --------------------------- 
 # script: 4_pivot.R
 #
