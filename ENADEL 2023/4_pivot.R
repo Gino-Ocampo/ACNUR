@@ -1,9 +1,4 @@
-WENA WENA REPOSITORIO
- wenaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
- 
- mmmmmmvale
-
-# OLA K ASE GINO
+#ahora si bien cubicado!
 
 # --------------------------- 
 # script: 4_pivot.R
