@@ -2,6 +2,9 @@ WENA WENA REPOSITORIO
  wenaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
  
  mmmmmmvale
+
+# OLA K ASE GINO
+
 # --------------------------- 
 # script: 4_pivot.R
 #
