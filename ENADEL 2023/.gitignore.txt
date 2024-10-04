@@ -1,0 +1,6 @@
+# Ignorar todos los archivos .dta
+*.dta
+
+# Ignorar específicamente el archivo enadel_long.dta
+datos/enadel_long.dta
+datos/enadel_wide.dta
