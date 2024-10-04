@@ -9,9 +9,8 @@
 # fecha última modificación: Septiembre 2024
 # ---------------------------
 # Paquetes: 
-paquetes <- c("tidyverse", "dplyr", "plyr", "knitr", "haven", "readxl", "writexl", "Hmisc", "survey", "labelled")
-#invisible(lapply(paquetes, install.packages, character.only = TRUE))
-invisible(lapply(paquetes, library, character.only = TRUE))
+pacman::p_load("tidyverse", "dplyr", "plyr", "knitr", "haven", "readxl", "writexl", "Hmisc", "survey", "labelled", "archive")
+
 # ---------------------------
 
 # ---------------------------------------------------------------------------------- #
