@@ -18,8 +18,8 @@ pacman::p_load("tidyverse", "dplyr", "plyr", "knitr", "haven", "readxl", "writex
 # ---------------------------------------------------------------------------------- #
 region <- seq(1,16)
 
-enadel_wide <- read.csv("datos/enadel_wide.csv") |> subset(region_trab%in%region)
-enadel_long <- read.csv("datos/enadel_long.csv") |> subset(region_trab%in%region)
+enadel_wide <- readr::read_rds("Datos/enadel_wide.rds")
+enadel_long <- readr::read_rds("Datos/enadel_long.rds")
 
 
 # svy
