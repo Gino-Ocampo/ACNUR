@@ -19,9 +19,20 @@ invisible(lapply(paquetes, library, character.only = TRUE))
 # ---------------------------------------------------------------------------------- #
 region <- seq(1,16)
 
-enadel_wide <- read.csv("datos/enadel_wide.csv") |> subset(region_trab%in%region)
-enadel_long <- read.csv("datos/enadel_long.csv") |> subset(region_trab%in%region)
+# cargar enadel
+enadel_wide  <- read_dta("data/clean/enadel_wide.dta") |> subset(region_trab%in%region) |> 
+  mutate(empresas = 1,
+         estrato_cm = as.integer(interaction(p6, a2, tam_val)),
+         estrato_rt = as.integer(interaction(region_trab, a2, tam_val)))
 
+enadel_long  <- read_dta("data/clean/enadel_long.dta") |> subset(region_trab%in%region) |> 
+  mutate(oficios = 1, 
+         licencia = tolower(licencia),
+         certificado = tolower(certificado),
+         requisito = tolower(requisito),
+         estrato_cm = as.integer(interaction(p6, a2, tam_val)),
+         estrato_rt = as.integer(interaction(region_trab, a2, tam_val)),
+         exp_cat = ifelse(exp>1,1,exp))
 
 # svy
 options(survey.lonely.psu="adjust")
