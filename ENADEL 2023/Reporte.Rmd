@@ -59,7 +59,8 @@ rownames(porc_region)<- orden_regiones
 ```
 
 La muestra de ENADEL 2023 encuesta a 5.820 empresas que suman 485.256 trabajadores (a nivel muestral). Estas representan a 82.052 empresas y 5.611.196 trabajadores a nivel nacional.
-La Tabla 1 muestra la distribución en las distintas regiones del país, dónde un  `r porc_region[7, 1]`% de las empresas y un 65,6% de los trabajadores se encuentran en la región Metropolitana.
+La Tabla 1 muestra la distribución en las distintas regiones del país, dónde un  `r round(porc_region[7, 1],1
+)`% de las empresas y un `r round(porc_region[7, 2],1)`%  de los trabajadores se encuentran en la región Metropolitana.
 
 ```{r eval=TRUE, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE, results='asis', fig.align = 'center'}
 
