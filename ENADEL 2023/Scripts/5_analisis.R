@@ -758,7 +758,7 @@ write_xlsx(list("contratos_totales" = contratos_sector,
                 "canal" = canal,
                 "conocimiento_1" = con_1,
                 "conocimiento_2" = con_2),
-           paste0("tablas/tablas.xlsx"))
+           paste0("Tablas/tablas.xlsx"))
 
 
 #distribución del personal contratado b1-b12 
