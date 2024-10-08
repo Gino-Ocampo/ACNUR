@@ -65,6 +65,14 @@ design_long <- subset(design_long_tot, tipo_cat%in%c(1, 2, 3, 4))
   # --- % por region 
   # empresas por region
   folios_region <- svyby(~empresas, ~region_trab, design_wide, svytotal, na.rm = TRUE)[1:2]
+  
+  orden_regiones <- c(
+    "Arica y Parinacota", "Tarapacá", "Antofagasta", "Atacama", 
+    "Coquimbo", "Valparaíso", "Metropolitana", "O'Higgins", 
+    "Maule", "Ñuble", "Biobío", "Araucanía", 
+    "Los Ríos", "Los Lagos", "Aysén", "Magallanes"
+  )
+  
   # trabajadores por region 
   trab_region <- svyby(~trabval, ~region_trab, design_wide, svytotal, na.rm = TRUE)[1:2]
   
@@ -72,7 +80,10 @@ design_long <- subset(design_long_tot, tipo_cat%in%c(1, 2, 3, 4))
                            empresas = folios_region$empresas,
                            trabajadores = trab_region$trabval) |> 
     mutate(pc_empresas = empresas/sum(empresas),
-           pc_trabajadores = trabajadores/sum(trabajadores))
+           pc_trabajadores = trabajadores/sum(trabajadores),
+           region= factor(region, levels = orden_regiones)
+           ) |>
+    arrange(region) 
   
   # --- % por tamaño
   # empresas por tamaño
