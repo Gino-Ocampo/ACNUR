@@ -1,5 +1,5 @@
 ---
-title: "Análisis ENADEL 2023 <br> Reporte"
+title: "Analisis ENADEL 2023"
 subtitle: 
   - "        ACNUR"
 author: "Cliodinámica"
@@ -9,6 +9,7 @@ output:
     css: style.css
     toc: true
     toc-title: "Índice"
+    titlepage-logo: "color_MinTrabajo.png"
 ---
 
 
@@ -26,38 +27,50 @@ División de Políticas de Empleo
 Subsecretaría del Trabajo
 
 
-
-
 El presente documento analiza los resultados de la Encuesta Nacional de Demanda Laboral (ENADEL) 2023, que busca identificar y caracterizar el capital humano requerido por las empresas de los distintos sectores productivos del país, generando información sobre la demanda actual de ocupaciones de las empresas, detectando requisitos y problemas de contratación. Al igual que versiones anteriores de esta encuesta, se puso el foco en dos sectores de actividad económica: Construcción y el sector Agrícola.
 
 
----
 ### Descripción General: Empresas y Trabajadores
-
-La muestra de ENADEL 2023 encuesta a 5.820 empresas que suman 485.256 trabajadores (a nivel muestral). Estas representan a 82.052 empresas y 5.611.196 trabajadores a nivel nacional.
-La Tabla 1 muestra la distribución en las distintas regiones del país, dónde un 53,6% de las empresas y un 65,6% de los trabajadores se encuentran en la región Metropolitana.
 
 ```{r eval=TRUE, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE, results='asis', fig.align = 'center'}
 
 #Cargar paquetes
 pacman::p_load(tidyverse,#universo de paquetes
-               haven,# leer archivos stata
+               haven,# leer archivos stata y spss
                stargazer,# tablas de regresión
               kableExtra)# Tablas fancy
 
+#Cargar tablas
+
+porc_acteco <- readxl::read_xlsx("Tablas/porcentajes.xlsx", sheet = 1)
+porc_region <- readxl::read_xlsx("Tablas/porcentajes.xlsx", sheet = 2)
+
+
+  orden_regiones <- c(
+    "Arica y Parinacota", "Tarapacá", "Antofagasta", "Atacama", 
+    "Coquimbo", "Valparaíso", "Metropolitana", "O'Higgins", 
+    "Maule", "Ñuble", "Biobío", "Araucanía", 
+    "Los Ríos", "Los Lagos", "Aysén", "Magallanes"
+  )
+
+porc_region<- porc_region %>% select(-c("region","empresas", "trabajadores")) 
+porc_region <- round(porc_region*100, 2)
+rownames(porc_region)<- orden_regiones
+```
+
+La muestra de ENADEL 2023 encuesta a 5.820 empresas que suman 485.256 trabajadores (a nivel muestral). Estas representan a 82.052 empresas y 5.611.196 trabajadores a nivel nacional.
+La Tabla 1 muestra la distribución en las distintas regiones del país, dónde un  `r porc_region[7, 1]`% de las empresas y un 65,6% de los trabajadores se encuentran en la región Metropolitana.
+
+```{r eval=TRUE, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE, results='asis', fig.align = 'center'}
+
 #ahora con Kable, queda una tabla fancy
-
-pc_region<- pc_region %>% select(-c("empresas", "trabajadores")) 
-
-pc_region <- round(pc_region*100, 2)
-
-kable(pc_region,
+kable(porc_region,
       caption = "Distribución de trabajadores y empresas por región, ENADEL 2023",
       col.names = c("Región","% Empresas", "% Trabajadores"),
       position = "center") %>% 
   kable_classic(full_width = F,
                 html_font = "Century Gothic") %>% #Definimos fuente
-  footnote(" ",#Especificamos la nota al pie
+  footnote("",#Especificamos la nota al pie
            general_title = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.")
 
 ```
