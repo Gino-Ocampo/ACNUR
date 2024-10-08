@@ -1,23 +1,42 @@
 ---
-title: "Analisis ENADEL 2023"
-subtitle: 
-  - "        ACNUR"
+title: "Análisis ENADEL 2023"
+subtitle: "ACNUR"
 author: "Cliodinámica"
 date: "`r Sys.Date()`"
 output: 
-  html_document:
-    css: style.css
-    toc: true
-    toc-title: "Índice"
-    titlepage-logo: "color_MinTrabajo.png"
+  pdf_document:
+    toc: false
+    toc_depth: 3
+    number_sections: true
+    latex_engine: xelatex
+    keep_tex: true
+header-includes:
+  - \usepackage{fontspec}
+  - \setmainfont{Century Gothic}
+  - \usepackage{fancyhdr}
+  - \usepackage{graphicx}
+  - \usepackage{lastpage}
+  - \setlength{\headheight}{12pt} 
+  - \fancypagestyle{plain}{
+      \fancyhf{}
+      \lhead{ANÁLISIS ENADEL 2023}
+      \rfoot{\thepage \hspace{1pt} de \pageref{LastPage}}
+    }
+  - \pagestyle{plain}
+  - \usepackage{titling}
 ---
 
+\begin{titlingpage}
+    \centering
+    \includegraphics[width=0.5\textwidth]{Imagenes/color_MinTrabajo.png}
+    \vspace{1cm} % Ajusta el espacio entre la imagen y el título
 
-<style>
-  p {
-    text-align: justify;
-  }
-</style>
+    \maketitle % Analisis ENADEL 2023
+
+    \vspace{2cm} % Ajusta este espacio según sea necesario
+\end{titlingpage}
+
+
 
 
 Ministerio del Trabajo y Previsión Social
@@ -33,6 +52,8 @@ El presente documento analiza los resultados de la Encuesta Nacional de Demanda 
 ### Descripción General: Empresas y Trabajadores
 
 ```{r eval=TRUE, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE, results='asis', fig.align = 'center'}
+
+
 
 #Cargar paquetes
 pacman::p_load(tidyverse,#universo de paquetes
