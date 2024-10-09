@@ -110,6 +110,17 @@ kable(porc_region,
 
 ```
 
+La Figura 1 No se encuentra el origen de la referencia. muestra el porcentaje de empresas y trabajadores según tamaño de empresas, utilizando la clasificación por número de trabajadores, cómo por volumen de venta. Con respecto a la primera clasificación, el 74,6% de las empresas tiene menos de 50 trabajadores –acumulando un 23,8% del total– y casi el 50% de los trabajadores están en empresas grandes –que corresponden a un 6,5% del total.
+Si se analiza según tamaño de ventas, más de la mitad de las empresas tienen un volumen de venta de entre 2.400 y 24.999 UF (“Pequeñas”) y más de un cuarto venden entre 25.000 y 100.000 UF al año (“Mediana”). Sin embargo, casi un tercio de los trabajadores están en empresas grandes (más de 100.000 UF).
+
+```{r eval=TRUE, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE, results='asis', fig.align = 'center'}
+
+
+
+
+
+```
+
 
 ### Contratados en los últimos 12 meses
 
