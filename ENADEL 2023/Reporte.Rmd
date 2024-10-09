@@ -16,7 +16,9 @@ header-includes:
   - \usepackage{fancyhdr}
   - \usepackage{graphicx}
   - \usepackage{lastpage}
-  - \setlength{\headheight}{12pt} 
+  - \usepackage{titlesec}
+  - \setlength{\headheight}{12pt}
+  - \titleformat{\title}{\fontsize{34pt}{34pt}\bfseries}{} 
   - \fancypagestyle{plain}{
       \fancyhf{}
       \lhead{ANÁLISIS ENADEL 2023}
@@ -24,19 +26,18 @@ header-includes:
     }
   - \pagestyle{plain}
   - \usepackage{titling}
+  - \renewcommand{\contentsname}{Índice}
 ---
 
 \begin{titlingpage}
     \centering
     \includegraphics[width=0.5\textwidth]{Imagenes/color_MinTrabajo.png}
-    \vspace{1cm} % Ajusta el espacio entre la imagen y el título
+    \vspace{2cm} % Ajusta el espacio entre la imagen y el título
 
     \maketitle % Analisis ENADEL 2023
 
     \vspace{2cm} % Ajusta este espacio según sea necesario
 \end{titlingpage}
-
-
 
 
 Ministerio del Trabajo y Previsión Social
@@ -46,8 +47,20 @@ División de Políticas de Empleo
 Subsecretaría del Trabajo
 
 
+
+
+
+
+
+
+
+
 El presente documento analiza los resultados de la Encuesta Nacional de Demanda Laboral (ENADEL) 2023, que busca identificar y caracterizar el capital humano requerido por las empresas de los distintos sectores productivos del país, generando información sobre la demanda actual de ocupaciones de las empresas, detectando requisitos y problemas de contratación. Al igual que versiones anteriores de esta encuesta, se puso el foco en dos sectores de actividad económica: Construcción y el sector Agrícola.
 
+
+\tableofcontents
+
+\newpage
 
 ### Descripción General: Empresas y Trabajadores
 

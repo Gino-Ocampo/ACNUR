@@ -749,11 +749,8 @@ design_long <- subset(design_long_tot, tipo_cat%in%c(1, 2, 3, 4))
 write_xlsx(list("pc_acteco"= pc_acteco, #porcentaje por actividad económica
                 "pc_region" = pc_region, #porcentaje por región
                 "pc_tam"    = pc_tam, #porcentaje por tamaño (n° trabajadores)
-                "pc_tamvent"= pc_tamvent), #porcentaje por tamaño (ventas)
-           paste0("Tablas/porcentajes.xlsx"))
-
-
-write_xlsx(list("contratos_totales" = contratos_sector,#contratos por sector
+                "pc_tamvent"= pc_tamvent, #porcentaje por tamaño (ventas)
+                "contratos_totales" = contratos_sector,#contratos por sector
                 "contratados_u12"        = cu12,#Contratado últimos 12 meses
                 "contratados_u12_sector" = cu12_sector,#contratado últimos 12 meses por sector
                 "contratados_u12_constr" = cu12_t5,#contratados últimos 12 meses construcción
@@ -777,7 +774,7 @@ write_xlsx(list("contratos_totales" = contratos_sector,#contratos por sector
                 "canal" = canal,
                 "conocimiento_1" = con_1,
                 "conocimiento_2" = con_2),
-           paste0("Tablas/contratos_vacantes_dificultad_canal_conocimiento.xlsx"))
+           paste0("Tablas/porcentajes.xlsx"))
 
 
 #distribución del personal contratado b1-b12 
