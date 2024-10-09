@@ -74,7 +74,9 @@ pacman::p_load(tidyverse,#universo de paquetes
                stargazer,# tablas de regresión
               kableExtra,#Tablas fancy
               scales,#escala porcentaje 
-              patchwork)#Combinar gráficos
+              patchwork,#Combinar gráficos
+              bookdown)#Referencias
+        
 
 
 #Cargar tablas
@@ -95,33 +97,33 @@ porc_region <- round(porc_region*100, 2)
 rownames(porc_region)<- orden_regiones
 ```
 
-La muestra de ENADEL 2023 encuesta a 5.820 empresas que suman 485.256 trabajadores (a nivel muestral). Estas representan a 82.052 empresas y 5.611.196 trabajadores a nivel nacional.
-La Tabla 1 muestra la distribución en las distintas regiones del país, dónde un  `r round(porc_region[7, 1],1
-)`% de las empresas y un `r round(porc_region[7, 2],1)`%  de los trabajadores se encuentran en la región Metropolitana.
 
 ```{r eval=TRUE, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE, results='asis', fig.align = 'center'}
+cat("\\begin{table}[H]") # Iniciar el entorno de la tabla
 
-#ahora con Kable, queda una tabla fancy
 kable(porc_region,
       caption = "Distribución de trabajadores y empresas por región, ENADEL 2023",
-      col.names = c("Región","% Empresas", "% Trabajadores"),
+      col.names = c("Región", "% Empresas", "% Trabajadores"),
       position = "center") %>% 
-  kable_classic(full_width = F,
-                html_font = "Century Gothic") %>% #Definimos fuente
-  footnote("",#Especificamos la nota al pie
-           general_title = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.")
+  kable_classic(full_width = F, html_font = "Century Gothic") %>% 
+  footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023.")
 
+# Agrega la etiqueta justo después de generar la tabla
+cat("\\label{tab:distribucion-regiones}")
+
+cat("\\end{table}") # Terminar el entorno de la tabla
 ```
+La muestra de ENADEL 2023 encuesta a 5.820 empresas que suman 485.256 trabajadores (a nivel muestral). Estas representan a 82.052 empresas y 5.611.196 trabajadores a nivel nacional.
+La \ref{tab:distribucion-regiones} muestra la distribución en las distintas regiones del país, dónde un  `r round(porc_region[7, 1],1
+)`% de las empresas y un `r round(porc_region[7, 2],1)`%  de los trabajadores se encuentran en la región Metropolitana.
 
-La Figura 1 muestra el porcentaje de empresas y trabajadores según tamaño de empresas, utilizando la clasificación por número de trabajadores, cómo por volumen de venta. Con respecto a la primera clasificación, el 74,6% de las empresas tiene menos de 50 trabajadores –acumulando un 23,8% del total– y casi el 50% de los trabajadores están en empresas grandes –que corresponden a un 6,5% del total.
-Si se analiza según tamaño de ventas, más de la mitad de las empresas tienen un volumen de venta de entre 2.400 y 24.999 UF (“Pequeñas”) y más de un cuarto venden entre 25.000 y 100.000 UF al año (“Mediana”). Sin embargo, casi un tercio de los trabajadores están en empresas grandes (más de 100.000 UF).
 
 ```{r eval=TRUE, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE, results='asis', fig.align = 'center'}
 
 pc_tam<- readxl::read_xlsx("Tablas/porcentajes.xlsx", sheet = 3)
-pc_tam
+
 pc_tamvent<- readxl::read_xlsx("Tablas/porcentajes.xlsx", sheet = 4)
-pc_tamvent
+
 
 
 #Gráfico de tamaño según n° de trabajadores
@@ -194,18 +196,27 @@ graf_tamvent<-ggplot(df_long, aes(x = tipo, y = porcentaje, fill = factor(tam_ve
   )
 
 
-
-
+#Combinar gráficos
 graf_combined <- graf_tam + graf_tamvent +
   plot_layout(ncol = 2) +  # Configurar para que los gráficos estén en 2 columnas (lado a lado)
   plot_annotation(
+    title = "Figura 1: Distribución de empresas y trabajadores según tamaño de empresa, ENADEL 2023.",
     caption = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.",
     theme = theme(plot.caption = element_text(hjust = 0, size = 10, face = "italic"))
   )
 
 
-```
+cat("\\begin{figure}[H]") # Iniciar el entorno de la figura
 
+print(graf_combined)
+
+cat("\\label{fig:tamano-empresa}") # Etiquetar la figura
+
+cat("\\end{figure}") # Terminar el entorno de la figura
+
+```
+La \ref{fig:tamano-empresa} muestra el porcentaje de empresas y trabajadores según tamaño de empresas, utilizando la clasificación por número de trabajadores, cómo por volumen de venta. Con respecto a la primera clasificación, el 74,6% de las empresas tiene menos de 50 trabajadores –acumulando un 23,8% del total– y casi el 50% de los trabajadores están en empresas grandes –que corresponden a un 6,5% del total.
+Si se analiza según tamaño de ventas, más de la mitad de las empresas tienen un volumen de venta de entre 2.400 y 24.999 UF (“Pequeñas”) y más de un cuarto venden entre 25.000 y 100.000 UF al año (“Mediana”). Sin embargo, casi un tercio de los trabajadores están en empresas grandes (más de 100.000 UF).
 
 ### Contratados en los últimos 12 meses
 
