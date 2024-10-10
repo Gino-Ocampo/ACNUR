@@ -3,16 +3,23 @@ title: "Reporte"
 author: "Cliodinámica"
 format:
   pdf:
+    cap-location: "top"
     documentclass: book
     latex-engine: xelatex
+    toc: true  # Debe ser un valor booleano sin comillas
+    toc-title: "Índice"
+    mainfont: "Century Gothic"  # Ajuste correcto del tipo de fuente
 fontsize: 12pt
-mainfont: "Century Gothic"
 header-includes:
   - \usepackage{ragged2e}
   - \justifying
   - \usepackage{float}
   - \floatplacement{figure}{H}
+  - \setlength{\hsize}{0.9\hsize}% emphasize effects
+  - \vspace{5mm}
+  - \justifying
 ---
+
 
 ::: titlingpage
 \centering
@@ -69,7 +76,7 @@ rownames(porc_region)<- orden_regiones
 
 ```{r}
 #| label: tbl-region
-#| tbl-cap: "Tabla 1. Resultados de la encuesta" 
+#| tbl-cap: "Resultados de la encuesta" 
 #| echo: false
 #| error: false
 #| message: false
@@ -77,7 +84,6 @@ rownames(porc_region)<- orden_regiones
 
 # Generar la tabla con kable
 kable(porc_region,
-      caption = "",
       col.names = c("Región", "% Empresas", "% Trabajadores"),
       format = "latex", 
       booktabs = TRUE) %>% 
@@ -179,7 +185,6 @@ graf_tamvent<-ggplot(df_long, aes(x = tipo, y = porcentaje, fill = factor(tam_ve
 graf_combined <- graf_tam + graf_tamvent +
   plot_layout(ncol = 2) +  # Configurar para que los gráficos estén en 2 columnas (lado a lado)
   plot_annotation(
-    title = "Figura 1: Distribución de empresas y trabajadores según tamaño de empresa.",
     caption = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.",
     theme = theme(plot.title = element_text(family = "centurygothic", size = 14, face = "bold"),
       plot.caption = element_text(family = "centurygothic", hjust = 0, size = 10))
@@ -190,4 +195,4 @@ graf_combined
 
 ```
 
-La figura @fig-combined muestra el porcentaje de empresas y trabajadores según tamaño de empresas, utilizando la clasificación por número de trabajadores, cómo por volumen de venta. Con respecto a la primera clasificación, el 74,6% de las empresas tiene menos de 50 trabajadores –acumulando un 23,8% del total– y casi el 50% de los trabajadores están en empresas grandes –que corresponden a un 6,5% del total. Si se analiza según tamaño de ventas, más de la mitad de las empresas tienen un volumen de venta de entre 2.400 y 24.999 UF (“Pequeñas”) y más de un cuarto venden entre 25.000 y 100.000 UF al año (“Mediana”). Sin embargo, casi un tercio de los trabajadores están en empresas grandes (más de 100.000 UF).
+La @fig-combined muestra el porcentaje de empresas y trabajadores según tamaño de empresas, utilizando la clasificación por número de trabajadores, cómo por volumen de venta. Con respecto a la primera clasificación, el 74,6% de las empresas tiene menos de 50 trabajadores –acumulando un 23,8% del total– y casi el 50% de los trabajadores están en empresas grandes –que corresponden a un 6,5% del total. Si se analiza según tamaño de ventas, más de la mitad de las empresas tienen un volumen de venta de entre 2.400 y 24.999 UF (“Pequeñas”) y más de un cuarto venden entre 25.000 y 100.000 UF al año (“Mediana”). Sin embargo, casi un tercio de los trabajadores están en empresas grandes (más de 100.000 UF).
