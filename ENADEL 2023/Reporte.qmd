@@ -3,22 +3,22 @@ title: "Reporte"
 author: "Cliodinámica"
 format:
   pdf:
-    cap-location: "top"
     documentclass: book
     latex-engine: xelatex
-    toc: true  # Debe ser un valor booleano sin comillas
+    toc: false
+    toc-depth: 3
     toc-title: "Índice"
-    mainfont: "Century Gothic"  # Ajuste correcto del tipo de fuente
+    mainfont: "Century Gothic"
+    css: styles.css
 fontsize: 12pt
 header-includes:
   - \usepackage{ragged2e}
-  - \justifying
-  - \usepackage{float}
+  - \usepackage{setspace}
   - \floatplacement{figure}{H}
-  - \setlength{\hsize}{0.9\hsize}% emphasize effects
-  - \vspace{5mm}
-  - \justifying
+  - \renewcommand{\familydefault}{\sfdefault}
+  - \AtBeginDocument{\renewcommand{\baselinestretch}{1.5}\justifying}
 ---
+
 
 
 ::: titlingpage
@@ -33,7 +33,9 @@ Ministerio del Trabajo y Previsión Social
 División de Políticas de Empleo\
 Subsecretaría del Trabajo
 
+\justifying
 El presente documento analiza los resultados de la Encuesta Nacional de Demanda Laboral (ENADEL) 2023, que busca identificar y caracterizar el capital humano requerido por las empresas de los distintos sectores productivos del país, generando información sobre la demanda actual de ocupaciones de las empresas, detectando requisitos y problemas de contratación. Al igual que versiones anteriores de esta encuesta, se puso el foco en dos sectores de actividad económica: Construcción y el sector Agrícola.
+\justifying
 
 \newpage
 
@@ -94,7 +96,7 @@ kable(porc_region,
 
 ```
 
-La muestra de ENADEL 2023 encuesta a 5.820 empresas que suman 485.256 trabajadores (a nivel muestral). Estas representan a 82.052 empresas y 5.611.196 trabajadores a nivel nacional. La Tabla @tbl-region muestra  la distribución en las distintas regiones del país, dónde un `r round(porc_region[7, 1],1 )`% de las empresas y un `r round(porc_region[7, 2],1)`% de los trabajadores se encuen
+La muestra de ENADEL 2023 encuesta a 5.820 empresas que suman 485.256 trabajadores (a nivel muestral). Estas representan a 82.052 empresas y 5.611.196 trabajadores a nivel nacional. La @tbl-region muestra  la distribución en las distintas regiones del país, dónde un `r round(porc_region[7, 1],1 )`% de las empresas y un `r round(porc_region[7, 2],1)`% de los trabajadores se encuen
 
 ```{r}
 #| label: fig-combined
@@ -196,3 +198,34 @@ graf_combined
 ```
 
 La @fig-combined muestra el porcentaje de empresas y trabajadores según tamaño de empresas, utilizando la clasificación por número de trabajadores, cómo por volumen de venta. Con respecto a la primera clasificación, el 74,6% de las empresas tiene menos de 50 trabajadores –acumulando un 23,8% del total– y casi el 50% de los trabajadores están en empresas grandes –que corresponden a un 6,5% del total. Si se analiza según tamaño de ventas, más de la mitad de las empresas tienen un volumen de venta de entre 2.400 y 24.999 UF (“Pequeñas”) y más de un cuarto venden entre 25.000 y 100.000 UF al año (“Mediana”). Sin embargo, casi un tercio de los trabajadores están en empresas grandes (más de 100.000 UF).
+
+
+### Contratados en los últimos 12 meses
+
+##### Contrataciones por ocupación
+
+##### Contrataciones por ocupación: Sector Construcción
+
+##### Contrataciones por ocupación: Sector Agrícola
+
+### Vacantes en los últimos 12 meses
+
+##### Ocupaciones de difícil cobertura
+
+##### Ocupaciones de Difícil Cobertura: Sector Construcción
+
+##### Ocupaciones de Difícil Cobertura: Sector Agrícola
+
+### Dificultades para la contratación
+
+##### Dificultades para la contratación: Sector Construcción 
+
+##### Dificultades para la contratación: Sector Agrícola
+
+### Educación y experiencia
+
+### Canales de reclutamiento
+
+### Conocimiento de instituciones y programas
+
+### Apéndice A: Ocupaciones de Difícil Cobertura
