@@ -1,68 +1,36 @@
 ---
-title: "Análisis ENADEL 2023"
-subtitle: "ACNUR"
+title: "Reporte"
 author: "Cliodinámica"
-date: "`r Sys.Date()`"
-output: 
-  pdf_document:
-    toc: false
-    toc_depth: 3
-    number_sections: true
-    latex_engine: xelatex
-    keep_tex: true
+format:
+  pdf:
+    documentclass: book
+    latex-engine: xelatex
+fontsize: 12pt
+mainfont: "Century Gothic"
 header-includes:
-  - \usepackage{fontspec}
-  - \setmainfont{Century Gothic}
-  - \usepackage{fancyhdr}
-  - \usepackage{graphicx}
-  - \usepackage{lastpage}
-  - \usepackage{titlesec}
-  - \setlength{\headheight}{12pt}
-  - \titleformat{\title}{\fontsize{34pt}{34pt}\bfseries}{} 
-  - \fancypagestyle{plain}{
-      \fancyhf{}
-      \lhead{ANÁLISIS ENADEL 2023}
-      \rfoot{\thepage \hspace{1pt} de \pageref{LastPage}}
-    }
-  - \pagestyle{plain}
-  - \usepackage{titling}
-  - \renewcommand{\contentsname}{Índice}
+  - \usepackage{ragged2e}
+  - \justifying
+  - \usepackage{float}
+  - \floatplacement{figure}{H}
 ---
 
-\begin{titlingpage}
-    \centering
-    \includegraphics[width=0.5\textwidth]{Imagenes/color_MinTrabajo.png}
-    \vspace{2cm} % Ajusta el espacio entre la imagen y el título
-
-    \maketitle % Analisis ENADEL 2023
-
-    \vspace{2cm} % Ajusta este espacio según sea necesario
-\end{titlingpage}
-
+::: titlingpage
+\centering
+\includegraphics[width=0.5\textwidth]{Imagenes/color_MinTrabajo.png} \vspace{2cm}
+\maketitle
+\vspace{2cm}
+:::
 
 Ministerio del Trabajo y Previsión Social
 
-
-División de Políticas de Empleo
+División de Políticas de Empleo\
 Subsecretaría del Trabajo
-
-
-
-
-
-
-
-
-
 
 El presente documento analiza los resultados de la Encuesta Nacional de Demanda Laboral (ENADEL) 2023, que busca identificar y caracterizar el capital humano requerido por las empresas de los distintos sectores productivos del país, generando información sobre la demanda actual de ocupaciones de las empresas, detectando requisitos y problemas de contratación. Al igual que versiones anteriores de esta encuesta, se puso el foco en dos sectores de actividad económica: Construcción y el sector Agrícola.
 
-
-\tableofcontents
-
 \newpage
 
-### Descripción General: Empresas y Trabajadores
+## Descripción General: Empresas y Trabajadores
 
 ```{r eval=TRUE, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE, results='asis', fig.align = 'center'}
 
@@ -99,28 +67,35 @@ porc_region <- round(porc_region*100, 2)
 rownames(porc_region)<- orden_regiones
 ```
 
+```{r}
+#| label: tbl-region
+#| tbl-cap: "Tabla 1. Resultados de la encuesta" 
+#| echo: false
+#| error: false
+#| message: false
+#| warning: false
 
-```{r eval=TRUE, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE, results='asis', fig.align = 'center'}
-cat("\\begin{table}[H]") # Iniciar el entorno de la tabla
-
+# Generar la tabla con kable
 kable(porc_region,
-      caption = "Distribución de trabajadores y empresas por región, ENADEL 2023",
+      caption = "",
       col.names = c("Región", "% Empresas", "% Trabajadores"),
-      position = "center") %>% 
-  kable_classic(full_width = F, html_font = "Century Gothic") %>% 
-  footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023.")
+      format = "latex", 
+      booktabs = TRUE) %>% 
+  kable_classic(full_width = FALSE, html_font = "Century Gothic") %>% 
+  footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023.") %>% 
+  kable_styling(latex_options = c("hold_position"))
 
-# Agrega la etiqueta justo después de generar la tabla
-cat("\\label{tab:distribucion-regiones}")
 
-cat("\\end{table}") # Terminar el entorno de la tabla
 ```
-La muestra de ENADEL 2023 encuesta a 5.820 empresas que suman 485.256 trabajadores (a nivel muestral). Estas representan a 82.052 empresas y 5.611.196 trabajadores a nivel nacional.
-La Tabla \ref{tab:distribucion-regiones} muestra la distribución en las distintas regiones del país, dónde un  `r round(porc_region[7, 1],1
-)`% de las empresas y un `r round(porc_region[7, 2],1)`%  de los trabajadores se encuentran en la región Metropolitana.
 
+La muestra de ENADEL 2023 encuesta a 5.820 empresas que suman 485.256 trabajadores (a nivel muestral). Estas representan a 82.052 empresas y 5.611.196 trabajadores a nivel nacional. La Tabla @tbl-region muestra  la distribución en las distintas regiones del país, dónde un `r round(porc_region[7, 1],1 )`% de las empresas y un `r round(porc_region[7, 2],1)`% de los trabajadores se encuen
 
-```{r eval=TRUE, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE, results='asis', fig.align = 'center'}
+```{r}
+#| label: fig-combined
+#| fig-cap: "Gráfico combinado de resultados"
+#| echo: false
+#| fig-align: center
+
 
 pc_tam<- readxl::read_xlsx("Tablas/porcentajes.xlsx", sheet = 3)
 
@@ -200,7 +175,6 @@ graf_tamvent<-ggplot(df_long, aes(x = tipo, y = porcentaje, fill = factor(tam_ve
     fill = guide_legend(nrow = 2) # Configurar la leyenda para tener 2 filas
   )
 
-
 #Combinar gráficos
 graf_combined <- graf_tam + graf_tamvent +
   plot_layout(ncol = 2) +  # Configurar para que los gráficos estén en 2 columnas (lado a lado)
@@ -216,44 +190,4 @@ graf_combined
 
 ```
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth]{graf_combined.png}
-    \label{fig:tamano-empresa}
-\end{figure}
-
-
-La figura \ref{fig:tamano-empresa} muestra el porcentaje de empresas y trabajadores según tamaño de empresas, utilizando la clasificación por número de trabajadores, cómo por volumen de venta. Con respecto a la primera clasificación, el 74,6% de las empresas tiene menos de 50 trabajadores –acumulando un 23,8% del total– y casi el 50% de los trabajadores están en empresas grandes –que corresponden a un 6,5% del total.
-Si se analiza según tamaño de ventas, más de la mitad de las empresas tienen un volumen de venta de entre 2.400 y 24.999 UF (“Pequeñas”) y más de un cuarto venden entre 25.000 y 100.000 UF al año (“Mediana”). Sin embargo, casi un tercio de los trabajadores están en empresas grandes (más de 100.000 UF).
-
-### Contratados en los últimos 12 meses
-
-##### Contrataciones por ocupación
-
-##### Contrataciones por ocupación: Sector Construcción
-
-##### Contrataciones por ocupación: Sector Agrícola
-
-### Vacantes en los últimos 12 meses
-
-##### Ocupaciones de difícil cobertura
-
-##### Ocupaciones de Difícil Cobertura: Sector Construcción
-
-##### Ocupaciones de Difícil Cobertura: Sector Agrícola
-
-### Dificultades para la contratación
-
-##### Dificultades para la contratación: Sector Construcción 
-
-##### Dificultades para la contratación: Sector Agrícola
-
-### Educación y experiencia
-
-### Canales de reclutamiento
-
-### Conocimiento de instituciones y programas
-
-### Apéndice A: Ocupaciones de Difícil Cobertura
-
-
+La figura @fig-combined muestra el porcentaje de empresas y trabajadores según tamaño de empresas, utilizando la clasificación por número de trabajadores, cómo por volumen de venta. Con respecto a la primera clasificación, el 74,6% de las empresas tiene menos de 50 trabajadores –acumulando un 23,8% del total– y casi el 50% de los trabajadores están en empresas grandes –que corresponden a un 6,5% del total. Si se analiza según tamaño de ventas, más de la mitad de las empresas tienen un volumen de venta de entre 2.400 y 24.999 UF (“Pequeñas”) y más de un cuarto venden entre 25.000 y 100.000 UF al año (“Mediana”). Sin embargo, casi un tercio de los trabajadores están en empresas grandes (más de 100.000 UF).
