@@ -3,20 +3,31 @@ title: "Reporte"
 author: "Cliodinámica"
 format:
   pdf:
-    documentclass: book
+    document:
+      tables:
+        float: false
+    extra_dependencies: ["float"]
+    documentclass: article
     latex-engine: xelatex
     toc: false
     toc-depth: 3
     toc-title: "Índice"
     mainfont: "Century Gothic"
-fontsize: 12pt
+fontsize: 11pt
 lang: es
 header-includes:
+  - \usepackage{geometry}
+  - \geometry{
+      left=1.5cm,
+      right=1.5cm,
+      top=2.5cm,
+      bottom=2.5cm
+    }
   - \usepackage{placeins}
   - \usepackage{ragged2e}
   - \usepackage{float}
   - \usepackage{setspace}
-  - \floatplacement{figure}{H}
+  #- \floatplacement{figure}{H}
   - \renewcommand{\familydefault}{\sfdefault}
   - \AtBeginDocument{\renewcommand{\baselinestretch}{1.5}\justifying}
   - \usepackage{fancyhdr}
@@ -25,7 +36,7 @@ header-includes:
   - \fancyhead[LO,RE]{}
   - \fancyhead[LE,RO]{}
 ---
-
+\newpage
 ::: titlingpage
 \centering
 \includegraphics[width=0.5\textwidth]{Imagenes/color_MinTrabajo.png} \vspace{2cm}
@@ -43,16 +54,17 @@ El presente documento analiza los resultados de la Encuesta Nacional de Demanda 
 
 
 
+\newpage
 \renewcommand{\contentsname}{Índice} 
 \tableofcontents
 
 \newpage
 
-\FloatBarrier
 
+ \FloatBarrier
+ 
 ## Descripción General: Empresas y Trabajadores
-
-
+ \FloatBarrier
 ```{r eval=TRUE, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE, results='asis', fig.align = 'center'}
 
 #Cargar paquetes
@@ -66,6 +78,8 @@ pacman::p_load(tidyverse,#universo de paquetes
               showtext,#fuente
               sysfonts)#habilitar fuentes
         
+
+options(OutDec = ",")
 
 #Cargar tablas
 
@@ -84,7 +98,7 @@ porc_region<- porc_region %>% select(-c("region","empresas", "trabajadores"))
 porc_region <- round(porc_region*100, 2)
 rownames(porc_region)<- orden_regiones
 ```
-
+\FloatBarrier
 ```{r, results='asis'}
 #| label: tbl-region
 #| tbl-cap: "Resultados de la encuesta" 
@@ -94,19 +108,19 @@ rownames(porc_region)<- orden_regiones
 #| warning: false
 
 # Generar la tabla con kable
-kable(porc_region,
+kable(porc_region, 
       col.names = c("Región", "% Empresas", "% Trabajadores"),
       format = "latex", 
       booktabs = TRUE) %>% 
   kable_classic(full_width = FALSE, html_font = "Century Gothic") %>% 
-  footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023.") 
+  footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023.")  
   #kable_styling(latex_options = c("hold_position"))
 
 
 ```
 
 La muestra de ENADEL 2023 encuesta a 5.820 empresas que suman 485.256 trabajadores (a nivel muestral). Estas representan a 82.052 empresas y 5.611.196 trabajadores a nivel nacional. La @tbl-region muestra  la distribución en las distintas regiones del país, dónde un `r round(porc_region[7, 1],1 )`% de las empresas y un `r round(porc_region[7, 2],1)`% de los trabajadores se encuentran en la región Metropolitana.
-
+\FloatBarrier
 ```{r,  results='asis'}
 #| label: fig-combined
 #| fig-cap: "Gráfico combinado de resultados"
@@ -210,7 +224,7 @@ La @fig-combined muestra el porcentaje de empresas y trabajadores según tamaño
 
 
 
-
+\FloatBarrier
 ```{r, results='asis'}
 #| label: tbl-acteco
 #| tbl-cap: "Empresas y trabajadores según sector de actividad económica" 
@@ -251,7 +265,6 @@ Al revisar la distribución por sector de actividad económica @tbl-acteco se ti
 
 
 ### Contratados en los últimos 12 meses
-
 ```{r}
 #| echo: false
 #| error: false
@@ -273,7 +286,7 @@ contratos_totales <- contratos_totales %>% select("sector_label","Si", "No") %>%
 ```
 
 
-
+\FloatBarrier
 ```{r}
 #| label: tbl-contratos_totales
 #| tbl-cap: "% de empresas que contrataron durante los últimos 12 meses, por sector de actividad económica." 
@@ -291,7 +304,7 @@ kable(contratos_totales,
       booktabs = TRUE) %>% 
   kable_classic(full_width = FALSE, html_font = "Century Gothic") %>% 
   footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023.") 
-  # kable_styling(latex_options = c("hold_position"))
+  #kable_styling(latex_options = c("hold_position"))
                                                 
 
                                               
@@ -299,7 +312,9 @@ kable(contratos_totales,
                                                 
                                                 
 ```
-El 87,1% de las empresas declaró que sí contrató personas nuevas durante los últimos 12 meses, mientras que el 12,9% declara que no contrató personas nuevas durante el mismo período. La @tbl-contratos_totales muestra la proporción de empresas, según sector de actividad económica, que tuvieron contrataciones nuevas durante los últimos 12 meses. El `r round(contratos_totales[12,2],1)`%  98,9% de las empresas del sector de pesca y acuicultura respondieron afirmativamente, mientras que el sector con menor proporción fue el de Actividades Inmobiliarias, dónde el 24,9% de firmas no tuvieron contrataciones durante los últimos 12 meses.
+
+
+El 87,1% de las empresas declaró que sí contrató personas nuevas durante los últimos 12 meses, mientras que el 12,9% declara que no contrató personas nuevas durante el mismo período. La @tbl-contratos_totales muestra la proporción de empresas, según sector de actividad económica, que tuvieron contrataciones nuevas durante los últimos 12 meses. El `r round(contratos_totales[12,2],1)`%  de las empresas del sector de pesca y acuicultura respondieron afirmativamente, mientras que el sector con menor proporción fue el de Actividades Inmobiliarias, dónde el 24,9% de firmas no tuvieron contrataciones durante los últimos 12 meses.
 
 
 ##### Contrataciones por ocupación
