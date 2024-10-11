@@ -3,6 +3,9 @@ title: "Reporte"
 author: "Cliodinámica"
 format:
   pdf:
+    cap-location: "top"
+    keep-tex: true
+    fig-pos: 'H'
     document:
       tables:
         float: false
@@ -16,6 +19,12 @@ format:
 fontsize: 11pt
 lang: es
 header-includes:
+  - \usepackage{fancyhdr}
+  - \pagestyle{fancy}
+  - \fancyhf{} 
+  - \rfoot{\thepage} 
+  - \floatplacement{figure}{H}
+  - \floatplacement{table}{H}
   - \usepackage{geometry}
   - \geometry{
       left=1.5cm,
@@ -23,11 +32,12 @@ header-includes:
       top=2.5cm,
       bottom=2.5cm
     }
+  - \usepackage{flafter}
+  - \raggedbottom
   - \usepackage{placeins}
   - \usepackage{ragged2e}
   - \usepackage{float}
   - \usepackage{setspace}
-  #- \floatplacement{figure}{H}
   - \renewcommand{\familydefault}{\sfdefault}
   - \AtBeginDocument{\renewcommand{\baselinestretch}{1.5}\justifying}
   - \usepackage{fancyhdr}
@@ -61,10 +71,12 @@ El presente documento analiza los resultados de la Encuesta Nacional de Demanda 
 \newpage
 
 
- \FloatBarrier
+
  
 ## Descripción General: Empresas y Trabajadores
- \FloatBarrier
+
+
+
 ```{r eval=TRUE, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE, results='asis', fig.align = 'center'}
 
 #Cargar paquetes
@@ -98,6 +110,10 @@ porc_region<- porc_region %>% select(-c("region","empresas", "trabajadores"))
 porc_region <- round(porc_region*100, 2)
 rownames(porc_region)<- orden_regiones
 ```
+La muestra de ENADEL 2023 encuesta a 5.820 empresas que suman 485.256 trabajadores (a nivel muestral). Estas representan a 82.052 empresas y 5.611.196 trabajadores a nivel nacional. La @tbl-region muestra  la distribución en las distintas regiones del país, dónde un `r round(porc_region[7, 1],1 )`% de las empresas y un `r round(porc_region[7, 2],1)`% de los trabajadores se encuentran en la región Metropolitana.
+
+\vspace{-5mm}
+
 \FloatBarrier
 ```{r, results='asis'}
 #| label: tbl-region
@@ -113,19 +129,25 @@ kable(porc_region,
       format = "latex", 
       booktabs = TRUE) %>% 
   kable_classic(full_width = FALSE, html_font = "Century Gothic") %>% 
-  footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023.")  
-  #kable_styling(latex_options = c("hold_position"))
+  footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023.",
+           general_title= "") %>%  
+  kable_styling(latex_options = c("hold_position"))
 
 
 ```
-
-La muestra de ENADEL 2023 encuesta a 5.820 empresas que suman 485.256 trabajadores (a nivel muestral). Estas representan a 82.052 empresas y 5.611.196 trabajadores a nivel nacional. La @tbl-region muestra  la distribución en las distintas regiones del país, dónde un `r round(porc_region[7, 1],1 )`% de las empresas y un `r round(porc_region[7, 2],1)`% de los trabajadores se encuentran en la región Metropolitana.
 \FloatBarrier
-```{r,  results='asis'}
+
+La @fig-combined muestra el porcentaje de empresas y trabajadores según tamaño de empresas, utilizando la clasificación por número de trabajadores, cómo por volumen de venta. Con respecto a la primera clasificación, el 74,6% de las empresas tiene menos de 50 trabajadores –acumulando un 23,8% del total– y casi el 50% de los trabajadores están en empresas grandes –que corresponden a un 6,5% del total. Si se analiza según tamaño de ventas, más de la mitad de las empresas tienen un volumen de venta de entre 2.400 y 24.999 UF (“Pequeñas”) y más de un cuarto venden entre 25.000 y 100.000 UF al año (“Mediana”). Sin embargo, casi un tercio de los trabajadores están en empresas grandes (más de 100.000 UF).
+
+\FloatBarrier
+```{r, fig.cap="Gráfico combinado de resultados", out.width='100%', fig.align='center', fig.pos='H'}
 #| label: fig-combined
 #| fig-cap: "Gráfico combinado de resultados"
 #| echo: false
 #| fig-align: center
+#| error: false
+#| message: false
+#| warning: false
 
 
 pc_tam<- readxl::read_xlsx("Tablas/porcentajes.xlsx", sheet = 3)
@@ -219,15 +241,11 @@ graf_combined
 
 
 ```
-
-La @fig-combined muestra el porcentaje de empresas y trabajadores según tamaño de empresas, utilizando la clasificación por número de trabajadores, cómo por volumen de venta. Con respecto a la primera clasificación, el 74,6% de las empresas tiene menos de 50 trabajadores –acumulando un 23,8% del total– y casi el 50% de los trabajadores están en empresas grandes –que corresponden a un 6,5% del total. Si se analiza según tamaño de ventas, más de la mitad de las empresas tienen un volumen de venta de entre 2.400 y 24.999 UF (“Pequeñas”) y más de un cuarto venden entre 25.000 y 100.000 UF al año (“Mediana”). Sin embargo, casi un tercio de los trabajadores están en empresas grandes (más de 100.000 UF).
-
-
-
 \FloatBarrier
+
+
+
 ```{r, results='asis'}
-#| label: tbl-acteco
-#| tbl-cap: "Empresas y trabajadores según sector de actividad económica" 
 #| echo: false
 #| error: false
 #| message: false
@@ -247,21 +265,35 @@ orden_acteco <-c("Comercio", "Construcción", "Servicios administrativos y de ap
 
 rownames(porc_acteco)<- orden_acteco
 
+```
+
+Al revisar la distribución por sector de actividad económica @tbl-acteco se tiene que una de cada cinco empresas pertenece al sector de Comercio, seguido por el sector Construcción (`r round(porc_acteco[2,1], 1)`%) y el sector de Industrias Manufactureras (11,4%). Con respecto al volumen de trabajadores, el sector Comercio también lidera (17,8%) seguido por el sector Construcción (14,4%) y el sector de Servicios Administrativos y de Apoyo que, siendo sector intensivo en trabajo, un 9,1% de las empresas acumula el 13,5% de trabajadores y trabajadoras.
+
+\FloatBarrier
+```{r, results='asis'}
+#| label: tbl-acteco
+#| tbl-cap: "Empresas y trabajadores según sector de actividad económica" 
+#| echo: false
+#| error: false
+#| message: false
+#| warning: false
+
 # Generar la tabla con kable
 kable(porc_acteco,
       col.names = c("Actividad Económica", "% Empresas", "% Trabajadores"),
       format = "latex", 
       booktabs = TRUE) %>% 
   kable_classic(full_width = FALSE, html_font = "Century Gothic") %>% 
-  footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023.") 
+  footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023.",
+            general_title= "") 
    #kable_styling(latex_options = c("hold_position"))
 
 
 
 ```
+\FloatBarrier
 
 
-Al revisar la distribución por sector de actividad económica @tbl-acteco se tiene que una de cada cinco empresas pertenece al sector de Comercio, seguido por el sector Construcción (`r round(porc_acteco[2,1], 1)`%) y el sector de Industrias Manufactureras (11,4%). Con respecto al volumen de trabajadores, el sector Comercio también lidera (17,8%) seguido por el sector Construcción (14,4%) y el sector de Servicios Administrativos y de Apoyo que, siendo sector intensivo en trabajo, un 9,1% de las empresas acumula el 13,5% de trabajadores y trabajadoras.
 
 
 ### Contratados en los últimos 12 meses
@@ -285,6 +317,7 @@ contratos_totales <- contratos_totales %>% select("sector_label","Si", "No") %>%
 
 ```
 
+El 87,1% de las empresas declaró que sí contrató personas nuevas durante los últimos 12 meses, mientras que el 12,9% declara que no contrató personas nuevas durante el mismo período. La @tbl-contratos_totales muestra la proporción de empresas, según sector de actividad económica, que tuvieron contrataciones nuevas durante los últimos 12 meses. El `r round(contratos_totales[12,2],1)`%  de las empresas del sector de pesca y acuicultura respondieron afirmativamente, mientras que el sector con menor proporción fue el de Actividades Inmobiliarias, dónde el 24,9% de firmas no tuvieron contrataciones durante los últimos 12 meses.
 
 \FloatBarrier
 ```{r}
@@ -303,7 +336,8 @@ kable(contratos_totales,
       format = "latex", 
       booktabs = TRUE) %>% 
   kable_classic(full_width = FALSE, html_font = "Century Gothic") %>% 
-  footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023.") 
+  footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023.",
+            general_title= "") 
   #kable_styling(latex_options = c("hold_position"))
                                                 
 
@@ -314,8 +348,8 @@ kable(contratos_totales,
 ```
 
 
-El 87,1% de las empresas declaró que sí contrató personas nuevas durante los últimos 12 meses, mientras que el 12,9% declara que no contrató personas nuevas durante el mismo período. La @tbl-contratos_totales muestra la proporción de empresas, según sector de actividad económica, que tuvieron contrataciones nuevas durante los últimos 12 meses. El `r round(contratos_totales[12,2],1)`%  de las empresas del sector de pesca y acuicultura respondieron afirmativamente, mientras que el sector con menor proporción fue el de Actividades Inmobiliarias, dónde el 24,9% de firmas no tuvieron contrataciones durante los últimos 12 meses.
 
+\FloatBarrier
 
 ##### Contrataciones por ocupación
 
