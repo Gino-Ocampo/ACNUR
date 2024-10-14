@@ -22,7 +22,7 @@ header-includes:
   - \usepackage{fancyhdr}
   - \pagestyle{fancy}
   - \fancyhf{} 
-  - \rfoot{\thepage} 
+  - \cfoot{\thepage}
   - \floatplacement{figure}{H}
   - \floatplacement{table}{H}
   - \usepackage{geometry}
@@ -130,8 +130,8 @@ kable(porc_region,
       booktabs = TRUE) %>% 
   kable_classic(full_width = FALSE, html_font = "Century Gothic") %>% 
   footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023.",
-           general_title= "") %>%  
-  kable_styling(latex_options = c("hold_position"))
+           general_title= "")  
+ # kable_styling(latex_options = c("hold_position"))
 
 
 ```
@@ -172,19 +172,19 @@ graf_tam<-ggplot(df_long, aes(x = tipo, y = porcentaje, fill = factor(tam_label,
   geom_bar(stat = "identity", position = position_dodge(width = 0.5), width = 0.4) +#gráfico de barras
   scale_fill_manual(values = c("Pequeña" = "#1CE56D", "Mediana" = "#00718A", "Grande" = "#F3F8E8")) +#color de leyendas
   geom_text(aes(label = scales::percent(porcentaje, accuracy = 1)),#valor de etiquetas
-            position = position_dodge(width = 0.5), vjust = -0.5, size = 3) +#posición de las etiquetas
+            position = position_dodge(width = 0.5), vjust = -0.5, size = 2) +#posición de las etiquetas
    scale_y_continuous(labels = scales::percent, limits = c(0, 1)) + #eje y
   labs(title = "Según N° de trabajadores",
        x = NULL,
        y = NULL,
        fill = "") +
   theme_minimal(base_family = "centurygothic") +
-  theme(axis.text.x = element_text(size = 10),
-        axis.text.y = element_text(size = 10),
-        plot.title = element_text(hjust = 0.5, size = 12),
+  theme(axis.text.x = element_text(size = 5),
+        axis.text.y = element_text(size = 5),
+        plot.title = element_text(hjust = 0.5, size = 7.5),
         legend.position = "bottom",
-        legend.title = element_text(size = 10), # Ajustar el tamaño del título de la leyenda
-    legend.text = element_text(size = 9)    # Ajustar el tamaño del texto de las etiquetas de la leyenda
+        legend.title = element_text(size = 5), # Ajustar el tamaño del título de la leyenda
+    legend.text = element_text(size = 5)    # Ajustar el tamaño del texto de las etiquetas de la leyenda
   ) +
   guides(
     fill = guide_legend(nrow = 2) # Configurar la leyenda para tener 2 filas
@@ -210,19 +210,19 @@ graf_tamvent<-ggplot(df_long, aes(x = tipo, y = porcentaje, fill = factor(tam_ve
   geom_bar(stat = "identity", position = position_dodge(width = 0.5), width = 0.4) +#gráfico de barras
   scale_fill_manual(values = c("Sin ventas"= "#FF0068","Micro"="#1E2F42", "Pequeña" = "#1CE56D", "Mediana" = "#00718A", "Grande" = "#F3F8E8")) +#color de leyendas
   geom_text(aes(label = scales::percent(porcentaje, accuracy = 1)),#valor de etiquetas
-            position = position_dodge(width = 0.5), vjust = -0.5, size = 3) +#posición de las etiquetas
+            position = position_dodge(width = 0.5), vjust = -0.5, size = 2) +#posición de las etiquetas
    scale_y_continuous(labels = scales::percent, limits = c(0, 1)) + #eje y
   labs(title = "Según tamaño de ventas",
        x = NULL,
        y = NULL,
        fill="") +
   theme_minimal(base_family = "centurygothic")+
-  theme(axis.text.x = element_text(size = 10),
-        axis.text.y = element_text(size = 10),
-        plot.title = element_text(hjust = 0.5, size = 12),
+  theme(axis.text.x = element_text(size = 5),
+        axis.text.y = element_text(size = 5),
+        plot.title = element_text(hjust = 0.5, size = 7.5),
         legend.position = "bottom",
-        legend.title = element_text(size = 10), # Ajustar el tamaño del título de la leyenda
-    legend.text = element_text(size = 9)    # Ajustar el tamaño del texto de las etiquetas de la leyenda
+        legend.title = element_text(size = 5), # Ajustar el tamaño del título de la leyenda
+    legend.text = element_text(size = 5)    # Ajustar el tamaño del texto de las etiquetas de la leyenda
   ) +
   guides(
     fill = guide_legend(nrow = 2) # Configurar la leyenda para tener 2 filas
@@ -234,7 +234,7 @@ graf_combined <- graf_tam + graf_tamvent +
   plot_annotation(
     caption = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.",
     theme = theme(plot.title = element_text(family = "centurygothic", size = 14, face = "bold"),
-      plot.caption = element_text(family = "centurygothic", hjust = 0, size = 10))
+      plot.caption = element_text(family = "centurygothic", hjust = 0, size = 7.5))
   )
 
 graf_combined
