@@ -15,7 +15,7 @@ format:
     toc: false
     toc-depth: 3
     toc-title: "Índice"
-    mainfont: "Century Gothic"
+    mainfont: "Verdana"
 fontsize: 11pt
 lang: es
 header-includes:
@@ -27,10 +27,10 @@ header-includes:
   - \floatplacement{table}{H}
   - \usepackage{geometry}
   - \geometry{
-      left=1.5cm,
-      right=1.5cm,
-      top=2.5cm,
-      bottom=2.5cm
+      left=1.06cm,
+      right=1.06cm,
+      top=1.06cm,
+      bottom=1.06cm
     }
   - \usepackage{flafter}
   - \raggedbottom
