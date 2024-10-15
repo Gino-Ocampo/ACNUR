@@ -4,7 +4,7 @@
 \PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
 %
 \documentclass[
-  11pt,
+  14pt,
 ]{article}
 
 \usepackage{amsmath,amssymb}
@@ -21,7 +21,7 @@
 \usepackage{lmodern}
 \ifPDFTeX\else  
     % xetex/luatex font selection
-    \setmainfont[]{Century Gothic}
+    \setmainfont[]{Verdana}
 \fi
 % Use upquote if available, for straight quotes in verbatim environments
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
@@ -106,6 +106,9 @@
 \usepackage[normalem]{ulem}
 \usepackage{makecell}
 \usepackage{xcolor}
+\usepackage{xcolor}
+\usepackage{fontspec}
+\setmainfont{Verdana}
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 \fancyhf{}
@@ -113,7 +116,7 @@
 \floatplacement{figure}{H}
 \floatplacement{table}{H}
 \usepackage{geometry}
-\geometry{ left=1.5cm, right=1.5cm, top=2.5cm, bottom=2.5cm }
+\geometry{ left=1.06cm, right=1.06cm, top=1.06cm, bottom=1.06cm }
 \usepackage{flafter}
 \raggedbottom
 \usepackage{placeins}
@@ -124,6 +127,8 @@
 \AtBeginDocument{\renewcommand{\baselinestretch}{1.5}\justifying}
 \fancyhead[LO,RE]{}
 \fancyhead[LE,RO]{}
+\definecolor{mybgcolor}{HTML}{01376B}
+\usepackage{pagecolor}
 \makeatletter
 \@ifpackageloaded{caption}{}{\usepackage{caption}}
 \AtBeginDocument{%
@@ -174,7 +179,7 @@
 \babelprovide[main,import]{spanish}
 \ifPDFTeX
 \else
-\babelfont{rm}[]{Century Gothic}
+\babelfont{rm}[]{Verdana}
 \fi
 % get rid of language-specific shorthands (see #6817):
 \let\LanguageShortHands\languageshorthands
@@ -208,9 +213,12 @@
 
 \newpage
 
+\pagecolor{mybgcolor} 
+\color{white}
+
 \centering
 
-\includegraphics[width=0.5\textwidth]{Imagenes/color_MinTrabajo.png}
+\includegraphics[width=0.5\textwidth]{Logotipo ENADEL/Logotipo ENADEL 2023.png}
 \vspace{2cm}
 
 \noindent Ministerio del Trabajo y Previsión Social
@@ -230,6 +238,11 @@ puso el foco en dos sectores de actividad económica: Construcción y el
 sector Agrícola.
 
 \newpage
+
+\pagecolor{white} \% Volver al fondo blanco para el resto del documento
+\color{black}
+
+\newpage
 \renewcommand{\contentsname}{Índice} 
 \tableofcontents
 
@@ -245,7 +258,7 @@ muestra la distribución en las distintas regiones del país, dónde un
 \text{53,6}\% de las empresas y un \text{65,6}\% de los trabajadores se
 encuentran en la región Metropolitana.
 
-\vspace{-5mm}
+\vspace{5mm}
 
 \FloatBarrier
 
@@ -384,7 +397,8 @@ meses.
 
 \begin{table}
 
-\caption{\label{tbl-contratos_totales}}
+\caption{\label{tbl-contratos_totales}Porcentaje de empresas que
+contrataron en los últimos 12 meses por sector económico}
 
 \centering{
 

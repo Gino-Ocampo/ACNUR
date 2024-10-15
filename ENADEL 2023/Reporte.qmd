@@ -16,9 +16,12 @@ format:
     toc-depth: 3
     toc-title: "Índice"
     mainfont: "Verdana"
-fontsize: 11pt
+fontsize: 14pt
 lang: es
 header-includes:
+  - \usepackage{xcolor}
+  - \usepackage{fontspec}  # Para poder usar Verdana
+  - \setmainfont{Verdana}  # Establecer Verdana como fuente principal
   - \usepackage{fancyhdr}
   - \pagestyle{fancy}
   - \fancyhf{} 
@@ -45,11 +48,17 @@ header-includes:
   - \fancyhf{} 
   - \fancyhead[LO,RE]{}
   - \fancyhead[LE,RO]{}
+  - \usepackage{xcolor}  # Para el manejo de colores
+  - \definecolor{mybgcolor}{HTML}{01376B}  # Definir color personalizado
+  - \usepackage{pagecolor}  # Para cambiar el color de fondo
 ---
 \newpage
+
+\pagecolor{mybgcolor} 
+\color{white}
 ::: titlingpage
 \centering
-\includegraphics[width=0.5\textwidth]{Imagenes/color_MinTrabajo.png} \vspace{2cm}
+\includegraphics[width=0.5\textwidth]{Logotipo ENADEL/Logotipo ENADEL 2023.png} \vspace{2cm}
 :::
 
 \noindent
@@ -59,9 +68,14 @@ División de Políticas de Empleo\\
 Subsecretaría del Trabajo
 
 
+
 \justifying
 El presente documento analiza los resultados de la Encuesta Nacional de Demanda Laboral (ENADEL) 2023, que busca identificar y caracterizar el capital humano requerido por las empresas de los distintos sectores productivos del país, generando información sobre la demanda actual de ocupaciones de las empresas, detectando requisitos y problemas de contratación. Al igual que versiones anteriores de esta encuesta, se puso el foco en dos sectores de actividad económica: Construcción y el sector Agrícola.
 
+\newpage
+
+\pagecolor{white}  % Volver al fondo blanco para el resto del documento
+\color{black}
 
 
 \newpage
@@ -112,7 +126,7 @@ rownames(porc_region)<- orden_regiones
 ```
 La muestra de ENADEL 2023 encuesta a 5.820 empresas que suman 485.256 trabajadores (a nivel muestral). Estas representan a 82.052 empresas y 5.611.196 trabajadores a nivel nacional. La @tbl-region muestra  la distribución en las distintas regiones del país, dónde un `r round(porc_region[7, 1],1 )`% de las empresas y un `r round(porc_region[7, 2],1)`% de los trabajadores se encuentran en la región Metropolitana.
 
-\vspace{-5mm}
+\vspace{5mm}
 
 \FloatBarrier
 ```{r, results='asis'}
@@ -128,7 +142,7 @@ kable(porc_region,
       col.names = c("Región", "% Empresas", "% Trabajadores"),
       format = "latex", 
       booktabs = TRUE) %>% 
-  kable_classic(full_width = FALSE, html_font = "Century Gothic") %>% 
+  kable_classic(full_width = FALSE, html_font = "Verdana") %>% 
   footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023.",
            general_title= "")  
  # kable_styling(latex_options = c("hold_position"))
@@ -154,8 +168,8 @@ pc_tam<- readxl::read_xlsx("Tablas/porcentajes.xlsx", sheet = 3)
 
 pc_tamvent<- readxl::read_xlsx("Tablas/porcentajes.xlsx", sheet = 4)
 
-#Agregar century gothic
-font_add(family = "centurygothic", regular = "C:/Windows/Fonts/GOTHIC.TTF")
+#Agregar Verdana
+font_add(family = "verdana", regular = "C:/Windows/Fonts/VERDANA.TTF")
 #habilitar para ggplot
 showtext_auto()
 
@@ -170,7 +184,7 @@ df_long$tipo <- recode(df_long$tipo, "pc_empresas" = "Empresas", "pc_trabajadore
 # Gráfico de barras
 graf_tam<-ggplot(df_long, aes(x = tipo, y = porcentaje, fill = factor(tam_label, levels = c("Pequeña", "Mediana", "Grande")))) +
   geom_bar(stat = "identity", position = position_dodge(width = 0.5), width = 0.4) +#gráfico de barras
-  scale_fill_manual(values = c("Pequeña" = "#1CE56D", "Mediana" = "#00718A", "Grande" = "#F3F8E8")) +#color de leyendas
+  scale_fill_manual(values = c("Pequeña" = "#005691", "Mediana" = "#01376B", "Grande" = "#002A51")) +#color de leyendas
   geom_text(aes(label = scales::percent(porcentaje, accuracy = 1)),#valor de etiquetas
             position = position_dodge(width = 0.5), vjust = -0.5, size = 2) +#posición de las etiquetas
    scale_y_continuous(labels = scales::percent, limits = c(0, 1)) + #eje y
@@ -178,7 +192,7 @@ graf_tam<-ggplot(df_long, aes(x = tipo, y = porcentaje, fill = factor(tam_label,
        x = NULL,
        y = NULL,
        fill = "") +
-  theme_minimal(base_family = "centurygothic") +
+  theme_minimal(base_family = "verdana") +
   theme(axis.text.x = element_text(size = 5),
         axis.text.y = element_text(size = 5),
         plot.title = element_text(hjust = 0.5, size = 7.5),
@@ -208,7 +222,7 @@ df_long$tam_vent <- factor(df_long$tam_vent,
 # Gráfico de barras
 graf_tamvent<-ggplot(df_long, aes(x = tipo, y = porcentaje, fill = factor(tam_vent, levels = c("Sin ventas","Micro","Pequeña", "Mediana", "Grande")))) +
   geom_bar(stat = "identity", position = position_dodge(width = 0.5), width = 0.4) +#gráfico de barras
-  scale_fill_manual(values = c("Sin ventas"= "#FF0068","Micro"="#1E2F42", "Pequeña" = "#1CE56D", "Mediana" = "#00718A", "Grande" = "#F3F8E8")) +#color de leyendas
+  scale_fill_manual(values = c("Sin ventas"= "#64C3D2","Micro"="#0076B7","Pequeña" = "#005691", "Mediana" = "#01376B", "Grande" = "#002A51")) +#color de leyendas
   geom_text(aes(label = scales::percent(porcentaje, accuracy = 1)),#valor de etiquetas
             position = position_dodge(width = 0.5), vjust = -0.5, size = 2) +#posición de las etiquetas
    scale_y_continuous(labels = scales::percent, limits = c(0, 1)) + #eje y
@@ -216,7 +230,7 @@ graf_tamvent<-ggplot(df_long, aes(x = tipo, y = porcentaje, fill = factor(tam_ve
        x = NULL,
        y = NULL,
        fill="") +
-  theme_minimal(base_family = "centurygothic")+
+  theme_minimal(base_family = "verdana")+
   theme(axis.text.x = element_text(size = 5),
         axis.text.y = element_text(size = 5),
         plot.title = element_text(hjust = 0.5, size = 7.5),
@@ -233,8 +247,8 @@ graf_combined <- graf_tam + graf_tamvent +
   plot_layout(ncol = 2) +  # Configurar para que los gráficos estén en 2 columnas (lado a lado)
   plot_annotation(
     caption = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.",
-    theme = theme(plot.title = element_text(family = "centurygothic", size = 14, face = "bold"),
-      plot.caption = element_text(family = "centurygothic", hjust = 0, size = 7.5))
+    theme = theme(plot.title = element_text(family = "verdana", size = 14, face = "bold"),
+      plot.caption = element_text(family = "verdana", hjust = 0, size = 7.5))
   )
 
 graf_combined
@@ -283,7 +297,7 @@ kable(porc_acteco,
       col.names = c("Actividad Económica", "% Empresas", "% Trabajadores"),
       format = "latex", 
       booktabs = TRUE) %>% 
-  kable_classic(full_width = FALSE, html_font = "Century Gothic") %>% 
+  kable_classic(full_width = FALSE, html_font = "Verdana") %>% 
   footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023.",
             general_title= "") 
    #kable_styling(latex_options = c("hold_position"))
@@ -322,7 +336,7 @@ El 87,1% de las empresas declaró que sí contrató personas nuevas durante los 
 \FloatBarrier
 ```{r}
 #| label: tbl-contratos_totales
-#| tbl-cap: "% de empresas que contrataron durante los últimos 12 meses, por sector de actividad económica." 
+#| tbl-cap: "Porcentaje de empresas que contrataron en los últimos 12 meses por sector económico" 
 #| echo: false
 #| error: false
 #| message: false
@@ -335,7 +349,7 @@ kable(contratos_totales,
       col.names = c("Actividad Económica", "% Si", "% No"),
       format = "latex", 
       booktabs = TRUE) %>% 
-  kable_classic(full_width = FALSE, html_font = "Century Gothic") %>% 
+  kable_classic(full_width = FALSE, html_font = "Verdana") %>% 
   footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023.",
             general_title= "") 
   #kable_styling(latex_options = c("hold_position"))
