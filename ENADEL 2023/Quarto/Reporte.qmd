@@ -143,7 +143,7 @@ kable(porc_region,
       format = "latex", 
       booktabs = TRUE) %>% 
   kable_classic(full_width = FALSE, html_font = "Verdana") %>% 
-  footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023.",
+  footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.",
            general_title= "")  
  # kable_styling(latex_options = c("hold_position"))
 
@@ -221,10 +221,10 @@ df_long$tam_vent <- factor(df_long$tam_vent,
 
 # Gráfico de barras
 graf_tamvent<-ggplot(df_long, aes(x = tipo, y = porcentaje, fill = factor(tam_vent, levels = c("Sin ventas","Micro","Pequeña", "Mediana", "Grande")))) +
-  geom_bar(stat = "identity", position = position_dodge(width = 0.5), width = 0.4) +#gráfico de barras
+  geom_bar(stat = "identity", position = position_dodge(width = 0.7), width = 0.6) +#gráfico de barras
   scale_fill_manual(values = c("Sin ventas"= "#64C3D2","Micro"="#0076B7","Pequeña" = "#005691", "Mediana" = "#01376B", "Grande" = "#002A51")) +#color de leyendas
   geom_text(aes(label = scales::percent(porcentaje, accuracy = 1)),#valor de etiquetas
-            position = position_dodge(width = 0.5), vjust = -0.5, size = 2) +#posición de las etiquetas
+            position = position_dodge(width = 0.7), vjust = -0.5, size = 2) +#posición de las etiquetas
    scale_y_continuous(labels = scales::percent, limits = c(0, 1)) + #eje y
   labs(title = "Según tamaño de ventas",
        x = NULL,
@@ -298,7 +298,7 @@ kable(porc_acteco,
       format = "latex", 
       booktabs = TRUE) %>% 
   kable_classic(full_width = FALSE, html_font = "Verdana") %>% 
-  footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023.",
+  footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.",
             general_title= "") 
    #kable_styling(latex_options = c("hold_position"))
 
@@ -350,7 +350,7 @@ kable(contratos_totales,
       format = "latex", 
       booktabs = TRUE) %>% 
   kable_classic(full_width = FALSE, html_font = "Verdana") %>% 
-  footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023.",
+  footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.",
             general_title= "") 
   #kable_styling(latex_options = c("hold_position"))
                                                 
@@ -372,14 +372,15 @@ contratados_u12<- contratados_u12 %>% filter(cv<0.20) %>% arrange(desc(contratad
 
 contratados_u12<- contratados_u12 %>% mutate(contratadosu12= round((contratadosu12),0),
                                                  cv= round((cv)*100,1))
-contratados_u12<- contratados_u12 %>%select(c("oficio4", "oficio_label","contratadosu12", "cv"))
 
-# Cambiar nombres de las columnas
-contratados_u12 <- contratados_u12 %>% rename("CIUO 08" = oficio4,
+contratados_u12<- contratados_u12 %>%select(c("oficio4", "oficio_label","contratadosu12", "cv"))%>% rename("CIUO 08" = oficio4,
                                               "Glosa"=oficio_label,
                                               "Contratados"=contratadosu12,
                                               "CV"=cv
                                               )
+
+# Cambiar nombres de las columnas
+#contratados_u12 <- contratados_u12 
 
 
 ```
@@ -403,12 +404,52 @@ kable(contratados_u12,
       booktabs = TRUE) %>% 
   kable_classic(full_width = FALSE, html_font = "Verdana") %>%
   column_spec(2, width = "11cm") %>% 
-  footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023.",
+  footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.",
             general_title= "") 
                                                 
 ```
 
+\newpage
+
 ##### Contrataciones por ocupación: Sector Construcción
+
+
+```{r}
+#| echo: false
+#| error: false
+#| message: false
+#| warning: false
+
+contratados_u12_constru <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = 8) 
+
+contratados_u12_constru<- contratados_u12_constru %>% 
+  mutate(contratados_u12= round(contratadosu12/sum(contratadosu12)*100,1)) %>% 
+  arrange(desc(contratadosu12)) %>% select("cargo","contratados_u12")
+
+```
+
+En el módulo del sector Construcción se consulta sobre las contrataciones de 25 cargos específicos, con un total de 365.712 contrataciones en los últimos 12 meses (cv=29,2%). La @tbl-contratados_u12_constru muestra la proporción de contratados por cargo, con respecto al total de este módulo. El cargo de "`r contratados_u12_constru[1,1]`"  es el que concentra la mayor cantidad de contrataciones, seguido por "`r contratados_u12_constru[2,1]`" y por "`r contratados_u12_constru[3,1]`".
+```{r}
+#| label: tbl-contratados_u12_constru
+#| tbl-cap: "Proporción de contrataciones por ocupación, sector construcción." 
+#| echo: false
+#| error: false
+#| message: false
+#| warning: false
+
+
+
+# Generar la tabla con kable
+kable(contratados_u12_constru,
+      col.names = c("Cargo Construcción", "%"),
+      format = "latex", 
+      booktabs = TRUE) %>% 
+  kable_classic(full_width = FALSE, html_font = "Verdana") %>%
+  footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.",
+            general_title= "") 
+                                                
+```
+
 
 ##### Contrataciones por ocupación: Sector Agrícola
 
