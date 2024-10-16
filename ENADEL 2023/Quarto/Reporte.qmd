@@ -58,7 +58,7 @@ header-includes:
 \color{white}
 ::: titlingpage
 \centering
-\includegraphics[width=0.5\textwidth]{Logotipo ENADEL/Logotipo ENADEL 2023.png} \vspace{2cm}
+\includegraphics[width=0.5\textwidth]{../Logotipo ENADEL/Logotipo ENADEL 2023.png} \vspace{2cm}
 :::
 
 \noindent
@@ -110,8 +110,8 @@ options(OutDec = ",")
 #Cargar tablas
 
 
-porc_region <- readxl::read_xlsx("Tablas/porcentajes.xlsx", sheet = 2)
-porc_sector <- readxl::read_xlsx("Tablas/porcentajes.xlsx", sheet = 3)
+porc_region <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = 2)
+porc_sector <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = 3)
 
   orden_regiones <- c(
     "Arica y Parinacota", "Tarapacá", "Antofagasta", "Atacama", 
@@ -164,9 +164,9 @@ La @fig-combined muestra el porcentaje de empresas y trabajadores según tamaño
 #| warning: false
 
 
-pc_tam<- readxl::read_xlsx("Tablas/porcentajes.xlsx", sheet = 3)
+pc_tam<- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = 3)
 
-pc_tamvent<- readxl::read_xlsx("Tablas/porcentajes.xlsx", sheet = 4)
+pc_tamvent<- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = 4)
 
 #Agregar Verdana
 font_add(family = "verdana", regular = "C:/Windows/Fonts/VERDANA.TTF")
@@ -265,7 +265,7 @@ graf_combined
 #| message: false
 #| warning: false
 
-porc_acteco <- readxl::read_xlsx("Tablas/porcentajes.xlsx", sheet = 1) %>% select(-c("act_eco","empresas", "trabajadores"))
+porc_acteco <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = 1) %>% select(-c("act_eco","empresas", "trabajadores"))
 
 porc_acteco <- round(porc_acteco*100, 2)
 
@@ -317,7 +317,7 @@ kable(porc_acteco,
 #| message: false
 #| warning: false
 
-contratos_totales <- readxl::read_xlsx("Tablas/porcentajes.xlsx", sheet = 5) 
+contratos_totales <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = 5) 
 
 contratos_totales<- contratos_totales %>% mutate(Si= round((convacu12_1/tot_empresas)*100,1),
                                                  No= round((convacu12_2/tot_empresas)*100,1))
@@ -354,18 +354,59 @@ kable(contratos_totales,
             general_title= "") 
   #kable_styling(latex_options = c("hold_position"))
                                                 
-
-                                              
-
-                                                
-                                                
 ```
-
-
 
 \FloatBarrier
 
 ##### Contrataciones por ocupación
+
+```{r}
+#| echo: false
+#| error: false
+#| message: false
+#| warning: false
+
+contratados_u12 <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = 6) 
+
+contratados_u12<- contratados_u12 %>% filter(cv<0.20) %>% arrange(desc(contratadosu12)) %>% head(.,11)
+
+contratados_u12<- contratados_u12 %>% mutate(contratadosu12= round((contratadosu12),0),
+                                                 cv= round((cv)*100,1))
+contratados_u12<- contratados_u12 %>%select(c("oficio4", "oficio_label","contratadosu12", "cv"))
+
+# Cambiar nombres de las columnas
+contratados_u12 <- contratados_u12 %>% rename("CIUO 08" = oficio4,
+                                              "Glosa"=oficio_label,
+                                              "Contratados"=contratadosu12,
+                                              "CV"=cv
+                                              )
+
+
+```
+Se contrataron cargos^[Contrataciones señaladas para los módulos de “Directores y gerentes”, “Jefatura/ADP”, “Ocupaciones Elementales” y “Otros Cargos”.] nuevos en 354 ocupaciones (representando a 1.206.992 contrataciones totales en los últimos 12 meses, cv = 6,8%), sin embargo, la @tbl-contratados_u12 sólo muestra aquellas para las cuáles el coeficiente de variación es menor a 20%^[La convención es considerar cómo robustas estimaciones con un cv menor al 15%. Dado que estas son pocas, se presentan todas las ocupaciones con un cv menor a 20%.].
+Las ocupaciones con más contratos en los últimos 12 meses fueron "`r contratados_u12[1,2]`", "`r contratados_u12[2,2]`"  y "`r contratados_u12[3,2]`".
+
+```{r}
+#| label: tbl-contratados_u12
+#| tbl-cap: "Contratados últimos 12 meses, por ocupación." 
+#| echo: false
+#| error: false
+#| message: false
+#| warning: false
+
+
+
+# Generar la tabla con kable
+kable(contratados_u12,
+      col.names = c("CIUO_08", "Glosa", "Contratados", "cv"),
+      format = "latex", 
+      booktabs = TRUE) %>% 
+  kable_classic(full_width = FALSE, html_font = "Verdana") %>%
+  column_spec(2, width = "11cm") %>% 
+  footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023.",
+            general_title= "") 
+                                                
+```
 
 ##### Contrataciones por ocupación: Sector Construcción
 

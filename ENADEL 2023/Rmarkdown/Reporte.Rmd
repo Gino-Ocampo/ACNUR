@@ -83,8 +83,8 @@ pacman::p_load(tidyverse,#universo de paquetes
 
 #Cargar tablas
 
-porc_acteco <- readxl::read_xlsx("Tablas/porcentajes.xlsx", sheet = 1)
-porc_region <- readxl::read_xlsx("Tablas/porcentajes.xlsx", sheet = 2)
+porc_acteco <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = 1)
+porc_region <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = 2)
 
 
   orden_regiones <- c(
@@ -122,9 +122,9 @@ La Tabla \ref{tab:distribucion-regiones} muestra la distribución en las distint
 
 ```{r eval=TRUE, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE, results='asis', fig.align = 'center'}
 
-pc_tam<- readxl::read_xlsx("Tablas/porcentajes.xlsx", sheet = 3)
+pc_tam<- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = 3)
 
-pc_tamvent<- readxl::read_xlsx("Tablas/porcentajes.xlsx", sheet = 4)
+pc_tamvent<- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = 4)
 
 #Agregar century gothic
 font_add(family = "centurygothic", regular = "C:/Windows/Fonts/GOTHIC.TTF")

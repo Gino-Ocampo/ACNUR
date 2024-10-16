@@ -5,13 +5,16 @@ pacman::p_load(tidyverse, haven, summarytools,quarto)
 
 
 #3_armado_bbdd---------------------------------------------------------------
-source(Scripts/"3_armado_bbdd.R")
+source("Scripts/3_armado_bbdd.R")
 
 #4_pivot
-source(Scripts/"4_pivot.R")
+source("Scripts/4_pivot.R")
 
 #5_analisis--------------------------------------------------------------------
-source("5_analisis.R")
+source("Scripts/5_analisis.R")
 
 #6 Renderizar Reporte Quarto
-quarto::quarto_render("Reporte.qmd")
+quarto::quarto_render("Quarto/Reporte.qmd")
+
+#7 Renderizar Reporte Rmarkdown
+quarto::quarto_render("Rmarkdown/Reporte.qmd")#cambiar función
