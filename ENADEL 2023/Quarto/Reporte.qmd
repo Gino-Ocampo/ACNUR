@@ -96,13 +96,14 @@ El presente documento analiza los resultados de la Encuesta Nacional de Demanda 
 #Cargar paquetes
 pacman::p_load(tidyverse,#universo de paquetes
                haven,# leer archivos stata y spss
-               stargazer,# tablas de regresión
+               stargazer,# tablas de regresión??
               kableExtra,#Tablas fancy
               scales,#escala porcentaje 
               patchwork,#Combinar gráficos
               bookdown,#Referencias
               showtext,#fuente
               sysfonts)#habilitar fuentes
+
         
 
 options(OutDec = ",")
@@ -597,7 +598,187 @@ kable(vacantes_tot,
 
 La ocupación más demandadas que tiene difícil cobertura es  “`r vacantes_tot[1,2]`”, con más de 14 mil vacantes; seguido de lejos por “`r vacantes_tot[2,2]`”, “`r vacantes_tot[3,2]`” y “`r vacantes_tot[4,2]`”, con `r vacantes_tot[2,3]`, `r vacantes_tot[3,3]` y `r vacantes_tot[4,3]` vacantes, respectivamente.
 
+```{r}
+#| echo: false
+#| error: false
+#| message: false
+#| warning: false
+
+vacantes_region <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = 15)
+
+
+
+vacantes_region<- vacantes_region %>% select(-c("se","cv", "orden")) 
+vacantes_region<- vacantes_region %>% select(region_trab,oficio_label, oficio4,vacantesu12)
+
+vacantes_region<- vacantes_region %>% mutate(vacantesu12= round(vacantesu12,0))
+
+vacantes_region<- vacantes_region %>% mutate(region_trab= case_when(region_trab==1~ "Arica y Parinacota",
+                                                                    region_trab==2~ "Tarapacá",
+                                                                    region_trab==3~ "Antofagasta",
+                                                                    region_trab==4~ "Atacama",
+                                                                    region_trab==5~ "Coquimbo",
+                                                                    region_trab==6~ "Valparaíso",
+                                                                    region_trab==7~ "Metropolitana",
+                                                                    region_trab==8~ "O'Higgins",
+                                                                    region_trab==9~ "Maule",
+                                                                    region_trab==10~ "Ñuble",
+                                                                    region_trab==11~ "Biobío",
+                                                                    region_trab==12~ "Araucanía",
+                                                                    region_trab==13~ "Los Ríos",
+                                                                    region_trab==14~ "Los Lagos",
+                                                                    region_trab==15~ "Aysén",
+                                                                    region_trab==16~ "Magallanes"
+                                                                    ) )
+
+```
+
+La @tbl-vacantes_region muestra la ocupación de difícil cobertura con mayor cantidad de vacantes por región dónde, si bien se confirma la prevalencia de “Obreros de explotaciones agrícolas” en 7 regiones, también saltan a la vista otros patrones como la demanda del rubro de la construcción hacia el norte y de la industria manufacturera en el Maule y la Araucanía.
+
+```{r}
+#| label: tbl-vacantes_region
+#| tbl-cap: "Ocupación de difícil cobertura con mayor cantidad de vacantes, por región."
+#| echo: false
+#| error: false
+#| message: false
+#| warning: false
+
+
+
+# Generar la tabla con kable
+kable(vacantes_region,
+      col.names = c("Región", "Ocupación", "CIUO 08", "Vacantes"),
+      format = "latex", 
+      booktabs = TRUE) %>% 
+  kable_classic(full_width = FALSE, html_font = "Verdana") %>%
+  footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.",
+            general_title= "") 
+
+```
+
+
+
+```{r}
+#| echo: false
+#| error: false
+#| message: false
+#| warning: false
+
+
+vacantes_tam <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = 16)
+vacantes_tamvent <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = 17)
+
+
+vacantes_tam<- vacantes_tam %>% select(-c("se","cv", "orden")) 
+vacantes_tamvent<- vacantes_tamvent %>% select(-c("se","cv", "orden")) 
+
+vacantes_tam<- vacantes_tam %>% select(tam_val,oficio_label, oficio4,vacantesu12)
+vacantes_tamvent<- vacantes_tamvent %>% select(tam_val=tam_vent,oficio_label, oficio4,vacantesu12)
+
+vacantes_tam<- vacantes_tam %>% mutate(vacantesu12= round(vacantesu12,0),
+                                       tam_val=case_when(tam_val==2 ~ "Pequeña (<50)",
+                                                         tam_val==3 ~ "Mediana (50-199)",
+                                                         tam_val==4 ~ "Grande (>=200)")) 
+
+vacantes_tamvent<- vacantes_tamvent %>% mutate(vacantesu12= round(vacantesu12,0),
+                                               tam_val= case_when(tam_val==0 ~ "Sin ventas",
+                                                         tam_val==1 ~ "Micro (< 2.400 UF)",
+                                                         tam_val==2 ~ "Pequeña (2.400-25.000 UF)",
+                                                         tam_val==3 ~ "Mediana (25.000-100.000 UF)",
+                                                         tam_val==4 ~ "Grande (>100.000 UF)"))
+
+#Juntar tablas
+vacantes_tamano <- rbind(vacantes_tam,vacantes_tamvent)
+
+# agregar columna "Según n° de trabajadores" y "Según ventas"
+vacantes_tamano <- data.frame(
+  Categoria = c(rep("", 3), rep("", 5)),
+  vacantes_tamano) %>% select(Categoria, tam_val, oficio_label, oficio4, vacantesu12)
+
+
+```
+Al indagar según el tamaño de empresa (@tbl-vacantes_tamano), "`r vacantes_tamano[1,3]`" prevalece en las empresas pequeñas (tanto por número de trabajadores como por tamaño de venta) y "`r vacantes_tamano[3,3]`" en las empresas con más de 200 trabajadores y en aquellas con ventas entre 25 y 100 mil UF. La ocupación  "`r vacantes_tamano[8,3]`" es la más difícil de cubrir en empresas de entre 50 y 199 trabajadores (mediana) y en aquellas que tienen ventas superiores a las 10 mil UF.
+```{r}
+#| label: tbl-vacantes_tamano
+#| tbl-cap: "Ocupación de difícil cobertura con mayor cantidad de vacantes por tamaño de empresa."
+#| echo: false
+#| error: false
+#| message: false
+#| warning: false
+
+
+
+# Generar la tabla con kable
+kable(vacantes_tamano,
+      col.names = c("Categoría", "Tamaño Empresa", "Ocupación", "CIUO 08", "Vacantes"),
+      format = "latex", 
+      booktabs = TRUE) %>% 
+  kable_classic(full_width = FALSE, html_font = "Verdana") %>%
+    column_spec(3, width = "7cm") %>%
+  column_spec(1, bold = TRUE, width = "4cm") %>%  # Formatear la primera columna
+  group_rows("\\textbf{Según n° de trabajadores}", 1, 3, latex_align = "l", escape = FALSE) %>%
+  group_rows("\\textbf{Según ventas}", 4, 8, latex_align = "l", escape = FALSE) %>%
+  footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.",
+            general_title= "") 
+
+```
+
+```{r}
+#| echo: false
+#| error: false
+#| message: false
+#| warning: false
+
+vacantes_sector <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = 14)
+
+#Recodificación
+vacantes_sector<- vacantes_sector %>% 
+  mutate(a2=case_when(a2==1~"Actividades profesionales",
+                      a2==2~"Actividades financieras y de seguros",
+                      a2==3~"Actividades inmobiliarias",
+                      a2==4~"Administración pública",
+                      a2==5~"Alojamiento y de servicio de comidas",
+                      a2==6~"Comercio",
+                      a2==7~"Construcción",
+                      a2==8~"Industria manufacturera",
+                      a2==9~"Información y comunicaciones",
+                      a2==10 ~"Servicios administrativos y de apoyo",
+                      a2==11 ~"Silvoagropecuario",
+                      a2==12 ~"Pesca y acuicultura",
+                      a2==13 ~"Transporte y almacenamiento"),
+         vacantesu12= round(vacantesu12,0)) %>% 
+  select(a2,oficio_label,oficio4,vacantesu12)
+ 
+
+```
+Al analizar las ocupaciones de difícil cobertura según el sector de actividad económica, como se muestra en la @tbl-vacantes_sector, se vuelve a confirmar la dificultad para llenar vacantes de “Obreros de explotaciones agrícolas”, pero también surgen otras ocupaciones relevantes como "`r vacantes_sector[2,2]`"  “Vendedores y asistentes de venta de tiendas, almacenes y puestos de mercado” que es la ocupación con más vacantes sin llenar en los sectores de "`r vacantes_sector[2,1]`"  y "`r vacantes_sector[6,1]`".
+
+```{r}
+#| label: tbl-vacantes_sector
+#| tbl-cap: "Ocupación de difícil cobertura con mayor cantidad de vacantes, por región."
+#| echo: false
+#| error: false
+#| message: false
+#| warning: false
+
+
+# Generar la tabla con kable
+kable(vacantes_sector,
+      col.names = c("Sector Actividad Económica", "Ocupación", "CIUO 08", "Vacantes"),
+      format = "latex", 
+      booktabs = TRUE) %>% 
+  kable_classic(full_width = FALSE, html_font = "Verdana") %>%
+  column_spec(2, width = "7cm") %>%
+  footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.",
+            general_title= "") 
+
+```
+
+
 ##### Ocupaciones de Difícil Cobertura: Sector Construcción
+
+
+
 
 ##### Ocupaciones de Difícil Cobertura: Sector Agrícola
 
