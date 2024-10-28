@@ -807,7 +807,7 @@ vacantes_constru <- bind_rows(vacantes_constru, totales) %>% filter(vacantesu12>
 
 La @tbl-vacantes_constru muestra todos los cargos del sector Construcción sobre los que se consulta en la encuesta, indicando el número de vacantes, el porcentaje que estas representan del total, y el coeficiente de variación. Se muestran todas las vacantes independiente de la robustez estadística de la estimación.
 
-La ocupación de “`r vacantes_constru[1,1]`” es la más demandada, con `r vacantes_constru[1,2]` vacantes, seguida de “`r vacantes_constru[2,1]`” con `r vacantes_constru[2,2]` vacantes.
+La ocupación de “`r vacantes_constru[1,1]`” es la más demandada, con `r vacantes_constru[1,2]` vacantes, seguida de “`r vacantes_constru[2,1]`” con `r vacantes_constru[2,2]` vacantes y “`r vacantes_constru[3,1]`” con `r vacantes_constru[3,2]` vacantes.
 
 ```{r}
 #| label: tbl-vacantes_constru
@@ -862,7 +862,7 @@ vacantes_agro <- bind_rows(vacantes_agro, totales) %>% filter(vacantesu12>0)
 
 La @tbl-vacantes_agro muestra todos los cargos del sector Agrícola sobre los que se consulta en la encuesta, indicando el número de vacantes, el porcentaje que estas representan del total, y el coeficiente de variación. Se muestran todas las vacantes independiente de la robustez estadística de la estimación.
 
-El cargo  “`r vacantes_agro[1,1]`” es el más demandado, con “`r vacantes_agro[1,2]`” vacantes, el segundo cargo más demandado es “`r vacantes_agro[2,1]`” con `r vacantes_agro[2,2]` vacantes y “ `r vacantes_agro[3,1]`” es el tercer cargo más demandado con `r vacantes_agro[3,3]` vacantes.
+El cargo  “`r vacantes_agro[1,1]`” es el más demandado, con “`r vacantes_agro[1,2]`” vacantes, el segundo cargo más demandado es “`r vacantes_agro[2,1]`” con `r vacantes_agro[2,2]` vacantes y “ `r vacantes_agro[3,1]`” es el tercer cargo más demandado con `r vacantes_agro[3,2]` vacantes.
 
 
 ```{r}
@@ -880,7 +880,7 @@ kable(vacantes_agro,
       format = "latex", 
       booktabs = TRUE) %>% 
   kable_classic(full_width = FALSE, html_font = "Verdana") %>%
-  column_spec(2, width = "7cm") %>%
+  column_spec(1, width = "15cm") %>%
   footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.",
             general_title= "") 
 
@@ -960,7 +960,7 @@ dificultad_constru <- dificultad_constru %>% mutate(total=round((total/sum(total
 
 
 ```
-@tbl-dificultad_constru muestra que, al considerar el total de menciones, "`r dificultad_tot[1,1]`" (`r dificultad_tot[1,3]` %), fue la dificultad más mencionada, seguida de "`r dificultad_tot[2,1]`" (`r dificultad_tot[2,3]` %) y `r dificultad_tot[3,1]`" (`r dificultad_tot[3,3]` %).
+@tbl-dificultad_constru muestra que, al considerar el total de menciones, "`r dificultad_constru[1,1]`" (`r dificultad_constru[1,3]` %), fue la dificultad más mencionada, seguida de "`r dificultad_constru[2,1]`" (`r dificultad_constru[2,3]` %) y `r dificultad_constru[3,1]`" (`r dificultad_constru[3,3]` %).
 ```{r}
 #| label: tbl-dificultad_constru
 #| tbl-cap: "Dificultades principales de contratación, ocupaciones del sector Construcción."
@@ -1025,10 +1025,73 @@ kable(dificultad_agro,
             general_title= "")
 
 ```
-La Figura 2 compara la frecuencia de cada dificultad, para la primera dificultad señalada, según el módulo de la encuesta. Si bien “Candidatos sin competencias técnicas requeridas” es el primer lugar de primeras menciones en todos los módulos de la encuesta, la proporción en el sector agrícola es 1,3 veces más grande que en construcción y 2,2 veces que en el módulo general. “Condiciones laborales no aceptadas” es la segunda mayoría en los tres módulos, pero es notoriamente más prevalente en construcción.
+La @fig-dificultad compara la frecuencia de cada dificultad, para la primera dificultad señalada, según el módulo de la encuesta. Si bien “Candidatos sin competencias técnicas requeridas” es el primer lugar de primeras menciones en todos los módulos de la encuesta, la proporción en el sector agrícola es 1,3 veces más grande que en construcción y 2,2 veces que en el módulo general. “Condiciones laborales no aceptadas” es la segunda mayoría en los tres módulos, pero es notoriamente más prevalente en construcción.
 
-```{r}
+```{r, fig.cap="Gráfico combinado de resultados", out.width='100%', fig.align='center', fig.pos='H'}
+#| label: fig-dificultad
+#| fig-cap: "Primera dificultad señalada según módulo"
+#| echo: false
+#| fig-align: center
+#| error: false
+#| message: false
+#| warning: false
+
 #aqui hay que hacer el gráfico utilizando las tres tablas anteriores.
+
+dificultad_tot <- dificultad_tot %>% select(-c("total"))
+dificultad_agro <- dificultad_agro %>% select(-c("total"))
+dificultad_constru <- dificultad_constru %>% select(-c("total"))
+
+dificultad_tot_agro <- dificultad_tot %>% left_join(dificultad_agro, by= "dif_label")
+dificultad_tot_agro_constru<- dificultad_tot_agro %>% left_join(dificultad_constru, by="dif_label")
+
+
+colnames(dificultad_tot_agro_constru) <- c("dificultad","Módulo General", "Módulo Agrícola", "Módulo Construcción")
+
+
+
+
+dificultad_larga <- dificultad_tot_agro_constru %>%
+  pivot_longer(
+    cols = c("Módulo General", "Módulo Agrícola", "Módulo Construcción"),  
+    names_to = "sector",             
+    values_to = "valor"             
+  )
+
+
+
+#Gráfico Figura 2
+
+ggplot(dificultad_larga, aes(fill = sector, y = valor, x = dificultad)) + 
+  geom_bar(position = "dodge", stat = "identity", color = "white", size = 0.1) + 
+  scale_fill_manual(values = c("Módulo Agrícola" = "#64C3D2", 
+                               "Módulo Construcción" = "#005691", 
+                               "Módulo General" = "#002A51")) +
+  coord_flip() +
+  theme_classic() +
+  geom_text(aes(label = paste0(valor, "%")), 
+            position = position_dodge(width = 0.9), 
+            vjust = 0.5, hjust = -0.3, color = "#002A51", size = 2) +  
+  scale_y_continuous(limits = c(0, 45), expand = c(0, 0)) +
+   theme(
+    legend.position = "bottom",  
+    legend.title = element_blank(),  
+    legend.text = element_text(size = 5),  
+    axis.text.x = element_text(size = 5),  
+    axis.text.y = element_text(size = 5),  
+    plot.caption = element_text(size = 5),  
+    axis.line.x = element_line(color = "grey80"), 
+    axis.line.y = element_line(color = "grey80"),
+    plot.margin = margin(1, 1, 1, 1), 
+    axis.title.x = element_blank(),  
+    axis.title.y = element_blank()   
+  ) +
+  labs(
+    caption = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos." 
+  )
+
+
+
 ```
 
 
