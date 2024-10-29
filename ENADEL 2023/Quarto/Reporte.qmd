@@ -1,6 +1,6 @@
 ---
-title: "Reporte"
-author: "Cliodinámica"
+title: ""
+author: ""
 format:
   pdf:
     cap-location: "top"
@@ -9,19 +9,19 @@ format:
     document:
       tables:
         float: false
-    extra_dependencies: ["float"]
+    extra_dependencies: ["pdfpages", "float"]  # pdfpages se cargará correctamente
     documentclass: article
     latex-engine: xelatex
     toc: false
     toc-depth: 3
     toc-title: "Índice"
-    mainfont: "Verdana"
-fontsize: 14pt
+    mainfont: "Aptos"
+fontsize: 11pt
 lang: es
 header-includes:
-  - \usepackage{xcolor}
-  - \usepackage{fontspec}  # Para poder usar Verdana
-  - \setmainfont{Verdana}  # Establecer Verdana como fuente principal
+  - \usepackage{pdfpages}  
+  - \usepackage{fontspec}
+  - \setmainfont{Aptos}[Path="C:/Users/ginow/AppData/Roaming/TinyTeX/texmf-dist/fonts/truetype/aptos/", Extension=".ttf"]
   - \usepackage{fancyhdr}
   - \pagestyle{fancy}
   - \fancyhf{} 
@@ -30,27 +30,21 @@ header-includes:
   - \floatplacement{table}{H}
   - \usepackage{geometry}
   - \geometry{
-      left=1.06cm,
-      right=1.06cm,
-      top=1.06cm,
-      bottom=1.06cm
+      left=3cm,
+      right=3cm,
+      top=2.5cm,
+      bottom=2.5cm
     }
-  - \usepackage{flafter}
-  - \raggedbottom
   - \usepackage{placeins}
   - \usepackage{ragged2e}
   - \usepackage{float}
   - \usepackage{setspace}
   - \renewcommand{\familydefault}{\sfdefault}
   - \AtBeginDocument{\renewcommand{\baselinestretch}{1.5}\justifying}
-  - \usepackage{fancyhdr}
-  - \pagestyle{fancy}
-  - \fancyhf{} 
-  - \fancyhead[LO,RE]{}
-  - \fancyhead[LE,RO]{}
-  - \usepackage{xcolor}  # Para el manejo de colores
-  - \definecolor{mybgcolor}{HTML}{01376B}  # Definir color personalizado
-  - \usepackage{pagecolor}  # Para cambiar el color de fondo
+  - \usepackage{xcolor}
+  - \definecolor{mybgcolor}{HTML}{01376B}
+  - \usepackage{pagecolor}
+include-before-body: "portada.tex"
 ---
 \newpage
 
@@ -111,8 +105,8 @@ options(OutDec = ",")
 #Cargar tablas
 
 
-porc_region <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = 2)
-porc_sector <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = 3)
+porc_region <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "pc_region")
+
 
   orden_regiones <- c(
     "Arica y Parinacota", "Tarapacá", "Antofagasta", "Atacama", 
@@ -122,8 +116,11 @@ porc_sector <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = 3)
   )
 
 porc_region<- porc_region %>% select(-c("region","empresas", "trabajadores")) 
+
 porc_region <- round(porc_region*100, 2)
 rownames(porc_region)<- orden_regiones
+
+
 ```
 La muestra de ENADEL 2023 encuesta a 5.820 empresas que suman 485.256 trabajadores (a nivel muestral). Estas representan a 82.052 empresas y 5.611.196 trabajadores a nivel nacional. La @tbl-region muestra  la distribución en las distintas regiones del país, dónde un `r round(porc_region[7, 1],1 )`% de las empresas y un `r round(porc_region[7, 2],1)`% de los trabajadores se encuentran en la región Metropolitana.
 
@@ -138,15 +135,17 @@ La muestra de ENADEL 2023 encuesta a 5.820 empresas que suman 485.256 trabajador
 #| message: false
 #| warning: false
 
+porc_region <- porc_region %>% mutate(pc_empresas = paste0(pc_empresas, "%"),
+                                      pc_trabajadores = paste0(pc_trabajadores, "%"))
+
 # Generar la tabla con kable
-kable(porc_region, 
+kable(porc_region,
       col.names = c("Región", "% Empresas", "% Trabajadores"),
-      format = "latex", 
-      booktabs = TRUE) %>% 
-  kable_classic(full_width = FALSE, html_font = "Verdana") %>% 
+      format = "latex",
+      booktabs = TRUE) %>%
+  kable_classic(full_width = FALSE, html_font = "Aptos") %>%
   footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.",
-           general_title= "")  
- # kable_styling(latex_options = c("hold_position"))
+           general_title= "")
 
 
 ```
@@ -165,9 +164,9 @@ La @fig-combined muestra el porcentaje de empresas y trabajadores según tamaño
 #| warning: false
 
 
-pc_tam<- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = 3)
+pc_tam<- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "pc_tam")
 
-pc_tamvent<- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = 4)
+pc_tamvent<- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "pc_tamvent")
 
 #Agregar Verdana
 font_add(family = "verdana", regular = "C:/Windows/Fonts/VERDANA.TTF")
@@ -266,7 +265,7 @@ graf_combined
 #| message: false
 #| warning: false
 
-porc_acteco <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = 1) %>% select(-c("act_eco","empresas", "trabajadores"))
+porc_acteco <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "pc_acteco") %>% select(-c("act_eco","empresas", "trabajadores"))
 
 porc_acteco <- round(porc_acteco*100, 2)
 
@@ -293,6 +292,12 @@ Al revisar la distribución por sector de actividad económica @tbl-acteco se ti
 #| message: false
 #| warning: false
 
+
+porc_acteco <- porc_acteco %>% mutate(pc_empresas = paste0(pc_empresas, "%"),
+                                      pc_trabajadores = paste0(pc_trabajadores, "%"))
+
+
+
 # Generar la tabla con kable
 kable(porc_acteco,
       col.names = c("Actividad Económica", "% Empresas", "% Trabajadores"),
@@ -318,7 +323,7 @@ kable(porc_acteco,
 #| message: false
 #| warning: false
 
-contratos_totales <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = 5) 
+contratos_totales <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "contratos_totales") 
 
 contratos_totales<- contratos_totales %>% mutate(Si= round((convacu12_1/tot_empresas)*100,1),
                                                  No= round((convacu12_2/tot_empresas)*100,1))
@@ -343,7 +348,8 @@ El 87,1% de las empresas declaró que sí contrató personas nuevas durante los 
 #| message: false
 #| warning: false
 
-
+contratos_totales <- contratos_totales %>% mutate(Si = paste0(Si, "%"),
+                                      No = paste0(No, "%"))
 
 # Generar la tabla con kable
 kable(contratos_totales,
@@ -367,7 +373,7 @@ kable(contratos_totales,
 #| message: false
 #| warning: false
 
-contratados_u12 <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = 6) 
+contratados_u12 <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "contratados_u12") 
 
 contratados_u12<- contratados_u12 %>% filter(cv<0.20) %>% arrange(desc(contratadosu12)) %>% head(.,11)
 
@@ -397,6 +403,7 @@ Las ocupaciones con más contratos en los últimos 12 meses fueron "`r contratad
 #| warning: false
 
 
+contratados_u12 <- contratados_u12 %>% mutate(CV = paste0(CV, "%"))
 
 # Generar la tabla con kable
 kable(contratados_u12,
@@ -421,7 +428,7 @@ kable(contratados_u12,
 #| message: false
 #| warning: false
 
-contratados_u12_constru <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = 8) 
+contratados_u12_constru <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "contratados_u12_constr") 
 
 contratados_u12_constru<- contratados_u12_constru %>% 
   mutate(contratados_u12= round(contratadosu12/sum(contratadosu12)*100,1)) %>% 
@@ -438,6 +445,7 @@ En el módulo del sector Construcción se consulta sobre las contrataciones de 2
 #| message: false
 #| warning: false
 
+contratados_u12_constru<- contratados_u12_constru %>% mutate(contratados_u12= paste0(contratados_u12, "%"))
 
 
 # Generar la tabla con kable
@@ -460,7 +468,7 @@ kable(contratados_u12_constru,
 #| message: false
 #| warning: false
 
-contratados_u12_agricola <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = 9) 
+contratados_u12_agricola <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "contratados_u12_agro") 
 
 contratados_u12_agricola<- contratados_u12_agricola %>% 
   mutate(contratados_u12= round(contratadosu12/sum(contratadosu12)*100,1)) %>% 
@@ -478,6 +486,7 @@ En el módulo del sector Agrícola se consulta sobre las contrataciones de 15 ca
 #| message: false
 #| warning: false
 
+contratados_u12_agricola<- contratados_u12_agricola %>% mutate(contratados_u12= paste0(contratados_u12, "%"))
 
 
 # Generar la tabla con kable
@@ -499,7 +508,7 @@ kable(contratados_u12_agricola,
 #| message: false
 #| warning: false
 
-vacantes_totales_sector <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = 10) 
+vacantes_totales_sector <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "vacantes_totales_sector") 
 
 #Recodificación
 vacantes_totales_sector<- vacantes_totales_sector %>% 
@@ -533,6 +542,8 @@ La @tbl-vacantes_totales_sector muestra la proporción de empresas, según secto
 #| message: false
 #| warning: false
 
+vacantes_totales_sector<- vacantes_totales_sector %>% mutate(Si= paste0(Si, "%"),
+                                                             No= paste0(No, "%"))
 
 
 # Generar la tabla con kable
@@ -557,7 +568,7 @@ Durante el resto de esta sección se hará referencia a las ocupaciones que teng
 #| message: false
 #| warning: false
 
-vacantes_tot <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = 11)
+vacantes_tot <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "vacantes_tot")
 
 vacantes_tot <- vacantes_tot %>% filter(cv<0.4) %>% 
   group_by(oficio4, oficio_label) %>%
@@ -575,7 +586,7 @@ vacantes_tot <- vacantes_tot %>% filter(cv<0.4) %>%
 
 Se declararon vacantes^[Vacantes señaladas para los módulos de “Directores y gerentes”, “Jefatura/ADP”, “Ocupaciones Elementales” y “Otros Cargos”.] sin llenar en 215 ocupaciones (68.365 vacantes, cv=12,3%), sin embargo, la @tbl-vacantes_tot sólo muestra aquellas para las cuáles el coeficiente de variación es menor a 40%^[La convención es considerar cómo robustas estimaciones con un cv menor al 15%. Dado que esto no se cumple, se presentan todas las ocupaciones con un cv menor a 40%.]. La tabla completa con todas las ocupaciones de difícil cobertura se puede encontrar en el **Apéndice A: Ocupaciones de Difícil Cobertura**.
 
-```{r}
+```{r, fig.align='center'}
 #| label: tbl-vacantes_tot
 #| tbl-cap: "Ocupaciones de difícil cobertura, ENADEL 2023."
 #| echo: false
@@ -583,7 +594,7 @@ Se declararon vacantes^[Vacantes señaladas para los módulos de “Directores y
 #| message: false
 #| warning: false
 
-
+vacantes_tot<- vacantes_tot %>% mutate(cv= paste0(cv, "%"))
 
 # Generar la tabla con kable
 kable(vacantes_tot,
@@ -603,7 +614,7 @@ La ocupación más demandadas que tiene difícil cobertura es  “`r vacantes_to
 #| message: false
 #| warning: false
 
-vacantes_region <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = 15)
+vacantes_region <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "vacantes_region")
 
 
 
@@ -634,7 +645,7 @@ vacantes_region<- vacantes_region %>% mutate(region_trab= case_when(region_trab=
 
 La @tbl-vacantes_region muestra la ocupación de difícil cobertura con mayor cantidad de vacantes por región dónde, si bien se confirma la prevalencia de “Obreros de explotaciones agrícolas” en 7 regiones, también saltan a la vista otros patrones como la demanda del rubro de la construcción hacia el norte y de la industria manufacturera en el Maule y la Araucanía.
 
-```{r}
+```{r,fig.align = 'center'}
 #| label: tbl-vacantes_region
 #| tbl-cap: "Ocupación de difícil cobertura con mayor cantidad de vacantes, por región."
 #| echo: false
@@ -650,6 +661,7 @@ kable(vacantes_region,
       format = "latex", 
       booktabs = TRUE) %>% 
   kable_classic(full_width = FALSE, html_font = "Verdana") %>%
+  column_spec(2, width = "7cm") %>%
   footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.",
             general_title= "") 
 
@@ -664,8 +676,8 @@ kable(vacantes_region,
 #| warning: false
 
 
-vacantes_tam <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = 16)
-vacantes_tamvent <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = 17)
+vacantes_tam <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "vacantes_tam")
+vacantes_tamvent <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "vacantes_tamvent")
 
 
 vacantes_tam<- vacantes_tam %>% select(-c("se","cv", "orden")) 
@@ -698,7 +710,7 @@ vacantes_tamano <- data.frame(
 ```
 Al indagar según el tamaño de empresa (@tbl-vacantes_tamano), "`r vacantes_tamano[1,3]`" prevalece en las empresas pequeñas (tanto por número de trabajadores como por tamaño de venta) y "`r vacantes_tamano[3,3]`" en las empresas con más de 200 trabajadores y en aquellas con ventas entre 25 y 100 mil UF. La ocupación  "`r vacantes_tamano[8,3]`" es la más difícil de cubrir en empresas de entre 50 y 199 trabajadores (mediana) y en aquellas que tienen ventas superiores a las 10 mil UF.
 
-```{r}
+```{r, fig.align = 'left'}
 #| label: tbl-vacantes_tamano
 #| tbl-cap: "Ocupación de difícil cobertura con mayor cantidad de vacantes por tamaño de empresa."
 #| echo: false
@@ -714,8 +726,10 @@ kable(vacantes_tamano,
       format = "latex", 
       booktabs = TRUE) %>% 
   kable_classic(full_width = FALSE, html_font = "Verdana") %>%
-    column_spec(3, width = "7cm") %>%
-  column_spec(1, bold = TRUE, width = "4cm") %>%  # Formatear la primera columna
+  column_spec(1, bold = TRUE, width = "4cm") %>%
+  column_spec(3, width = "5cm") %>%
+  column_spec(4, width = "2cm") %>%
+  column_spec(5, width = "2cm") %>%
   group_rows("\\textbf{Según n° de trabajadores}", 1, 3, latex_align = "l", escape = FALSE) %>%
   group_rows("\\textbf{Según ventas}", 4, 8, latex_align = "l", escape = FALSE) %>%
   footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.",
@@ -729,7 +743,7 @@ kable(vacantes_tamano,
 #| message: false
 #| warning: false
 
-vacantes_sector <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = 14)
+vacantes_sector <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "vacantes_sector")
 
 #Recodificación
 vacantes_sector<- vacantes_sector %>% 
@@ -753,7 +767,7 @@ vacantes_sector<- vacantes_sector %>%
 ```
 Al analizar las ocupaciones de difícil cobertura según el sector de actividad económica, como se muestra en la @tbl-vacantes_sector, se vuelve a confirmar la dificultad para llenar vacantes de “Obreros de explotaciones agrícolas”, pero también surgen otras ocupaciones relevantes como "`r vacantes_sector[2,2]`"  “Vendedores y asistentes de venta de tiendas, almacenes y puestos de mercado” que es la ocupación con más vacantes sin llenar en los sectores de "`r vacantes_sector[2,1]`"  y "`r vacantes_sector[6,1]`".
 
-```{r}
+```{r, fig.align = 'left'}
 #| label: tbl-vacantes_sector
 #| tbl-cap: "Ocupación de difícil cobertura con mayor cantidad de vacantes por sector de actividad económica."
 #| echo: false
@@ -768,7 +782,9 @@ kable(vacantes_sector,
       format = "latex", 
       booktabs = TRUE) %>% 
   kable_classic(full_width = FALSE, html_font = "Verdana") %>%
-  column_spec(2, width = "7cm") %>%
+  column_spec(2, width = "5cm") %>%
+  column_spec(3, width = "3cm") %>%
+  column_spec(4, width = "3cm") %>%
   footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos. Nota: para seleccionar la ocupación de difícil cobertura con mayor cantidad de vacantes sólo se tomó en cuenta la magnitud de la estimación, sin considerar indicadores de robustez cómo el coeficiente de variación.",
             general_title= "") 
 
@@ -809,7 +825,7 @@ La @tbl-vacantes_constru muestra todos los cargos del sector Construcción sobre
 
 La ocupación de “`r vacantes_constru[1,1]`” es la más demandada, con `r vacantes_constru[1,2]` vacantes, seguida de “`r vacantes_constru[2,1]`” con `r vacantes_constru[2,2]` vacantes y “`r vacantes_constru[3,1]`” con `r vacantes_constru[3,2]` vacantes.
 
-```{r}
+```{r, fig.align = 'center'}
 #| label: tbl-vacantes_constru
 #| tbl-cap: "Ocupaciones de difícil cobertura, sector construcción."
 #| echo: false
@@ -818,13 +834,16 @@ La ocupación de “`r vacantes_constru[1,1]`” es la más demandada, con `r va
 #| warning: false
 
 
+vacantes_constru<- vacantes_constru %>% mutate(porcentaje= paste0(porcentaje, "%"),cv= paste0(cv, "%"))
+
 # Generar la tabla con kable
 kable(vacantes_constru,
       col.names = c("Cargo Construcción", "Vacantes", "% del total", "CV"),
       format = "latex", 
       booktabs = TRUE) %>% 
   kable_classic(full_width = FALSE, html_font = "Verdana") %>%
-  column_spec(2, width = "7cm") %>%
+  column_spec(1, width = "3cm") %>%
+  column_spec(2, width = "5cm") %>%
   footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.",
             general_title= "") 
 
@@ -865,7 +884,7 @@ La @tbl-vacantes_agro muestra todos los cargos del sector Agrícola sobre los qu
 El cargo  “`r vacantes_agro[1,1]`” es el más demandado, con “`r vacantes_agro[1,2]`” vacantes, el segundo cargo más demandado es “`r vacantes_agro[2,1]`” con `r vacantes_agro[2,2]` vacantes y “ `r vacantes_agro[3,1]`” es el tercer cargo más demandado con `r vacantes_agro[3,2]` vacantes.
 
 
-```{r}
+```{r, fig.align = 'center'}
 #| label: tbl-vacantes_agro
 #| tbl-cap: "Ocupaciones de difícil cobertura, sector agrícola."
 #| echo: false
@@ -873,6 +892,7 @@ El cargo  “`r vacantes_agro[1,1]`” es el más demandado, con “`r vacantes_
 #| message: false
 #| warning: false
 
+vacantes_agro<- vacantes_agro %>% mutate(porcentaje= paste0(porcentaje, "%"),cv= paste0(cv, "%"))
 
 # Generar la tabla con kable
 kable(vacantes_agro,
@@ -880,7 +900,7 @@ kable(vacantes_agro,
       format = "latex", 
       booktabs = TRUE) %>% 
   kable_classic(full_width = FALSE, html_font = "Verdana") %>%
-  column_spec(1, width = "15cm") %>%
+  column_spec(1, width = "7cm") %>%
   footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.",
             general_title= "") 
 
@@ -927,6 +947,7 @@ La @tbl-dificultad_tot muestra la proporción de respuestas para la primera difi
 #| message: false
 #| warning: false
 
+dificultad_tot<- dificultad_tot %>% mutate(porc_dif1= paste0(porc_dif1, "%"),total= paste0(total, "%"))
 
 # Generar la tabla con kable
 kable(dificultad_tot,
@@ -934,7 +955,9 @@ kable(dificultad_tot,
       format = "latex", 
       booktabs = TRUE) %>% 
   kable_classic(full_width = FALSE, html_font = "Verdana") %>%
-  column_spec(2, width = "7cm") %>%
+  column_spec(1, width = "5cm") %>%
+  column_spec(2, width = "3cm") %>%
+  column_spec(3, width = "3cm") %>%
   footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.",
             general_title= "")
 ```
@@ -969,6 +992,8 @@ dificultad_constru <- dificultad_constru %>% mutate(total=round((total/sum(total
 #| message: false
 #| warning: false
 
+dificultad_constru<- dificultad_constru %>% mutate(porc_dif1= paste0(porc_dif1, "%"),total= paste0(total, "%"))
+
 
 # Generar la tabla con kable
 kable(dificultad_constru,
@@ -976,7 +1001,9 @@ kable(dificultad_constru,
       format = "latex", 
       booktabs = TRUE) %>% 
   kable_classic(full_width = FALSE, html_font = "Verdana") %>%
-  column_spec(2, width = "7cm") %>%
+    column_spec(1, width = "5cm") %>%
+  column_spec(2, width = "3cm") %>%
+  column_spec(3, width = "3cm") %>%
   footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.",
             general_title= "")
 ```
@@ -1013,6 +1040,7 @@ El 17,6% de las empresas consultadas sobre ocupaciones del sector Agrícola decl
 #| message: false
 #| warning: false
 
+dificultad_agro<- dificultad_agro %>% mutate(porc_dif1= paste0(porc_dif1, "%"),total= paste0(total, "%"))
 
 # Generar la tabla con kable
 kable(dificultad_agro,
@@ -1020,7 +1048,9 @@ kable(dificultad_agro,
       format = "latex", 
       booktabs = TRUE) %>% 
   kable_classic(full_width = FALSE, html_font = "Verdana") %>%
-  column_spec(2, width = "7cm") %>%
+      column_spec(1, width = "5cm") %>%
+  column_spec(2, width = "3cm") %>%
+  column_spec(3, width = "3cm") %>%
   footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.",
             general_title= "")
 
@@ -1037,6 +1067,24 @@ La @fig-dificultad compara la frecuencia de cada dificultad, para la primera dif
 #| warning: false
 
 #aqui hay que hacer el gráfico utilizando las tres tablas anteriores.
+
+dificultad_tot <- dificultad_tot %>%
+  mutate(
+    porc_dif1 = as.numeric(str_replace(porc_dif1, "%", "")),
+    total = as.numeric(str_replace(total, "%", ""))
+  )
+
+dificultad_constru <- dificultad_constru %>%
+  mutate(
+    porc_dif1 = as.numeric(str_replace(porc_dif1, "%", "")),
+    total = as.numeric(str_replace(total, "%", ""))
+  )
+
+dificultad_agro <- dificultad_agro %>%
+  mutate(
+    porc_dif1 = as.numeric(str_replace(porc_dif1, "%", "")),
+    total = as.numeric(str_replace(total, "%", ""))
+  )
 
 dificultad_tot <- dificultad_tot %>% select(-c("total"))
 dificultad_agro <- dificultad_agro %>% select(-c("total"))
@@ -1079,7 +1127,6 @@ ggplot(dificultad_larga, aes(fill = sector, y = valor, x = dificultad)) +
     legend.text = element_text(size = 5),  
     axis.text.x = element_text(size = 5),  
     axis.text.y = element_text(size = 5),  
-    plot.caption = element_text(size = 5),  
     axis.line.x = element_line(color = "grey80"), 
     axis.line.y = element_line(color = "grey80"),
     plot.margin = margin(1, 1, 1, 1), 
@@ -1122,7 +1169,9 @@ dificultad_agro <- dificultad_agro %>% mutate(total=round((total/sum(total))*100
 
 ### Canales de reclutamiento
 
+
 ### Conocimiento de instituciones y programas
+
 
 ### Apéndice A: Ocupaciones de Difícil Cobertura
 

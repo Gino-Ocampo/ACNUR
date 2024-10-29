@@ -4,7 +4,7 @@
 \PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
 %
 \documentclass[
-  14pt,
+  11pt,
 ]{article}
 
 \usepackage{amsmath,amssymb}
@@ -21,7 +21,7 @@
 \usepackage{lmodern}
 \ifPDFTeX\else  
     % xetex/luatex font selection
-    \setmainfont[]{Verdana}
+    \setmainfont[]{Aptos}
 \fi
 % Use upquote if available, for straight quotes in verbatim environments
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
@@ -106,9 +106,9 @@
 \usepackage[normalem]{ulem}
 \usepackage{makecell}
 \usepackage{xcolor}
-\usepackage{xcolor}
+\usepackage{pdfpages}
 \usepackage{fontspec}
-\setmainfont{Verdana}
+\setmainfont{Aptos}[Path="C:/Users/ginow/AppData/Roaming/TinyTeX/texmf-dist/fonts/truetype/aptos/", Extension=".ttf"]
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 \fancyhf{}
@@ -116,17 +116,14 @@
 \floatplacement{figure}{H}
 \floatplacement{table}{H}
 \usepackage{geometry}
-\geometry{ left=1.06cm, right=1.06cm, top=1.06cm, bottom=1.06cm }
-\usepackage{flafter}
-\raggedbottom
+\geometry{ left=3cm, right=3cm, top=2.5cm, bottom=2.5cm }
 \usepackage{placeins}
 \usepackage{ragged2e}
 \usepackage{float}
 \usepackage{setspace}
 \renewcommand{\familydefault}{\sfdefault}
 \AtBeginDocument{\renewcommand{\baselinestretch}{1.5}\justifying}
-\fancyhead[LO,RE]{}
-\fancyhead[LE,RO]{}
+\usepackage{xcolor}
 \definecolor{mybgcolor}{HTML}{01376B}
 \usepackage{pagecolor}
 \makeatletter
@@ -179,7 +176,7 @@
 \babelprovide[main,import]{spanish}
 \ifPDFTeX
 \else
-\babelfont{rm}[]{Verdana}
+\babelfont{rm}[]{Aptos}
 \fi
 % get rid of language-specific shorthands (see #6817):
 \let\LanguageShortHands\languageshorthands
@@ -192,8 +189,6 @@
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \urlstyle{same} % disable monospaced font for URLs
 \hypersetup{
-  pdftitle={Reporte},
-  pdfauthor={Cliodinámica},
   pdflang={es},
   colorlinks=true,
   linkcolor={blue},
@@ -203,12 +198,12 @@
   pdfcreator={LaTeX via pandoc}}
 
 
-\title{Reporte}
-\author{Cliodinámica}
+\author{}
 \date{}
 
 \begin{document}
-\maketitle
+
+\includepdf[pages=-]{../Quarto/Portada/Portadas-Enadel-2023-1.pdf}
 
 
 \newpage
@@ -269,29 +264,29 @@ encuentran en la región Metropolitana.
 \centering{
 
 \centering
-\begin{tabular}{lrr}
+\begin{tabular}{lll}
 \toprule
 Región & \% Empresas & \% Trabajadores\\
 \midrule
-Arica y Parinacota & 0,67 & 0,33\\
-Tarapacá & 1,69 & 1,07\\
-Antofagasta & 2,60 & 1,82\\
-Atacama & 0,76 & 0,54\\
-Coquimbo & 2,78 & 1,86\\
+Arica y Parinacota & 0,67\% & 0,33\%\\
+Tarapacá & 1,69\% & 1,07\%\\
+Antofagasta & 2,6\% & 1,82\%\\
+Atacama & 0,76\% & 0,54\%\\
+Coquimbo & 2,78\% & 1,86\%\\
 \addlinespace
-Valparaíso & 9,05 & 6,50\\
-Metropolitana & 53,61 & 65,59\\
-O'Higgins & 5,10 & 4,21\\
-Maule & 1,54 & 1,01\\
-Ñuble & 6,66 & 4,96\\
+Valparaíso & 9,05\% & 6,5\%\\
+Metropolitana & 53,61\% & 65,59\%\\
+O'Higgins & 5,1\% & 4,21\%\\
+Maule & 1,54\% & 1,01\%\\
+Ñuble & 6,66\% & 4,96\%\\
 \addlinespace
-Biobío & 1,35 & 0,69\\
-Araucanía & 4,59 & 3,45\\
-Los Ríos & 0,39 & 0,25\\
-Los Lagos & 0,98 & 0,64\\
-Aysén & 4,92 & 4,74\\
+Biobío & 1,35\% & 0,69\%\\
+Araucanía & 4,59\% & 3,45\%\\
+Los Ríos & 0,39\% & 0,25\%\\
+Los Lagos & 0,98\% & 0,64\%\\
+Aysén & 4,92\% & 4,74\%\\
 \addlinespace
-Magallanes & 3,30 & 2,34\\
+Magallanes & 3,3\% & 2,34\%\\
 \bottomrule
 \multicolumn{3}{l}{\rule{0pt}{1em}Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.}\\
 \end{tabular}
@@ -350,25 +345,25 @@ actividad económica}
 \centering{
 
 \centering
-\begin{tabular}{lrr}
+\begin{tabular}{lll}
 \toprule
 Actividad Económica & \% Empresas & \% Trabajadores\\
 \midrule
-Comercio & 20,60 & 17,78\\
-Construcción & 15,54 & 14,42\\
-Servicios administrativos y de apoyo & 9,08 & 13,50\\
-Industria manufacturera & 11,39 & 11,81\\
-Actividades profesionales & 10,82 & 10,97\\
+Comercio & 20,6\% & 17,78\%\\
+Construcción & 15,54\% & 14,42\%\\
+Servicios administrativos y de apoyo & 9,08\% & 13,5\%\\
+Industria manufacturera & 11,39\% & 11,81\%\\
+Actividades profesionales & 10,82\% & 10,97\%\\
 \addlinespace
-Silvoagropecuario & 8,64 & 8,33\\
-Transporte y almacenamiento & 7,62 & 5,91\\
-Administración pública & 0,69 & 5,46\\
-Alojamiento y de servicio de comidas & 6,79 & 4,03\\
-Información y comunicaciones & 3,02 & 2,61\\
+Silvoagropecuario & 8,64\% & 8,33\%\\
+Transporte y almacenamiento & 7,62\% & 5,91\%\\
+Administración pública & 0,69\% & 5,46\%\\
+Alojamiento y de servicio de comidas & 6,79\% & 4,03\%\\
+Información y comunicaciones & 3,02\% & 2,61\%\\
 \addlinespace
-Actividades inmobiliarias & 3,15 & 2,60\\
-Actividades financieras y de seguros & 1,88 & 1,69\\
-Pesca y acuicultura & 0,77 & 0,90\\
+Actividades inmobiliarias & 3,15\% & 2,6\%\\
+Actividades financieras y de seguros & 1,88\% & 1,69\%\\
+Pesca y acuicultura & 0,77\% & 0,9\%\\
 \bottomrule
 \multicolumn{3}{l}{\rule{0pt}{1em}Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.}\\
 \end{tabular}
@@ -403,25 +398,25 @@ contrataron en los últimos 12 meses por sector económico}
 \centering{
 
 \centering
-\begin{tabular}{lrr}
+\begin{tabular}{lll}
 \toprule
 Actividad Económica & \% Si & \% No\\
 \midrule
-Actividades profesionales & 90,4 & 9,6\\
-Actividades financieras y de seguros & 83,9 & 16,1\\
-Actividades inmobiliarias & 75,1 & 24,9\\
-Administración pública & 90,3 & 9,7\\
-Alojamiento y de servicio de comidas & 92,9 & 7,1\\
+Actividades profesionales & 90,4\% & 9,6\%\\
+Actividades financieras y de seguros & 83,9\% & 16,1\%\\
+Actividades inmobiliarias & 75,1\% & 24,9\%\\
+Administración pública & 90,3\% & 9,7\%\\
+Alojamiento y de servicio de comidas & 92,9\% & 7,1\%\\
 \addlinespace
-Comercio & 84,8 & 15,2\\
-Construcción & 89,3 & 10,7\\
-Industria manufacturera & 87,3 & 12,7\\
-Información y comunicaciones & 90,3 & 9,7\\
-Servicios administrativos y de apoyo & 87,5 & 12,5\\
+Comercio & 84,8\% & 15,2\%\\
+Construcción & 89,3\% & 10,7\%\\
+Industria manufacturera & 87,3\% & 12,7\%\\
+Información y comunicaciones & 90,3\% & 9,7\%\\
+Servicios administrativos y de apoyo & 87,5\% & 12,5\%\\
 \addlinespace
-Silvoagropecuario & 83,6 & 16,4\\
-Pesca y acuicultura & 98,9 & 1,1\\
-Transporte y almacenamiento & 85,0 & 15,0\\
+Silvoagropecuario & 83,6\% & 16,4\%\\
+Pesca y acuicultura & 98,9\% & 1,1\%\\
+Transporte y almacenamiento & 85\% & 15\%\\
 \bottomrule
 \multicolumn{3}{l}{\rule{0pt}{1em}Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.}\\
 \end{tabular}
@@ -457,23 +452,23 @@ ocupación.}
 \centering{
 
 \centering
-\begin{tabular}{r>{\raggedright\arraybackslash}p{11cm}rr}
+\begin{tabular}{r>{\raggedright\arraybackslash}p{11cm}rl}
 \toprule
 CIUO\_08 & Glosa & Contratados & cv\\
 \midrule
-9211 & Obreros de explotaciones agrícolas & 300480 & 19,2\\
-9112 & Auxiliares de aseo de oficinas, hoteles y otros establecimientos & 71821 & 16,4\\
-5223 & Vendedores y asistentes de venta de tiendas, almacenes y puestos de mercado & 23492 & 15,7\\
-5414 & Guardias de seguridad & 17719 & 12,9\\
-5131 & Garzones de mesa & 13484 & 10,4\\
+9211 & Obreros de explotaciones agrícolas & 300480 & 19,2\%\\
+9112 & Auxiliares de aseo de oficinas, hoteles y otros establecimientos & 71821 & 16,4\%\\
+5223 & Vendedores y asistentes de venta de tiendas, almacenes y puestos de mercado & 23492 & 15,7\%\\
+5414 & Guardias de seguridad & 17719 & 12,9\%\\
+5131 & Garzones de mesa & 13484 & 10,4\%\\
 \addlinespace
-8332 & Conductores de camiones pesados y de alto tonelaje & 12410 & 9,5\\
-5120 & Cocineros & 7623 & 14,7\\
-3123 & Supervisores de la construcción & 5224 & 19,2\\
-2243 & Ingenieros en prevención de riesgos y otros profesionales de la seguridad e higiene laboral y ambiental & 2971 & 19,2\\
-8331 & Conductores de buses y trolebuses & 2968 & 16,6\\
+8332 & Conductores de camiones pesados y de alto tonelaje & 12410 & 9,5\%\\
+5120 & Cocineros & 7623 & 14,7\%\\
+3123 & Supervisores de la construcción & 5224 & 19,2\%\\
+2243 & Ingenieros en prevención de riesgos y otros profesionales de la seguridad e higiene laboral y ambiental & 2971 & 19,2\%\\
+8331 & Conductores de buses y trolebuses & 2968 & 16,6\%\\
 \addlinespace
-8350 & Tripulantes de cubierta de barco & 1639 & 18,7\\
+8350 & Tripulantes de cubierta de barco & 1639 & 18,7\%\\
 \bottomrule
 \multicolumn{4}{l}{\rule{0pt}{1em}Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.}\\
 \end{tabular}
@@ -504,39 +499,39 @@ por ocupación, sector construcción.}
 \centering{
 
 \centering
-\begin{tabular}{lr}
+\begin{tabular}{ll}
 \toprule
 Cargo Construcción & \%\\
 \midrule
-Obreros y jornales & 23,2\\
-Carpinteros & 12,2\\
-Electricistas (técnicos y/o maestros) & 11,5\\
-Otros maestros de primera y segunda & 9,7\\
-Albañiles & 7,0\\
+Obreros y jornales & 23,2\%\\
+Carpinteros & 12,2\%\\
+Electricistas (técnicos y/o maestros) & 11,5\%\\
+Otros maestros de primera y segunda & 9,7\%\\
+Albañiles & 7\%\\
 \addlinespace
-Enfierradores & 4,0\\
-Concreteros & 3,7\\
-Operadores de maquinaria pesada & 3,2\\
-Pintores & 3,1\\
-Operadores de maquinaria liviana & 3,0\\
+Enfierradores & 4\%\\
+Concreteros & 3,7\%\\
+Operadores de maquinaria pesada & 3,2\%\\
+Pintores & 3,1\%\\
+Operadores de maquinaria liviana & 3\%\\
 \addlinespace
-Ingenieros, prevencionistas, arqueólogos, otros profesionales & 2,6\\
-Baldoseros y ceramistas & 2,6\\
-Soldadores & 2,4\\
-Capataces & 2,3\\
-Encargados de Obra & 2,1\\
+Ingenieros, prevencionistas, arqueólogos, otros profesionales & 2,6\%\\
+Baldoseros y ceramistas & 2,6\%\\
+Soldadores & 2,4\%\\
+Capataces & 2,3\%\\
+Encargados de Obra & 2,1\%\\
 \addlinespace
-Electrónicos, electromecánicos e instrumentistas & 2,1\\
-Mecánicos & 1,6\\
-Trazadores & 1,1\\
-Bodegueros y cardcheckers & 1,0\\
-Sanitarios y gásfiteres & 0,4\\
+Electrónicos, electromecánicos e instrumentistas & 2,1\%\\
+Mecánicos & 1,6\%\\
+Trazadores & 1,1\%\\
+Bodegueros y cardcheckers & 1\%\\
+Sanitarios y gásfiteres & 0,4\%\\
 \addlinespace
-Instaladores de gas & 0,4\\
-Operadores planta asfalto y áridos & 0,3\\
-Laboratoristas & 0,2\\
-Tuberos y peradores de termofusión & 0,2\\
-Buzos & 0,0\\
+Instaladores de gas & 0,4\%\\
+Operadores planta asfalto y áridos & 0,3\%\\
+Laboratoristas & 0,2\%\\
+Tuberos y peradores de termofusión & 0,2\%\\
+Buzos & 0\%\\
 \bottomrule
 \multicolumn{2}{l}{\rule{0pt}{1em}Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.}\\
 \end{tabular}
@@ -564,27 +559,27 @@ contrataciones por ocupación, sector agrícola}
 \centering{
 
 \centering
-\begin{tabular}{lr}
+\begin{tabular}{ll}
 \toprule
 Cargo Agrícola & \%\\
 \midrule
-Obrero agrícola de cosecha & 37,6\\
-Obrero agrícola de packing frutícola, bodega, estabilización, embotellado & 37,4\\
-Obrero agrícola de poda, raleo & 11,3\\
-Obrero agrícola de siembra, viveros & 3,7\\
-Obrero agrícola de riego, aplicación de agroquímicos & 3,2\\
+Obrero agrícola de cosecha & 37,6\%\\
+Obrero agrícola de packing frutícola, bodega, estabilización, embotellado & 37,4\%\\
+Obrero agrícola de poda, raleo & 11,3\%\\
+Obrero agrícola de siembra, viveros & 3,7\%\\
+Obrero agrícola de riego, aplicación de agroquímicos & 3,2\%\\
 \addlinespace
-Obrero forestal de cosecha & 1,9\\
-Obrero agrícola de almácigos & 1,7\\
-Obrero forestal de siembra & 1,2\\
-Obrero pecuario de crianza, alimentación, pastoreo & 0,8\\
-Obrero agroindustrial gestión de cría y engorda & 0,6\\
+Obrero forestal de cosecha & 1,9\%\\
+Obrero agrícola de almácigos & 1,7\%\\
+Obrero forestal de siembra & 1,2\%\\
+Obrero pecuario de crianza, alimentación, pastoreo & 0,8\%\\
+Obrero agroindustrial gestión de cría y engorda & 0,6\%\\
 \addlinespace
-Obrero forestal en labores de aserrador & 0,3\\
-Obrero pecuario de ordeña & 0,2\\
-Obrero agrícola de manejo reproductivo y sanitario & 0,0\\
-Obrero agroindustrial en matadero & 0,0\\
-Obrero agroindustrial limpieza, control plagas y enfermedades & 0,0\\
+Obrero forestal en labores de aserrador & 0,3\%\\
+Obrero pecuario de ordeña & 0,2\%\\
+Obrero agrícola de manejo reproductivo y sanitario & 0\%\\
+Obrero agroindustrial en matadero & 0\%\\
+Obrero agroindustrial limpieza, control plagas y enfermedades & 0\%\\
 \bottomrule
 \multicolumn{2}{l}{\rule{0pt}{1em}Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.}\\
 \end{tabular}
@@ -618,25 +613,25 @@ vacantes no cubiertas}
 \centering{
 
 \centering
-\begin{tabular}{lrr}
+\begin{tabular}{lll}
 \toprule
 Sector Actividad Económica & \% Sí & \% No\\
 \midrule
-Información y comunicaciones & 89,5 & 10,5\\
-Administración pública & 87,7 & 12,3\\
-Actividades profesionales & 80,2 & 19,8\\
-Alojamiento y de servicio de comidas & 78,3 & 21,7\\
-Transporte y almacenamiento & 78,3 & 21,7\\
+Información y comunicaciones & 89,5\% & 10,5\%\\
+Administración pública & 87,7\% & 12,3\%\\
+Actividades profesionales & 80,2\% & 19,8\%\\
+Alojamiento y de servicio de comidas & 78,3\% & 21,7\%\\
+Transporte y almacenamiento & 78,3\% & 21,7\%\\
 \addlinespace
-Servicios administrativos y de apoyo & 76,4 & 23,6\\
-Industria manufacturera & 73,7 & 26,3\\
-Comercio & 72,3 & 27,7\\
-Construcción & 67,8 & 32,2\\
-Actividades financieras y de seguros & 67,6 & 32,4\\
+Servicios administrativos y de apoyo & 76,4\% & 23,6\%\\
+Industria manufacturera & 73,7\% & 26,3\%\\
+Comercio & 72,3\% & 27,7\%\\
+Construcción & 67,8\% & 32,2\%\\
+Actividades financieras y de seguros & 67,6\% & 32,4\%\\
 \addlinespace
-Actividades inmobiliarias & 63,0 & 37,0\\
-Pesca y acuicultura & 61,7 & 38,3\\
-Silvoagropecuario & 49,4 & 50,6\\
+Actividades inmobiliarias & 63\% & 37\%\\
+Pesca y acuicultura & 61,7\% & 38,3\%\\
+Silvoagropecuario & 49,4\% & 50,6\%\\
 \bottomrule
 \multicolumn{3}{l}{\rule{0pt}{1em}Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.}\\
 \end{tabular}
@@ -674,17 +669,17 @@ ENADEL 2023.}
 \centering{
 
 \centering
-\begin{tabular}{rlrr}
+\begin{tabular}{rlrl}
 \toprule
 CIUO 08 & Glosa & Vacantes & cv\\
 \midrule
-9211 & Obreros de explotaciones agrícolas & 14374 & 38,3\\
-5414 & Guardias de seguridad & 1193 & 39,4\\
-9112 & Auxiliares de aseo de oficinas, hoteles y otros establecimientos & 1022 & 36,6\\
-5223 & Vendedores y asistentes de venta de tiendas, almacenes y puestos de mercado & 476 & 35,2\\
-5120 & Cocineros & 337 & 38,6\\
+9211 & Obreros de explotaciones agrícolas & 14374 & 38,3\%\\
+5414 & Guardias de seguridad & 1193 & 39,4\%\\
+9112 & Auxiliares de aseo de oficinas, hoteles y otros establecimientos & 1022 & 36,6\%\\
+5223 & Vendedores y asistentes de venta de tiendas, almacenes y puestos de mercado & 476 & 35,2\%\\
+5120 & Cocineros & 337 & 38,6\%\\
 \addlinespace
-8332 & Conductores de camiones pesados y de alto tonelaje & 232 & 33,8\\
+8332 & Conductores de camiones pesados y de alto tonelaje & 232 & 33,8\%\\
 \bottomrule
 \multicolumn{4}{l}{\rule{0pt}{1em}Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.}\\
 \end{tabular}
@@ -715,7 +710,7 @@ mayor cantidad de vacantes, por región.}
 \centering{
 
 \centering
-\begin{tabular}{llrr}
+\begin{tabular}{l>{\raggedright\arraybackslash}p{7cm}rr}
 \toprule
 Región & Ocupación & CIUO 08 & Vacantes\\
 \midrule
@@ -763,7 +758,7 @@ mayor cantidad de vacantes por tamaño de empresa.}
 \centering{
 
 \centering
-\begin{tabular}{>{\raggedright\arraybackslash}p{4cm}l>{\raggedright\arraybackslash}p{7cm}rr}
+\begin{tabular}{>{\raggedright\arraybackslash}p{4cm}l>{\raggedright\arraybackslash}p{5cm}>{\raggedleft\arraybackslash}p{2cm}>{\raggedleft\arraybackslash}p{2cm}}
 \toprule
 Categoría & Tamaño Empresa & Ocupación & CIUO 08 & Vacantes\\
 \midrule
@@ -805,7 +800,7 @@ mayor cantidad de vacantes por sector de actividad económica.}
 \centering{
 
 \centering
-\begin{tabular}{l>{\raggedright\arraybackslash}p{7cm}rr}
+\begin{tabular}{l>{\raggedright\arraybackslash}p{5cm}>{\raggedleft\arraybackslash}p{3cm}>{\raggedleft\arraybackslash}p{3cm}}
 \toprule
 Sector Actividad Económica & Ocupación & CIUO 08 & Vacantes\\
 \midrule
@@ -855,32 +850,32 @@ sector construcción.}
 \centering{
 
 \centering
-\begin{tabular}{l>{\raggedleft\arraybackslash}p{7cm}rr}
+\begin{tabular}{>{\raggedright\arraybackslash}p{3cm}>{\raggedleft\arraybackslash}p{5cm}ll}
 \toprule
 Cargo Construcción & Vacantes & \% del total & CV\\
 \midrule
-Obreros y jornales & 1271 & 39 & 46\\
-Carpinteros & 495 & 15 & 52\\
-Soldadores & 406 & 13 & 83\\
-Otros maestros de primera y segunda & 184 & 6 & 90\\
-Ingenieros, prevencionistas, arqueólogos, otros profesionales & 137 & 4 & 54\\
+Obreros y jornales & 1271 & 39\% & 46\%\\
+Carpinteros & 495 & 15\% & 52\%\\
+Soldadores & 406 & 13\% & 83\%\\
+Otros maestros de primera y segunda & 184 & 6\% & 90\%\\
+Ingenieros, prevencionistas, arqueólogos, otros profesionales & 137 & 4\% & 54\%\\
 \addlinespace
-Pintores & 131 & 4 & 59\\
-Enfierradores & 119 & 4 & 58\\
-Albañiles & 101 & 3 & 44\\
-Capataces & 99 & 3 & 51\\
-Encargados de Obra & 63 & 2 & 50\\
+Pintores & 131 & 4\% & 59\%\\
+Enfierradores & 119 & 4\% & 58\%\\
+Albañiles & 101 & 3\% & 44\%\\
+Capataces & 99 & 3\% & 51\%\\
+Encargados de Obra & 63 & 2\% & 50\%\\
 \addlinespace
-Electrónicos, electromecánicos e instrumentistas & 59 & 2 & 60\\
-Baldoseros y ceramistas & 54 & 2 & 78\\
-Electricistas (técnicos y/o maestros) & 42 & 1 & 47\\
-Operadores de maquinaria pesada & 34 & 1 & 77\\
-Bodegueros y cardcheckers & 12 & 0 & 72\\
+Electrónicos, electromecánicos e instrumentistas & 59 & 2\% & 60\%\\
+Baldoseros y ceramistas & 54 & 2\% & 78\%\\
+Electricistas (técnicos y/o maestros) & 42 & 1\% & 47\%\\
+Operadores de maquinaria pesada & 34 & 1\% & 77\%\\
+Bodegueros y cardcheckers & 12 & 0\% & 72\%\\
 \addlinespace
-Mecánicos & 6 & 0 & 100\\
-Laboratoristas & 4 & 0 & 100\\
-Sanitarios y gásfiteres & 3 & 0 & 100\\
-Total & 3220 & 99 & NA\\
+Mecánicos & 6 & 0\% & 100\%\\
+Laboratoristas & 4 & 0\% & 100\%\\
+Sanitarios y gásfiteres & 3 & 0\% & 100\%\\
+Total & 3220 & 99\% & NA\%\\
 \bottomrule
 \multicolumn{4}{l}{\rule{0pt}{1em}Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.}\\
 \end{tabular}
@@ -913,21 +908,21 @@ sector agrícola.}
 \centering{
 
 \centering
-\begin{tabular}{>{\raggedright\arraybackslash}p{15cm}rrr}
+\begin{tabular}{>{\raggedright\arraybackslash}p{7cm}rll}
 \toprule
 Cargo Agrícola & Vacantes & \% del total & CV\\
 \midrule
-Obrero agrícola de poda, raleo & 2234 & 21 & 70\\
-Obrero agrícola de cosecha & 1921 & 18 & 80\\
-Obrero agrícola de riego, aplicación de agroquímicos & 1597 & 15 & 93\\
-Obrero agrícola de siembra, viveros & 1488 & 14 & 100\\
-Obrero agrícola de packing frutícola, bodega, estabilización, embotellado & 1488 & 14 & 84\\
+Obrero agrícola de poda, raleo & 2234 & 21\% & 70\%\\
+Obrero agrícola de cosecha & 1921 & 18\% & 80\%\\
+Obrero agrícola de riego, aplicación de agroquímicos & 1597 & 15\% & 93\%\\
+Obrero agrícola de siembra, viveros & 1488 & 14\% & 100\%\\
+Obrero agrícola de packing frutícola, bodega, estabilización, embotellado & 1488 & 14\% & 84\%\\
 \addlinespace
-Obrero agrícola de almácigos & 1488 & 14 & 100\\
-Obrero forestal de siembra & 196 & 2 & 100\\
-Obrero forestal de cosecha & 173 & 2 & 82\\
-Obrero pecuario de ordeña & 41 & 0 & 100\\
-Total & 10626 & 100 & NA\\
+Obrero agrícola de almácigos & 1488 & 14\% & 100\%\\
+Obrero forestal de siembra & 196 & 2\% & 100\%\\
+Obrero forestal de cosecha & 173 & 2\% & 82\%\\
+Obrero pecuario de ordeña & 41 & 0\% & 100\%\\
+Total & 10626 & 100\% & NA\%\\
 \bottomrule
 \multicolumn{4}{l}{\rule{0pt}{1em}Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.}\\
 \end{tabular}
@@ -966,21 +961,21 @@ contratación.}
 \centering{
 
 \centering
-\begin{tabular}{l>{\raggedleft\arraybackslash}p{7cm}r}
+\begin{tabular}{>{\raggedright\arraybackslash}p{5cm}>{\raggedright\arraybackslash}p{3cm}>{\raggedright\arraybackslash}p{3cm}}
 \toprule
 Primera dificultad & \% de 1ra dificultad & \% del total\\
 \midrule
-Condiciones laborales no aceptadas & 15,5 & 16,6\\
-Falta de postulantes & 15,0 & 14,8\\
-Rotación laboral & 13,9 & 12,9\\
-Candidatos sin competencias técnicas requeridas & 17,0 & 12,5\\
-Remuneración ofrecida no aceptada & 12,1 & 12,3\\
+Condiciones laborales no aceptadas & 15,5\% & 16,6\%\\
+Falta de postulantes & 15\% & 14,8\%\\
+Rotación laboral & 13,9\% & 12,9\%\\
+Candidatos sin competencias técnicas requeridas & 17\% & 12,5\%\\
+Remuneración ofrecida no aceptada & 12,1\% & 12,3\%\\
 \addlinespace
-Candidatos sin la experiencia mínima requerida & 8,2 & 10,0\\
-Otra dificultad & 5,6 & 7,6\\
-Candidatos sin competencias socioemocionales requeridas & 6,6 & 7,0\\
-Candidatos sin licencias, certificaciones o requisitos legales & 5,4 & 4,8\\
-Candidatos sin nivel educacional requerido & 0,7 & 1,5\\
+Candidatos sin la experiencia mínima requerida & 8,2\% & 10\%\\
+Otra dificultad & 5,6\% & 7,6\%\\
+Candidatos sin competencias socioemocionales requeridas & 6,6\% & 7\%\\
+Candidatos sin licencias, certificaciones o requisitos legales & 5,4\% & 4,8\%\\
+Candidatos sin nivel educacional requerido & 0,7\% & 1,5\%\\
 \bottomrule
 \multicolumn{3}{l}{\rule{0pt}{1em}Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.}\\
 \end{tabular}
@@ -1005,21 +1000,21 @@ contratación, ocupaciones del sector Construcción.}
 \centering{
 
 \centering
-\begin{tabular}{l>{\raggedleft\arraybackslash}p{7cm}r}
+\begin{tabular}{>{\raggedright\arraybackslash}p{5cm}>{\raggedright\arraybackslash}p{3cm}>{\raggedright\arraybackslash}p{3cm}}
 \toprule
 Primera dificultad & \% de 1ra dificultad & \% del total\\
 \midrule
-Remuneración ofrecida no aceptada & 29,8 & 22,4\\
-Condiciones laborales no aceptadas & 8,4 & 20,4\\
-Falta de postulantes & 22,0 & 15,9\\
-Rotación laboral & 10,0 & 14,7\\
-Candidatos sin la experiencia mínima requerida & 7,7 & 7,6\\
+Remuneración ofrecida no aceptada & 29,8\% & 22,4\%\\
+Condiciones laborales no aceptadas & 8,4\% & 20,4\%\\
+Falta de postulantes & 22\% & 15,9\%\\
+Rotación laboral & 10\% & 14,7\%\\
+Candidatos sin la experiencia mínima requerida & 7,7\% & 7,6\%\\
 \addlinespace
-Candidatos sin licencias, certificaciones o requisitos legales & 10,4 & 5,9\\
-Candidatos sin competencias técnicas requeridas & 7,8 & 5,7\\
-Candidatos sin nivel educacional requerido & 0,7 & 3,8\\
-Candidatos sin competencias socioemocionales requeridas & 2,9 & 2,8\\
-Otra dificultad & 0,2 & 0,8\\
+Candidatos sin licencias, certificaciones o requisitos legales & 10,4\% & 5,9\%\\
+Candidatos sin competencias técnicas requeridas & 7,8\% & 5,7\%\\
+Candidatos sin nivel educacional requerido & 0,7\% & 3,8\%\\
+Candidatos sin competencias socioemocionales requeridas & 2,9\% & 2,8\%\\
+Otra dificultad & 0,2\% & 0,8\%\\
 \bottomrule
 \multicolumn{3}{l}{\rule{0pt}{1em}Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.}\\
 \end{tabular}
@@ -1046,21 +1041,21 @@ contratación, ocupaciones del sector Construcción.}
 \centering{
 
 \centering
-\begin{tabular}{l>{\raggedleft\arraybackslash}p{7cm}r}
+\begin{tabular}{>{\raggedright\arraybackslash}p{5cm}>{\raggedright\arraybackslash}p{3cm}>{\raggedright\arraybackslash}p{3cm}}
 \toprule
 Primera dificultad & \% de 1ra dificultad & \% del total\\
 \midrule
-Condiciones laborales no aceptadas & 40,1 & 31,1\\
-Rotación laboral & 14,8 & 20,9\\
-Falta de postulantes & 11,6 & 19,1\\
-Remuneración ofrecida no aceptada & 9,0 & 8,2\\
-Candidatos sin competencias técnicas requeridas & 11,6 & 8,1\\
+Condiciones laborales no aceptadas & 40,1\% & 31,1\%\\
+Rotación laboral & 14,8\% & 20,9\%\\
+Falta de postulantes & 11,6\% & 19,1\%\\
+Remuneración ofrecida no aceptada & 9\% & 8,2\%\\
+Candidatos sin competencias técnicas requeridas & 11,6\% & 8,1\%\\
 \addlinespace
-Candidatos sin competencias socioemocionales requeridas & 5,6 & 6,0\\
-Candidatos sin la experiencia mínima requerida & 2,7 & 3,4\\
-Otra dificultad & 3,7 & 2,6\\
-Candidatos sin licencias, certificaciones o requisitos legales & 0,6 & 0,4\\
-Candidatos sin nivel educacional requerido & 0,2 & 0,1\\
+Candidatos sin competencias socioemocionales requeridas & 5,6\% & 6\%\\
+Candidatos sin la experiencia mínima requerida & 2,7\% & 3,4\%\\
+Otra dificultad & 3,7\% & 2,6\%\\
+Candidatos sin licencias, certificaciones o requisitos legales & 0,6\% & 0,4\%\\
+Candidatos sin nivel educacional requerido & 0,2\% & 0,1\%\\
 \bottomrule
 \multicolumn{3}{l}{\rule{0pt}{1em}Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.}\\
 \end{tabular}
