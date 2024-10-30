@@ -21,11 +21,15 @@ lang: es
 header-includes:
   - \usepackage{pdfpages}  
   - \usepackage{fontspec}
+  - \usepackage[bottom]{footmisc} 
   - \setmainfont{Aptos}[Path="C:/Users/ginow/AppData/Roaming/TinyTeX/texmf-dist/fonts/truetype/aptos/", Extension=".ttf"]
   - \usepackage{fancyhdr}
   - \pagestyle{fancy}
   - \fancyhf{} 
   - \cfoot{\thepage}
+  - \setlength{\footskip}{10pt}
+  - \setlength{\skip\footins}{15pt} 
+  - \renewcommand{\footrulewidth}{0pt} 
   - \floatplacement{figure}{H}
   - \floatplacement{table}{H}
   - \usepackage{geometry}
@@ -168,8 +172,8 @@ pc_tam<- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "pc_tam")
 
 pc_tamvent<- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "pc_tamvent")
 
-#Agregar Verdana
-font_add(family = "verdana", regular = "C:/Windows/Fonts/VERDANA.TTF")
+#Agregar Aptos
+#font_add(family = "Aptos", regular = "C:/Windows/Fonts/APTOS.TTF")
 #habilitar para ggplot
 showtext_auto()
 
@@ -192,7 +196,7 @@ graf_tam<-ggplot(df_long, aes(x = tipo, y = porcentaje, fill = factor(tam_label,
        x = NULL,
        y = NULL,
        fill = "") +
-  theme_minimal(base_family = "verdana") +
+  theme_minimal(base_family = "Aptos") +
   theme(axis.text.x = element_text(size = 5),
         axis.text.y = element_text(size = 5),
         plot.title = element_text(hjust = 0.5, size = 7.5),
@@ -230,7 +234,7 @@ graf_tamvent<-ggplot(df_long, aes(x = tipo, y = porcentaje, fill = factor(tam_ve
        x = NULL,
        y = NULL,
        fill="") +
-  theme_minimal(base_family = "verdana")+
+  theme_minimal(base_family = "Aptos")+
   theme(axis.text.x = element_text(size = 5),
         axis.text.y = element_text(size = 5),
         plot.title = element_text(hjust = 0.5, size = 7.5),
@@ -247,8 +251,8 @@ graf_combined <- graf_tam + graf_tamvent +
   plot_layout(ncol = 2) +  # Configurar para que los gráficos estén en 2 columnas (lado a lado)
   plot_annotation(
     caption = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.",
-    theme = theme(plot.title = element_text(family = "verdana", size = 14, face = "bold"),
-      plot.caption = element_text(family = "verdana", hjust = 0, size = 7.5))
+    theme = theme(plot.title = element_text(family = "Aptos", size = 14, face = "bold"),
+      plot.caption = element_text(family = "Aptos", hjust = 0, size = 7.5))
   )
 
 graf_combined
@@ -303,10 +307,11 @@ kable(porc_acteco,
       col.names = c("Actividad Económica", "% Empresas", "% Trabajadores"),
       format = "latex", 
       booktabs = TRUE) %>% 
-  kable_classic(full_width = FALSE, html_font = "Verdana") %>% 
+  kable_classic(full_width = FALSE, html_font = "Aptos") %>% 
+  column_spec(1, width = "11cm") %>%
   footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.",
             general_title= "") 
-   #kable_styling(latex_options = c("hold_position"))
+
 
 
 
@@ -331,8 +336,18 @@ contratos_totales<- contratos_totales %>%select(c( "sector_label","Si", "No"))
 
 # Cambiar el orden de las columnas
 contratos_totales <- contratos_totales %>% select("sector_label","Si", "No") %>% 
-  rename("Sector Actividad Económica" = sector_label)
-  
+  rename("Sector Actividad Económica" = sector_label) 
+
+
+
+total <- contratos_totales %>%summarise(`Sector Actividad Económica` = "Total",
+                                         Si = round(mean(Si),1),
+                                         No =round (mean(No),1))
+
+
+
+# Unir la fila de totales a la tabla original
+contratos_totales <- bind_rows(contratos_totales, total) 
  
 
 ```
@@ -356,7 +371,8 @@ kable(contratos_totales,
       col.names = c("Actividad Económica", "% Si", "% No"),
       format = "latex", 
       booktabs = TRUE) %>% 
-  kable_classic(full_width = FALSE, html_font = "Verdana") %>% 
+  kable_classic(full_width = FALSE, html_font = "Aptos") %>%
+  column_spec(1, width = "11cm") %>%
   footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.",
             general_title= "") 
   #kable_styling(latex_options = c("hold_position"))
@@ -410,7 +426,8 @@ kable(contratados_u12,
       col.names = c("CIUO_08", "Glosa", "Contratados", "cv"),
       format = "latex", 
       booktabs = TRUE) %>% 
-  kable_classic(full_width = FALSE, html_font = "Verdana") %>%
+  kable_classic(full_width = FALSE, html_font = "Aptos") %>%
+  column_spec(1, width = "1.2cm") %>%
   column_spec(2, width = "11cm") %>% 
   footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.",
             general_title= "") 
@@ -453,7 +470,8 @@ kable(contratados_u12_constru,
       col.names = c("Cargo Construcción", "%"),
       format = "latex", 
       booktabs = TRUE) %>% 
-  kable_classic(full_width = FALSE, html_font = "Verdana") %>%
+  kable_classic(full_width = FALSE, html_font = "Aptos") %>%
+  column_spec(1, width = "12cm") %>%
   footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.",
             general_title= "") 
                                                 
@@ -494,7 +512,7 @@ kable(contratados_u12_agricola,
       col.names = c("Cargo Agrícola", "%"),
       format = "latex", 
       booktabs = TRUE) %>% 
-  kable_classic(full_width = FALSE, html_font = "Verdana") %>%
+  kable_classic(full_width = FALSE, html_font = "Aptos") %>%
   footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.",
             general_title= "") 
 ```
@@ -551,7 +569,8 @@ kable(vacantes_totales_sector,
       col.names = c("Sector Actividad Económica", "% Sí", "% No"),
       format = "latex", 
       booktabs = TRUE) %>% 
-  kable_classic(full_width = FALSE, html_font = "Verdana") %>%
+  kable_classic(full_width = FALSE, html_font = "Aptos") %>%
+  column_spec(1, width = "10cm") %>%
   footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.",
             general_title= "") 
 ```
@@ -601,7 +620,9 @@ kable(vacantes_tot,
       col.names = c("CIUO 08", "Glosa", "Vacantes", "cv"),
       format = "latex", 
       booktabs = TRUE) %>% 
-  kable_classic(full_width = FALSE, html_font = "Verdana") %>%
+  kable_classic(full_width = FALSE, html_font = "Aptos") %>%
+  column_spec(1, width = "1.2cm") %>%
+  column_spec(2, width = "11cm") %>%
   footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.",
             general_title= "") 
 ```
@@ -645,6 +666,8 @@ vacantes_region<- vacantes_region %>% mutate(region_trab= case_when(region_trab=
 
 La @tbl-vacantes_region muestra la ocupación de difícil cobertura con mayor cantidad de vacantes por región dónde, si bien se confirma la prevalencia de “Obreros de explotaciones agrícolas” en 7 regiones, también saltan a la vista otros patrones como la demanda del rubro de la construcción hacia el norte y de la industria manufacturera en el Maule y la Araucanía.
 
+
+
 ```{r,fig.align = 'center'}
 #| label: tbl-vacantes_region
 #| tbl-cap: "Ocupación de difícil cobertura con mayor cantidad de vacantes, por región."
@@ -660,7 +683,7 @@ kable(vacantes_region,
       col.names = c("Región", "Ocupación", "CIUO 08", "Vacantes"),
       format = "latex", 
       booktabs = TRUE) %>% 
-  kable_classic(full_width = FALSE, html_font = "Verdana") %>%
+  kable_classic(full_width = FALSE, html_font = "Aptos") %>%
   column_spec(2, width = "7cm") %>%
   footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.",
             general_title= "") 
@@ -725,7 +748,8 @@ kable(vacantes_tamano,
       col.names = c("Categoría", "Tamaño Empresa", "Ocupación", "CIUO 08", "Vacantes"),
       format = "latex", 
       booktabs = TRUE) %>% 
-  kable_classic(full_width = FALSE, html_font = "Verdana") %>%
+  kable_classic(full_width = FALSE, html_font = "Aptos") %>%
+  kable_styling(latex_options = c("scale_down")) %>%
   column_spec(1, bold = TRUE, width = "4cm") %>%
   column_spec(3, width = "5cm") %>%
   column_spec(4, width = "2cm") %>%
@@ -734,6 +758,8 @@ kable(vacantes_tamano,
   group_rows("\\textbf{Según ventas}", 4, 8, latex_align = "l", escape = FALSE) %>%
   footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.",
             general_title= "") 
+
+
 
 ```
 
@@ -767,7 +793,7 @@ vacantes_sector<- vacantes_sector %>%
 ```
 Al analizar las ocupaciones de difícil cobertura según el sector de actividad económica, como se muestra en la @tbl-vacantes_sector, se vuelve a confirmar la dificultad para llenar vacantes de “Obreros de explotaciones agrícolas”, pero también surgen otras ocupaciones relevantes como "`r vacantes_sector[2,2]`"  “Vendedores y asistentes de venta de tiendas, almacenes y puestos de mercado” que es la ocupación con más vacantes sin llenar en los sectores de "`r vacantes_sector[2,1]`"  y "`r vacantes_sector[6,1]`".
 
-```{r, fig.align = 'left'}
+```{r, fig.align = 'center'}
 #| label: tbl-vacantes_sector
 #| tbl-cap: "Ocupación de difícil cobertura con mayor cantidad de vacantes por sector de actividad económica."
 #| echo: false
@@ -781,14 +807,18 @@ kable(vacantes_sector,
       col.names = c("Sector Actividad Económica", "Ocupación", "CIUO 08", "Vacantes"),
       format = "latex", 
       booktabs = TRUE) %>% 
-  kable_classic(full_width = FALSE, html_font = "Verdana") %>%
-  column_spec(2, width = "5cm") %>%
-  column_spec(3, width = "3cm") %>%
-  column_spec(4, width = "3cm") %>%
-  footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos. Nota: para seleccionar la ocupación de difícil cobertura con mayor cantidad de vacantes sólo se tomó en cuenta la magnitud de la estimación, sin considerar indicadores de robustez cómo el coeficiente de variación.",
-            general_title= "") 
+  kable_classic(full_width = FALSE, html_font = "Aptos") %>%
+  #kable_styling(latex_options = c( "repeat_header")) %>%
+  column_spec(1, width = "6cm") %>%
+   column_spec(2, width = "6cm") %>%
+   column_spec(3, width = "1.3cm") %>%
+   column_spec(4, width = "1.3cm") %>%
+footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.",general_title = "")
+
+
 
 ```
+Nota: para seleccionar la ocupación de difícil cobertura con mayor cantidad de vacantes sólo se tomó en cuenta la magnitud de la estimación, sin considerar indicadores de robustez como el coeficiente de variación.
 \newpage
 
 ##### Ocupaciones de Difícil Cobertura: Sector Construcción
@@ -803,8 +833,8 @@ vacantes_constru <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "vac
 
 #Recodificación
 vacantes_constru<- vacantes_constru %>% 
-  mutate(porcentaje= round((vacantesu12/sum(vacantesu12))*100,0),
-         cv=round(cv*100,0),
+  mutate(porcentaje= round((vacantesu12/sum(vacantesu12))*100,1),
+         cv=round(cv*100,1),
          vacantesu12= round(vacantesu12,0))%>% 
   select(cargo,vacantesu12,porcentaje, cv) %>% arrange(desc(vacantesu12))
 
@@ -813,7 +843,7 @@ vacantes_constru<- vacantes_constru %>%
 # Crear fila de totales
 totales <- vacantes_constru %>%summarise(cargo = "Total",
                                          vacantesu12 = sum(vacantesu12),
-                                         porcentaje = sum(porcentaje), # Suma de porcentajes para verificar que sea 100%
+                                         porcentaje = round(sum(porcentaje),0), # Suma de porcentajes para verificar que sea 100%
                                          cv = NA_real_)  # NA porque no tiene sentido calcular un total para CV
 
 # Unir la fila de totales a la tabla original
@@ -841,9 +871,9 @@ kable(vacantes_constru,
       col.names = c("Cargo Construcción", "Vacantes", "% del total", "CV"),
       format = "latex", 
       booktabs = TRUE) %>% 
-  kable_classic(full_width = FALSE, html_font = "Verdana") %>%
-  column_spec(1, width = "3cm") %>%
-  column_spec(2, width = "5cm") %>%
+  kable_classic(full_width = FALSE, html_font = "Aptos") %>%
+  column_spec(1, width = "9cm") %>%
+  #column_spec(2, width = "5cm") %>%
   footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.",
             general_title= "") 
 
@@ -859,9 +889,11 @@ kable(vacantes_constru,
 
 vacantes_agro <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "vacantes_agro")
 
+
+
 #Recodificación
 vacantes_agro<- vacantes_agro %>% 
-  mutate(porcentaje= round((vacantesu12/sum(vacantesu12))*100,0),
+  mutate(porcentaje= round((vacantesu12/sum(vacantesu12))*100,1),
          cv=round(cv*100,0),
          vacantesu12= round(vacantesu12,0))%>% 
   select(cargo,vacantesu12,porcentaje, cv) %>% arrange(desc(vacantesu12))
@@ -871,7 +903,7 @@ vacantes_agro<- vacantes_agro %>%
 # Crear fila de totales
 totales <- vacantes_agro %>%summarise(cargo = "Total",
                                          vacantesu12 = sum(vacantesu12),
-                                         porcentaje = sum(porcentaje), # Suma de porcentajes para verificar que sea 100%
+                                         porcentaje = round(sum(porcentaje),0), # Suma de porcentajes para verificar que sea 100%
                                          cv = NA_real_)  # NA porque no tiene sentido calcular un total para CV
 
 # Unir la fila de totales a la tabla original
@@ -899,7 +931,7 @@ kable(vacantes_agro,
       col.names = c("Cargo Agrícola", "Vacantes", "% del total", "CV"),
       format = "latex", 
       booktabs = TRUE) %>% 
-  kable_classic(full_width = FALSE, html_font = "Verdana") %>%
+  kable_classic(full_width = FALSE, html_font = "Aptos") %>%
   column_spec(1, width = "7cm") %>%
   footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.",
             general_title= "") 
@@ -954,7 +986,7 @@ kable(dificultad_tot,
       col.names = c("Primera dificultad", "% de 1ra dificultad", "% del total"),
       format = "latex", 
       booktabs = TRUE) %>% 
-  kable_classic(full_width = FALSE, html_font = "Verdana") %>%
+  kable_classic(full_width = FALSE, html_font = "Aptos") %>%
   column_spec(1, width = "5cm") %>%
   column_spec(2, width = "3cm") %>%
   column_spec(3, width = "3cm") %>%
@@ -1000,7 +1032,7 @@ kable(dificultad_constru,
       col.names = c("Primera dificultad", "% de 1ra dificultad", "% del total"),
       format = "latex", 
       booktabs = TRUE) %>% 
-  kable_classic(full_width = FALSE, html_font = "Verdana") %>%
+  kable_classic(full_width = FALSE, html_font = "Aptos") %>%
     column_spec(1, width = "5cm") %>%
   column_spec(2, width = "3cm") %>%
   column_spec(3, width = "3cm") %>%
@@ -1047,7 +1079,7 @@ kable(dificultad_agro,
       col.names = c("Primera dificultad", "% de 1ra dificultad", "% del total"),
       format = "latex", 
       booktabs = TRUE) %>% 
-  kable_classic(full_width = FALSE, html_font = "Verdana") %>%
+  kable_classic(full_width = FALSE, html_font = "Aptos") %>%
       column_spec(1, width = "5cm") %>%
   column_spec(2, width = "3cm") %>%
   column_spec(3, width = "3cm") %>%
