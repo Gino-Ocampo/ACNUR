@@ -1647,9 +1647,11 @@ vacantes_tot<-vacantes_tot %>% group_by(oficio_label) %>% summarise(vacantesu12=
 #| message: false
 #| warning: false
 
+
+vacantes_tot<- vacantes_tot %>% mutate(cv= paste0(cv, "%"))
 # Generar la tabla con kable
-kable(canal,
-      col.names = c("Canal de reclutamiento","1° Canal", "Total"),
+kable(vacantes_tot,
+      col.names = c("Glosa","Vacantes", "CV"),
       format = "latex", 
       booktabs = TRUE) %>% 
   kable_classic(full_width = FALSE, html_font = "Aptos") %>%
