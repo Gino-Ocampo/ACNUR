@@ -9,7 +9,7 @@ format:
     document:
       tables:
         float: false
-    extra_dependencies: ["pdfpages", "float"]  # pdfpages se cargará correctamente
+    extra_dependencies: ["pdfpages", "float"]  
     documentclass: article
     latex-engine: xelatex
     toc: false
@@ -25,10 +25,15 @@ header-includes:
   - \setmainfont{Aptos}[Path="C:/Users/ginow/AppData/Roaming/TinyTeX/texmf-dist/fonts/truetype/aptos/", Extension=".ttf"]
   - \usepackage{fancyhdr}
   - \pagestyle{fancy}
-  - \fancyhf{} 
+  - \fancyhf{}
+  - |
+    \fancyhead[C]{\makebox[\textwidth]{\hspace*{-1cm}\includegraphics[height=1.9cm]{../Logotipo ENADEL/encabezado_izquierda.png} \hfill \includegraphics[height=1.5cm]{../Logotipo ENADEL/encabezado_derecha.png} \hspace*{-2cm}}}
+  - \fancyfoot[L]{Subsecretaría del Trabajo}
   - \cfoot{\thepage}
   - \setlength{\footskip}{10pt}
   - \setlength{\skip\footins}{15pt} 
+  - \setlength{\headheight}{3cm}  # ajusta según sea necesario
+  - \setlength{\headsep}{0.5cm}  # distancia del encabezado al cuerpo del texto
   - \renewcommand{\footrulewidth}{0pt} 
   - \floatplacement{figure}{H}
   - \floatplacement{table}{H}
@@ -46,17 +51,18 @@ header-includes:
   - \renewcommand{\familydefault}{\sfdefault}
   - \AtBeginDocument{\renewcommand{\baselinestretch}{1.5}\justifying}
   - \usepackage{xcolor}
-  - \definecolor{mybgcolor}{HTML}{01376B}
   - \usepackage{pagecolor}
 include-before-body: "portada.tex"
 ---
 \newpage
 
-\pagecolor{mybgcolor} 
-\color{white}
+\thispagestyle{empty} 
+
+ 
+
 ::: titlingpage
 \centering
-\includegraphics[width=0.5\textwidth]{../Logotipo ENADEL/Logotipo ENADEL 2023.png} \vspace{2cm}
+\includegraphics[width=0.5\textwidth]{../Logotipo ENADEL/logotipo-ENADEL-2023.png} \vspace{2cm}
 :::
 
 \noindent
@@ -70,10 +76,9 @@ Subsecretaría del Trabajo
 \justifying
 El presente documento analiza los resultados de la Encuesta Nacional de Demanda Laboral (ENADEL) 2023, que busca identificar y caracterizar el capital humano requerido por las empresas de los distintos sectores productivos del país, generando información sobre la demanda actual de ocupaciones de las empresas, detectando requisitos y problemas de contratación. Al igual que versiones anteriores de esta encuesta, se puso el foco en dos sectores de actividad económica: Construcción y el sector Agrícola.
 
-\newpage
 
-\pagecolor{white}  % Volver al fondo blanco para el resto del documento
-\color{black}
+
+
 
 
 \newpage
@@ -122,7 +127,7 @@ porc_region <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "pc_regio
 
 porc_region<- porc_region %>% select(-c("region","empresas", "trabajadores")) 
 
-porc_region <- round(porc_region*100, 2)
+porc_region <- round(porc_region*100, 1)
 rownames(porc_region)<- orden_regiones
 
 
@@ -149,6 +154,9 @@ kable(porc_region,
       format = "latex",
       booktabs = TRUE) %>%
   kable_classic(full_width = FALSE, html_font = "Aptos") %>%
+  column_spec(1, width = "6cm") %>%
+  column_spec(2, width = "3cm") %>%
+  column_spec(3, width = "3cm") %>%
   footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.",
            general_title= "")
 
@@ -191,19 +199,19 @@ graf_tam<-ggplot(df_long, aes(x = tipo, y = porcentaje, fill = factor(tam_label,
   geom_bar(stat = "identity", position = position_dodge(width = 0.5), width = 0.4) +#gráfico de barras
   scale_fill_manual(values = c("Pequeña" = "#e36444", "Mediana" = "#c36c9b", "Grande" = "#35638c")) +#color de leyendas
   geom_text(aes(label = scales::percent(porcentaje, accuracy = 1)),#valor de etiquetas
-            position = position_dodge(width = 0.5), vjust = -0.5, size = 2) +#posición de las etiquetas
-   scale_y_continuous(labels = scales::percent, limits = c(0, 1)) + #eje y
+            position = position_dodge(width = 0.5), vjust = -0.5, size = 2.3) +#posición de las etiquetas
+   scale_y_continuous(labels = scales::percent, limits = c(0, 0.8)) + #eje y
   labs(title = "Según N° de trabajadores",
        x = NULL,
        y = NULL,
        fill = "") +
   theme_minimal(base_family = "Aptos") +
-  theme(axis.text.x = element_text(size = 5),
-        axis.text.y = element_text(size = 5),
+  theme(axis.text.x = element_text(size = 6),
+        axis.text.y = element_text(size = 6),
         plot.title = element_text(hjust = 0.5, size = 7.5),
         legend.position = "bottom",
         legend.title = element_text(size = 5), # Ajustar el tamaño del título de la leyenda
-    legend.text = element_text(size = 5)    # Ajustar el tamaño del texto de las etiquetas de la leyenda
+    legend.text = element_text(size = 5.5)    # Ajustar el tamaño del texto de las etiquetas de la leyenda
   ) +
   guides(
     fill = guide_legend(nrow = 2) # Configurar la leyenda para tener 2 filas
@@ -229,19 +237,19 @@ graf_tamvent<-ggplot(df_long, aes(x = tipo, y = porcentaje, fill = factor(tam_ve
   geom_bar(stat = "identity", position = position_dodge(width = 0.7), width = 0.6) +#gráfico de barras
   scale_fill_manual(values = c("Sin ventas"= "#bb1c42","Micro"="#f4bb54","Pequeña" = "#e36444", "Mediana" = "#c36c9b", "Grande" = "#35638c")) +#color de leyendas
   geom_text(aes(label = scales::percent(porcentaje, accuracy = 1)),#valor de etiquetas
-            position = position_dodge(width = 0.7), vjust = -0.5, size = 2) +#posición de las etiquetas
-   scale_y_continuous(labels = scales::percent, limits = c(0, 1)) + #eje y
+            position = position_dodge(width = 0.7), vjust = -0.5, size = 2.3) +#posición de las etiquetas
+   scale_y_continuous(labels = scales::percent, limits = c(0, 0.8)) + #eje y
   labs(title = "Según tamaño de ventas",
        x = NULL,
        y = NULL,
        fill="") +
   theme_minimal(base_family = "Aptos")+
-  theme(axis.text.x = element_text(size = 5),
-        axis.text.y = element_text(size = 5),
+  theme(axis.text.x = element_text(size = 6),
+        axis.text.y = element_text(size = 6),
         plot.title = element_text(hjust = 0.5, size = 7.5),
         legend.position = "bottom",
         legend.title = element_text(size = 5), # Ajustar el tamaño del título de la leyenda
-    legend.text = element_text(size = 5)    # Ajustar el tamaño del texto de las etiquetas de la leyenda
+    legend.text = element_text(size = 5.5)    # Ajustar el tamaño del texto de las etiquetas de la leyenda
   ) +
   guides(
     fill = guide_legend(nrow = 2) # Configurar la leyenda para tener 2 filas
@@ -272,7 +280,7 @@ graf_combined
 
 porc_acteco <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "pc_acteco") %>% select(-c("act_eco","empresas", "trabajadores"))
 
-porc_acteco <- round(porc_acteco*100, 2)
+porc_acteco <- round(porc_acteco*100, 1)
 
 porc_acteco <- porc_acteco %>% arrange(desc(pc_trabajadores))
 
@@ -321,8 +329,7 @@ kable(porc_acteco,
 
 
 
-
-### Contratados en los últimos 12 meses
+## Contratados en los últimos 12 meses
 ```{r}
 #| echo: false
 #| error: false
@@ -382,7 +389,7 @@ kable(contratos_totales,
 
 \FloatBarrier
 
-##### Contrataciones por ocupación
+### Contrataciones por ocupación
 
 ```{r}
 #| echo: false
@@ -437,7 +444,7 @@ kable(contratados_u12,
 
 \newpage
 
-##### Contrataciones por ocupación: Sector Construcción
+### Contrataciones por ocupación: Sector Construcción
 
 
 ```{r}
@@ -479,7 +486,7 @@ kable(contratados_u12_constru,
 ```
 
 
-##### Contrataciones por ocupación: Sector Agrícola
+### Contrataciones por ocupación: Sector Agrícola
 
 ```{r}
 #| echo: false
@@ -517,7 +524,7 @@ kable(contratados_u12_agricola,
   footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.",
             general_title= "") 
 ```
-### Vacantes en los últimos 12 meses
+## Vacantes en los últimos 12 meses
 
 
 
@@ -580,7 +587,7 @@ Durante el resto de esta sección se hará referencia a las ocupaciones que teng
 
 \newpage
 
-##### Ocupaciones de difícil cobertura
+### Ocupaciones de difícil cobertura
 
 ```{r}
 #| echo: false
@@ -588,36 +595,34 @@ Durante el resto de esta sección se hará referencia a las ocupaciones que teng
 #| message: false
 #| warning: false
 
-vacantes_tot <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "vacantes_tot")
+cuadro8_odc <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "cuadro8_odc") 
 
-vacantes_tot <- vacantes_tot %>% filter(cv<0.4) %>% 
-  group_by(oficio4, oficio_label) %>%
-  mutate(vacantesu12 = sum(vacantesu12, na.rm = TRUE),  # Suma de vacantes
-    cv = sum(cv * vacantesu12, na.rm = TRUE) / sum(vacantesu12, na.rm = TRUE)) %>%
-  summarise(oficio4, oficio_label,vacantesu12=round(vacantesu12,0),cv=round(cv*100,1)) %>% 
+
+cuadro8_odc <- cuadro8_odc %>% filter(cv<0.4 & cv!=0) %>% 
+  filter(n_region==0) %>% 
+  mutate(vacantesu12=round(vacantesu12,0),
+         cv=round(cv*100,1)) %>% 
   arrange(desc(vacantesu12)) %>% 
-  ungroup() 
+  select(oficio4,oficio_label, vacantesu12, cv)
 
 
-#HAY PROBLEMAS PARA REPLICAR LA TABLA 8:Ocupaciones de difícil cobertura.
-#No calzan los n°s, pero se parecen, no hay tantos casos como muestran en el informe.
 
 ```
 
-Se declararon vacantes^[Vacantes señaladas para los módulos de “Directores y gerentes”, “Jefatura/ADP”, “Ocupaciones Elementales” y “Otros Cargos”.] sin llenar en 215 ocupaciones (68.365 vacantes, cv=12,3%), sin embargo, la @tbl-vacantes_tot sólo muestra aquellas para las cuáles el coeficiente de variación es menor a 40%^[La convención es considerar cómo robustas estimaciones con un cv menor al 15%. Dado que esto no se cumple, se presentan todas las ocupaciones con un cv menor a 40%.]. La tabla completa con todas las ocupaciones de difícil cobertura se puede encontrar en el **Apéndice A: Ocupaciones de Difícil Cobertura**.
+Se declararon vacantes^[Vacantes señaladas para los módulos de “Directores y gerentes”, “Jefatura/ADP”, “Ocupaciones Elementales” y “Otros Cargos”.] sin llenar en 215 ocupaciones (68.365 vacantes, cv=12,3%), sin embargo, la @tbl-cuadro8_odc sólo muestra aquellas para las cuáles el coeficiente de variación es menor a 40%^[La convención es considerar cómo robustas estimaciones con un cv menor al 15%. Dado que esto no se cumple, se presentan todas las ocupaciones con un cv menor a 40%.]. La tabla completa con todas las ocupaciones de difícil cobertura se puede encontrar en el **Apéndice A: Ocupaciones de Difícil Cobertura**.
 
 ```{r, fig.align='center'}
-#| label: tbl-vacantes_tot
+#| label: tbl-cuadro8_odc
 #| tbl-cap: "Ocupaciones de difícil cobertura, ENADEL 2023."
 #| echo: false
 #| error: false
 #| message: false
 #| warning: false
 
-vacantes_tot<- vacantes_tot %>% mutate(cv= paste0(cv, "%"))
+cuadro8_odc<- cuadro8_odc %>% mutate(cv= paste0(cv, "%"))
 
 # Generar la tabla con kable
-kable(vacantes_tot,
+kable(cuadro8_odc,
       col.names = c("CIUO 08", "Glosa", "Vacantes", "cv"),
       format = "latex", 
       booktabs = TRUE) %>% 
@@ -628,7 +633,7 @@ kable(vacantes_tot,
             general_title= "") 
 ```
 
-La ocupación más demandadas que tiene difícil cobertura es  “`r vacantes_tot[1,2]`”, con más de 14 mil vacantes; seguido de lejos por “`r vacantes_tot[2,2]`”, “`r vacantes_tot[3,2]`” y “`r vacantes_tot[4,2]`”, con `r vacantes_tot[2,3]`, `r vacantes_tot[3,3]` y `r vacantes_tot[4,3]` vacantes, respectivamente.
+La ocupación más demandadas que tiene difícil cobertura es  “`r cuadro8_odc[1,2]`”, con más de 14 mil vacantes; seguido de lejos por “`r cuadro8_odc[2,2]`”, “`r cuadro8_odc[3,2]`” y “`r cuadro8_odc[4,2]`”, con `r cuadro8_odc[2,3]`, `r cuadro8_odc[3,3]` y `r cuadro8_odc[4,3]` vacantes, respectivamente.
 
 ```{r}
 #| echo: false
@@ -822,7 +827,7 @@ footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023,
 Nota: para seleccionar la ocupación de difícil cobertura con mayor cantidad de vacantes sólo se tomó en cuenta la magnitud de la estimación, sin considerar indicadores de robustez como el coeficiente de variación.
 \newpage
 
-##### Ocupaciones de Difícil Cobertura: Sector Construcción
+### Ocupaciones de Difícil Cobertura: Sector Construcción
 
 ```{r}
 #| echo: false
@@ -881,7 +886,7 @@ kable(vacantes_constru,
 ```
 \newpage
 
-##### Ocupaciones de Difícil Cobertura: Sector Agrícola
+### Ocupaciones de Difícil Cobertura: Sector Agrícola
 ```{r}
 #| echo: false
 #| error: false
@@ -944,7 +949,7 @@ Al comparar los sectores agrícola y construcción, se puede notar que el primer
 \newpage
 
 
-### Dificultades para la contratación
+## Dificultades para la contratación
 
 
 ```{r}
@@ -995,7 +1000,7 @@ kable(dificultad_tot,
             general_title= "")
 ```
 
-##### Dificultades para la contratación: Sector Construcción 
+### Dificultades para la contratación: Sector Construcción 
 
 
 ```{r}
@@ -1042,7 +1047,7 @@ kable(dificultad_constru,
 ```
 
 
-##### Dificultades para la contratación: Sector Agrícola
+### Dificultades para la contratación: Sector Agrícola
 
 ```{r}
 #| echo: false
@@ -1168,7 +1173,7 @@ dificultad_larga <- dificultad_tot_agro_constru %>%
 #Gráfico Figura 2
 
 ggplot(dificultad_larga, aes(fill = sector, y = valor, x = dificultad)) + 
-  geom_bar(position = "dodge", stat = "identity", color = "white", size = 0.5, width =0.9) + 
+  geom_bar(position = position_dodge(width = 0.9), stat = "identity", color = "white", size = 0.5, width =1) + 
   scale_fill_manual(values = c("Módulo Agrícola" = "#e36444", 
                                "Módulo Construcción" = "#c36c9b", 
                                "Módulo General" = "#35638c")) +
@@ -1178,13 +1183,14 @@ ggplot(dificultad_larga, aes(fill = sector, y = valor, x = dificultad)) +
             position = position_dodge(width = 0.9), 
             vjust = 0.5, hjust = -0.3, color = "#002A51", size = 2.5) +  
   scale_y_continuous(limits = c(0, 45), expand = c(0, 0)) +
-   scale_x_discrete(labels = function(x) paste0("\n ", x, "\n ")) + 
+   scale_x_discrete(expand = expansion(mult = c(0.01, 0.01)),labels = function(x) paste0("\n\n\n ", x, "\n\n\n "))+
+   #scale_x_discrete(labels = function(x) paste0("\n\n\n ", x, "\n\n\n ")) + 
    theme(
     legend.position = "bottom",  
     legend.title = element_blank(),  
-    legend.text = element_text(size = 7),  
-    axis.text.x = element_text(size = 7),  
-    axis.text.y = element_text(size = 7),  
+    legend.text = element_text(size = 6.5),  
+    axis.text.x = element_text(size = 7),
+    axis.text.y = element_text(size = 6.5, margin = margin(r = 0.01)),  
     axis.line.x = element_line(color = "grey80"), 
     axis.line.y = element_line(color = "grey80"),
     plot.margin = margin(1, 1, 1, 1), 
@@ -1203,7 +1209,7 @@ ggplot(dificultad_larga, aes(fill = sector, y = valor, x = dificultad)) +
 
 \newpage
 
-### Educación y experiencia
+## Educación y experiencia
 ```{r}
 #| echo: false
 #| error: false
@@ -1250,12 +1256,13 @@ El 86,5% de los cargos^[Esta pregunta sólo se realiza para las ocupaciones señ
 
 
 ggplot(educ_tot, aes(y = porc_educ, x = educ)) + 
-  geom_bar(position = "dodge", stat = "identity", color = "white", size = 0.1,  fill = "#35638c", width = 0.5) + 
+  geom_bar(position = position_dodge(width = 0.5), stat = "identity", color = "white", size = 0.1,  fill = "#35638c", width = 0.5) + 
   coord_flip() +
   theme_classic() +
   geom_text(aes(label = paste0(porc_educ, "%")), 
             position = position_dodge(width = 0.9), 
             vjust = 0.5, hjust = -0.3, color = "#002A51", size = 3) +
+   #scale_x_discrete(expand = expansion(mult = c(1, 1)))+
   scale_y_discrete(expand = c(.1, 0)) + 
   scale_y_continuous(limits = c(0, 35), breaks = seq(0, 35, by = 5), expand = c(0,0))+
    theme(
@@ -1403,7 +1410,7 @@ ggplot(top_and_bottom, aes(y = exp, x = label)) +
 
 Con respecto a la experiencia solicitada por sector de actividad económica, los sectores de "`r promedio_pequenos[1,1]`" y de "`r promedio_pequenos[2,1]`" son los que requieren menos años de experiencia (`r mean(promedio_pequenos$exp,na.rm=T)` años en promedio); mientras que "`r exp_mean_sector %>%  filter(exp == max(exp)) %>%  select(label)`" es el que más años de experiencia requiere, con `r max(exp_mean_sector$exp)` años en promedio.
 
-### Canales de reclutamiento
+## Canales de reclutamiento
 Frente a la pregunta ^[Esta pregunta sólo se realiza para las ocupaciones señaladas en el módulo de “Otros Cargos”.]:
 
 
@@ -1455,7 +1462,7 @@ kable(canal,
 Considerando el total de respuestas (los tres canales mencionados), se tiene que las principales vías de reclutamiento son “`r canal[1,1]`" con `r canal[1,3]` y “`r canal[2,1]`" con un `r canal[2,3]`.  Los canales menos utilizados según las menciones son, "`r canal[12,1]`" con apenas un `r canal[12,3]`, y "`r canal[10,1]`", con el `r canal[10,3]` .
 
 
-### Conocimiento de instituciones y programas
+## Conocimiento de instituciones y programas
 
 Frente a la pregunta:
 _¿Conoce, y ha accedido a beneficios de las siguientes instituciones o servicios públicos?_
@@ -1542,7 +1549,6 @@ coord_flip() +
 
 conocimiento_2 <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "conocimiento_2")
 
-unique(conocimiento_2$programa)
 
 conocimiento_2<- conocimiento_2 %>%select(respuesta, programa, pc)  %>%
   mutate(respuesta=case_when(respuesta==1~ "No lo conoce",
@@ -1615,7 +1621,9 @@ coord_flip() +
 ```
 La mayoría de los programas tienen un bajo nivel de conocimiento:  `r conocimiento[9,1]`,  `r conocimiento[8,1]` y `r conocimiento[7,1]` tienen tasas de conocimiento inferiores al `r conocimiento[7,2]`, y `r conocimiento[6,1]` de alrededor del `r conocimiento[6,2]`.
 
-### Apéndice A: Ocupaciones de Difícil Cobertura
+\newpage
+
+## Apéndice A: Ocupaciones de Difícil Cobertura
 
 ```{r}
 #| echo: false
@@ -1623,17 +1631,12 @@ La mayoría de los programas tienen un bajo nivel de conocimiento:  `r conocimie
 #| message: false
 #| warning: false
 
-vacantes_tot <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "vacantes_tot") %>% select(oficio_label,vacantesu12, cv)
+cuadro8_odc <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "cuadro8_odc") %>% 
+  filter(cv!=0) %>% filter(n_region==0) %>% select(oficio4,oficio_label,vacantesu12,cv) %>% 
+  mutate(vacantesu12=round(vacantesu12,0),cv=round(cv*100,1))%>% 
+  arrange(desc(vacantesu12))
 
-
-vacantes_tot <- vacantes_tot %>%  group_by(oficio_label) %>%
-  mutate(vacantesu12 = sum(vacantesu12, na.rm = TRUE),  # Suma de vacantes
-    cv = sum(cv * vacantesu12, na.rm = TRUE) / sum(vacantesu12, na.rm = TRUE)) %>%
-  summarise(oficio_label,vacantesu12=round(vacantesu12,0),cv=round(cv*100,1)) %>% 
-  arrange(desc(vacantesu12)) 
-
-vacantes_tot<-vacantes_tot %>% group_by(oficio_label) %>% summarise(vacantesu12=mean(vacantesu12, na.rm=T),
-                                                      cv=mean(cv, na.rm=T))%>% arrange(desc(vacantesu12))
+cuadro8_odc<- cuadro8_odc %>% mutate(cv= paste0(cv, "%"))
 
 
 
@@ -1648,18 +1651,16 @@ vacantes_tot<-vacantes_tot %>% group_by(oficio_label) %>% summarise(vacantesu12=
 #| warning: false
 
 
-vacantes_tot<- vacantes_tot %>% mutate(cv= paste0(cv, "%"))
-# Generar la tabla con kable
-kable(vacantes_tot,
-      col.names = c("Glosa","Vacantes", "CV"),
-      format = "latex", 
-      booktabs = TRUE) %>% 
-  kable_classic(full_width = FALSE, html_font = "Aptos") %>%
-  column_spec(1, width = "9cm") %>%
-  column_spec(2, width = "3cm") %>%
-  column_spec(3, width = "3cm") %>%
+
+kable(cuadro8_odc,
+      col.names = c("CIUO_08","Glosa", "Vacantes", "CV"),
+      format = "latex",
+      booktabs = TRUE,
+      longtable = TRUE) %>%
+  column_spec(2, width = "9cm") %>%
   footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2023, datos expandidos.",
-            general_title= "")
+           general_title = "")
+
 ```
 
 \newpage

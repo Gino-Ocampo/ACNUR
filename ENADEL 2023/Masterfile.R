@@ -16,5 +16,4 @@ source("Scripts/5_analisis.R")
 #6 Renderizar Reporte Quarto
 quarto::quarto_render("Quarto/Reporte.qmd")
 
-#7 Renderizar Reporte Rmarkdown
-quarto::quarto_render("Rmarkdown/Reporte.qmd")#cambiar función
+

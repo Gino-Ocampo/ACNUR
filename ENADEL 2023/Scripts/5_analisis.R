@@ -269,20 +269,40 @@ design_long <- subset(design_long_tot, tipo_cat%in%c(1, 2, 3, 4))
 # ********************************************************************************** #
 
 # ----------------------- VACANTES NO LLENADAS POR OCUPACIÓN ----------------------- #
-{
-  # por ocupación
-  odc_total <- svytotal(~vacantesu12, design_long, na.rm = TRUE)
-  cv(odc_total)
-  
-  odc <- svyby(~vacantesu12, ~oficio4, design_long, svytotal, na.rm = TRUE) |> 
-    arrange(oficio4)
-  odc$cv <- cv(odc)
-  
-  unique_oficio <- unique(odc$oficio4)
-  labels_oficio <- attr(odc$oficio4, "labels")
-  matched_labels <- names(labels_oficio)[match(unique_oficio, labels_oficio)]
-  odc$oficio_label <- matched_labels[match(odc$oficio, unique_oficio)]
-}
+# {
+#   # por ocupación
+#   odc_total <- svytotal(~vacantesu12, design_long, na.rm = TRUE)
+#   cv(odc_total)
+#   
+#   odc <- svyby(~vacantesu12, ~oficio4, design_long, svytotal, na.rm = TRUE) |> 
+#     arrange(oficio4)
+#   odc$cv <- cv(odc)
+#   
+#   unique_oficio <- unique(odc$oficio4)
+#   labels_oficio <- attr(odc$oficio4, "labels")
+#   matched_labels <- names(labels_oficio)[match(unique_oficio, labels_oficio)]
+#   odc$oficio_label <- matched_labels[match(odc$oficio, unique_oficio)]
+# }
+
+# por ocupación
+cuadro8_odc_nac <- svyby(~vacantesu12, ~oficio4, design_long, svytotal, na.rm = TRUE) 
+cuadro8_odc_nac$cv <- cv(cuadro8_odc_nac)
+unique_oficio <- unique(cuadro8_odc_nac$oficio4)
+labels_oficio <- attr(cuadro8_odc_nac$oficio4, "labels")
+matched_labels <- names(labels_oficio)[match(unique_oficio, labels_oficio)]
+cuadro8_odc_nac$oficio_label <- matched_labels[match(cuadro8_odc_nac$oficio, unique_oficio)]
+cuadro8_odc_nac %<>% mutate(n_region=0) %>% select(n_region, oficio4, oficio_label, vacantesu12, se, cv)
+
+cuadro8_odc_reg <- svyby(~vacantesu12, ~oficio4+~region_trab, design_long, svytotal, na.rm = TRUE) 
+cuadro8_odc_reg$cv <- cv(cuadro8_odc_reg)
+unique_oficio <- unique(cuadro8_odc_reg$oficio4)
+labels_oficio <- attr(cuadro8_odc_reg$oficio4, "labels")
+matched_labels <- names(labels_oficio)[match(unique_oficio, labels_oficio)]
+cuadro8_odc_reg$oficio_label <- matched_labels[match(cuadro8_odc_reg$oficio, unique_oficio)]
+cuadro8_odc_reg %<>% dplyr::rename(n_region = region_trab) %>% select(n_region, oficio4, oficio_label, vacantesu12, se, cv)
+
+cuadro8_odc <- rbind(cuadro8_odc_nac, cuadro8_odc_reg)
+
 
 # ---------------- CONSTRUCCIÓN: VACANTES NO LLENADAS POR OCUPACIÓN ---------------- #
 {
@@ -741,6 +761,30 @@ design_long <- subset(design_long_tot, tipo_cat%in%c(1, 2, 3, 4))
     pivot_longer(cols = -respuesta, names_to = c(".value", "programa"), names_pattern = "(emp|se|pc)_(.*)")
 }
 
+
+
+
+# # 2.8 Ocupaciones de dificil cobertura -------------------------------------
+# 
+# # por ocupación
+# cuadro8_odc_nac <- svyby(~vacantesu12, ~oficio4, design_long, svytotal, na.rm = TRUE) 
+# cuadro8_odc_nac$cv <- cv(cuadro8_odc_nac)
+# unique_oficio <- unique(cuadro8_odc_nac$oficio4)
+# labels_oficio <- attr(cuadro8_odc_nac$oficio4, "labels")
+# matched_labels <- names(labels_oficio)[match(unique_oficio, labels_oficio)]
+# cuadro8_odc_nac$oficio_label <- matched_labels[match(cuadro8_odc_nac$oficio, unique_oficio)]
+# cuadro8_odc_nac %<>% mutate(n_region=0) %>% select(n_region, oficio4, oficio_label, vacantesu12, se, cv)
+# 
+# cuadro8_odc_reg <- svyby(~vacantesu12, ~oficio4+~region_trab, design_long, svytotal, na.rm = TRUE) 
+# cuadro8_odc_reg$cv <- cv(cuadro8_odc_reg)
+# unique_oficio <- unique(cuadro8_odc_reg$oficio4)
+# labels_oficio <- attr(cuadro8_odc_reg$oficio4, "labels")
+# matched_labels <- names(labels_oficio)[match(unique_oficio, labels_oficio)]
+# cuadro8_odc_reg$oficio_label <- matched_labels[match(cuadro8_odc_reg$oficio, unique_oficio)]
+# cuadro8_odc_reg %>% select(region_trab, oficio4, oficio_label, vacantesu12, se, cv)
+# cuadro8_odc <- rbind(cuadro8_odc_nac, cuadro8_odc_reg)
+
+
 # ********************************************************************************** #
 # -------------------------------- GUARDAR EN EXCEL -------------------------------- #
 # ********************************************************************************** #
@@ -773,8 +817,45 @@ write_xlsx(list("pc_acteco"= pc_acteco, #porcentaje por actividad económica
                 "educ_tot" = educ_tot,
                 "canal" = canal,
                 "conocimiento_1" = con_1,
-                "conocimiento_2" = con_2),
-           paste0("Tablas/porcentajes.xlsx"))
+                "conocimiento_2" = con_2,
+                "cuadro8_odc"= cuadro8_odc,
+           paste0("Tablas/porcentajes.xlsx")))
+
+write_xlsx(
+  list(
+    "pc_acteco" = pc_acteco, # porcentaje por actividad económica
+    "pc_region" = pc_region, # porcentaje por región
+    "pc_tam"    = pc_tam, # porcentaje por tamaño (n° trabajadores)
+    "pc_tamvent"= pc_tamvent, # porcentaje por tamaño (ventas)
+    "contratos_totales" = contratos_sector, # contratos por sector
+    "contratados_u12" = cu12, # Contratado últimos 12 meses
+    "contratados_u12_sector" = cu12_sector, # contratado últimos 12 meses por sector
+    "contratados_u12_constr" = cu12_t5, # contratados últimos 12 meses construcción
+    "contratados_u12_agro" = cu12_t6, # contratados últimos 12 meses agro
+    "vacantes_totales_sector" = vnll_sector, # vacantes no llenadas por sector
+    "vacantes_tot" = odc, 
+    "vacantes_constr" = odc_t5,
+    "vacantes_agro" = odc_t6,
+    "vacantes_sector" = odc_sector,
+    "vacantes_region" = odc_region,
+    "vacantes_tam" = odc_tam,
+    "vacantes_tamvent" = odc_tamvent,
+    "dificultad" = dificultad,
+    "dificultad_tot" = dificultad_tot,
+    "dificultad_constr" = dificultad_t5,
+    "dificultad_agro" = dificultad_t6,
+    "exp_mean_sector" = exp_mean_sector,
+    "exp_0_sector" = exp_0_sector,
+    "exp_mean_tam" = exp_mean_tam,
+    "educ_tot" = educ_tot,
+    "canal" = canal,
+    "conocimiento_1" = con_1,
+    "conocimiento_2" = con_2,
+    "cuadro8_odc" = cuadro8_odc
+  ),
+  path = "Tablas/porcentajes.xlsx" # Especificar la ruta fuera de la lista
+)
+
 
 
 #distribución del personal contratado b1-b12 
