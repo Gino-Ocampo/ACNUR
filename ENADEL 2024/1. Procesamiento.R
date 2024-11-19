@@ -676,4 +676,189 @@ enadel_2024 <- enadel_2024 %>% mutate(f5_5= case_when(f5_5==1 ~ "Reciclaje de lo
                                                       f5_5==10 ~ "Ninguna",
                                                       f5_5==11 ~ "Otra" ))
 
-unique(enadel_2024$f5_1)
+
+#f6. ¿Cuál de las siguientes formas de digitalización utiliza la empresa? 
+
+#f6_a Desarrollo del comercio electrónico
+
+#f6_b Utilización de aplicaciones para interactuar con clientes(as) y proveedores(as)
+
+#f6_c Utilización de aplicaciones para interactuar con los(as) trabajadores(as)
+
+#f6_d Almacenamiento de información en bases de datos digitales (“nube”)
+
+#f6_e Digitalización de firma de contratos de trabajo
+
+#f6_f Control digital de asistencia
+
+#f6_g Gestión digital para solicitud de feriados o permisos
+
+#f6_h Otra
+
+
+#f7. ¿Cuál de las siguientes formas de automatización utiliza la empresa?
+
+#f7_a Sistemas de autoatención o autoconsulta para clientes o usuarios(as)
+#f7_b Robotización de procesos
+#f7_c Control de calidad computarizado
+#f7_d Uso de inteligencia artificial o modelos predictivos a partir de grandes volúmenes de datos o “big data”
+#f7_e Otra.
+
+# f8. Durante los últimos doce meses ¿Hubo cambios en la dotación del personal de la empresa
+# como consecuencia de la automatización, digitalización o la incorporación de nuevas tecnologías?
+
+enadel_2024 <- enadel_2024 %>% mutate(f8=case_when(f8== "1"~ "Disminuyó la dotación de personal",
+                                                   f8== "2"~ "No ha cambiado la dotación de personal",
+                                                   f8== "3"~ "Aumentó la dotación de personal",
+                                                   TRUE~ NA ))
+
+# f9. (Sólo si F8=1) ¿Podría indicar los principales cargos/ocupaciones que durante los últimos doce meses se
+#han visto disminuidos en dotación de personal como consecuencia de la automatización,
+#digitalización o la incorporación de nuevas tecnologías?
+
+#(VARIABLE MÚLTIPLE MÁX 3)
+#Esta variable no ha sido recodificada con CIUO 08
+
+#f10. (Sólo si F8=1) ¿Qué porcentaje del personal contratado directamente por la empresa fue desvinculado por
+#los sistemas de automatización, digitalización o la incorporación de nuevas tecnologías?
+
+enadel_2024 <- enadel_2024 %>% mutate(f10=case_when(f10 == "1" ~ "Reemplazó a menos del 10% del personal",
+                                                    f10 == "2" ~ "Reemplazó entre el 10% y menos del 25% del personal",
+                                                    f10 == "3" ~ "Reemplazó entre el 25% y el 50% del personal",
+                                                    f10 == "4" ~ "Reemplazó a más del 50% del personal",
+                                                    TRUE ~ NA))
+
+#f11. (Sólo si Si F8=2, 3,88, 99) Durante los últimos doce meses, y como consecuencia de los sistemas de automatización,
+#digitalización o la incorporación de nuevas tecnologías utilizados por su empresa¿se crearon nuevos puestos de trabajo 
+#asociados a tareas y funciones que no existían anteriormente?
+
+enadel_2024 <- enadel_2024 %>% mutate(f11=case_when(f11 == "1" ~ "Sí",
+                                                    f11 == "2" ~ "No",
+                                                    TRUE ~ NA))
+
+
+#F12. Esta variable no está recodificada con CIUO 08
+#¿Podría indicar los nuevos cargos/ocupaciones que se crearon? Indique las principales
+#tareas asociadas al puesto. Señale hasta 3 cargos y tareas.
+
+
+
+#F13. ¿Aumentó la dotación de personal en puestos de trabajo asociados a tareas y funciones que si existían anteriormente?
+
+enadel_2024 <- enadel_2024 %>% mutate(f13=case_when(f13 == "1" ~ "Sí",
+                                                    f13 == "2" ~ "No",
+                                                    TRUE ~ NA))
+
+#f14. ¿Cuáles han sido las principales motivaciones que ha tenido la empresa para incorporar
+#sistemas de automatización, digitalización o nuevas tecnologías? Opción múltiple. (Máx 5)
+
+enadel_2024 <- enadel_2024 %>% mutate(f14_1=case_when(f14_1==1 ~ "Cambio climático",
+                                                      f14_1==2 ~ "Dificultad para encontrar trabajadores con las competencias requeridas",
+                                                      f14_1==3 ~ "Dificultad para encontrar trabajadores con pretensiones de sueldo similares a las ofrecidas por la empresa",
+                                                      f14_1==4 ~ "Capacidad de lograr los mismos resultados con un menor uso de recursos",
+                                                      f14_1==5 ~ "Capacidad de lograr mejores resultados con un igual o menor uso de recursos",
+                                                      f14_1==6 ~ "Aumentar niveles de seguridad de las personas",
+                                                      f14_1==7 ~ "Expansión a nuevos mercados",
+                                                      f14_1==8 ~ "Cumplimiento de normas de la empresa o de mandantes",
+                                                      f14_1==9 ~ "Mejorar la calidad del servicio/producto",
+                                                      f14_1==10 ~ "Otra",
+                                                      TRUE ~ NA))
+
+enadel_2024 <- enadel_2024 %>% mutate(f14_2=case_when(f14_2==1 ~ "Cambio climático",
+                                                      f14_2==2 ~ "Dificultad para encontrar trabajadores con las competencias requeridas",
+                                                      f14_2==3 ~ "Dificultad para encontrar trabajadores con pretensiones de sueldo similares a las ofrecidas por la empresa",
+                                                      f14_2==4 ~ "Capacidad de lograr los mismos resultados con un menor uso de recursos",
+                                                      f14_2==5 ~ "Capacidad de lograr mejores resultados con un igual o menor uso de recursos",
+                                                      f14_2==6 ~ "Aumentar niveles de seguridad de las personas",
+                                                      f14_2==7 ~ "Expansión a nuevos mercados",
+                                                      f14_2==8 ~ "Cumplimiento de normas de la empresa o de mandantes",
+                                                      f14_2==9 ~ "Mejorar la calidad del servicio/producto",
+                                                      f14_2==10 ~ "Otra",
+                                                      TRUE ~ NA))
+
+enadel_2024 <- enadel_2024 %>% mutate(f14_3=case_when(f14_3==1 ~ "Cambio climático",
+                                                      f14_3==2 ~ "Dificultad para encontrar trabajadores con las competencias requeridas",
+                                                      f14_3==3 ~ "Dificultad para encontrar trabajadores con pretensiones de sueldo similares a las ofrecidas por la empresa",
+                                                      f14_3==4 ~ "Capacidad de lograr los mismos resultados con un menor uso de recursos",
+                                                      f14_3==5 ~ "Capacidad de lograr mejores resultados con un igual o menor uso de recursos",
+                                                      f14_3==6 ~ "Aumentar niveles de seguridad de las personas",
+                                                      f14_3==7 ~ "Expansión a nuevos mercados",
+                                                      f14_3==8 ~ "Cumplimiento de normas de la empresa o de mandantes",
+                                                      f14_3==9 ~ "Mejorar la calidad del servicio/producto",
+                                                      f14_3==10 ~ "Otra",
+                                                      TRUE ~ NA))
+
+enadel_2024 <- enadel_2024 %>% mutate(f14_4=case_when(f14_4==1 ~ "Cambio climático",
+                                                      f14_4==2 ~ "Dificultad para encontrar trabajadores con las competencias requeridas",
+                                                      f14_4==3 ~ "Dificultad para encontrar trabajadores con pretensiones de sueldo similares a las ofrecidas por la empresa",
+                                                      f14_4==4 ~ "Capacidad de lograr los mismos resultados con un menor uso de recursos",
+                                                      f14_4==5 ~ "Capacidad de lograr mejores resultados con un igual o menor uso de recursos",
+                                                      f14_4==6 ~ "Aumentar niveles de seguridad de las personas",
+                                                      f14_4==7 ~ "Expansión a nuevos mercados",
+                                                      f14_4==8 ~ "Cumplimiento de normas de la empresa o de mandantes",
+                                                      f14_4==9 ~ "Mejorar la calidad del servicio/producto",
+                                                      f14_4==10 ~ "Otra",
+                                                      TRUE ~ NA))
+
+enadel_2024 <- enadel_2024 %>% mutate(f14_5=case_when(f14_5==1 ~ "Cambio climático",
+                                                      f14_5==2 ~ "Dificultad para encontrar trabajadores con las competencias requeridas",
+                                                      f14_5==3 ~ "Dificultad para encontrar trabajadores con pretensiones de sueldo similares a las ofrecidas por la empresa",
+                                                      f14_5==4 ~ "Capacidad de lograr los mismos resultados con un menor uso de recursos",
+                                                      f14_5==5 ~ "Capacidad de lograr mejores resultados con un igual o menor uso de recursos",
+                                                      f14_5==6 ~ "Aumentar niveles de seguridad de las personas",
+                                                      f14_5==7 ~ "Expansión a nuevos mercados",
+                                                      f14_5==8 ~ "Cumplimiento de normas de la empresa o de mandantes",
+                                                      f14_5==9 ~ "Mejorar la calidad del servicio/producto",
+                                                      f14_5==10 ~ "Otra",
+                                                      TRUE ~ NA))
+
+#F15. Durante los últimos doce meses, ¿La empresa tuvo dificultades para llenar vacantes en
+#puestos de trabajo asociados a la incorporación de la automatización, digitalización o la
+#incorporación de nuevas tecnologías?
+
+enadel_2024 <- enadel_2024 %>% mutate(f15=case_when(f15==1 ~ "Nada dificultad",
+                                                    f15==2 ~ "Poca dificultad",
+                                                    f15==3 ~ "Algo de dificultad",
+                                                    f15==4 ~ "Mucha dificultad",
+                                                    TRUE ~ NA))
+
+#F16. (Sólo Si F15= 2, 3 o 4) Durante los últimos doce meses ¿Qué tipo/s de dificultad presentó la empresa para llenar
+#vacantes en puestos de trabajo asociados a la automatización, digitalización o a las nuevas
+#tecnologías? Opción múltiple. (dummys)
+
+
+#f16_1. Candidatos sin competencias o habilidades técnicas requeridas
+
+#f16_2. Candidatos sin habilidades blandas o socioemocionales requeridas (personalidad, actitud, compromiso, entre otros)
+
+#f16_3. Candidatos sin nivel educacional requerido
+
+#f16_4. Candidatos sin licencias, certificaciones o requisitos legales
+
+#f16_5. Candidatos sin la experiencia laboral mínima requerida
+
+#f16_6. Remuneración ofrecida no aceptada
+
+#f16_7. Condiciones laborales (ubicación, horario y/o jornada) no aceptadas
+
+#f16_8. Falta de postulantes
+
+#f16_9. Otra dificultad
+
+
+#Guardar base etiquetada
+
+writexl::write_xlsx(enadel_2024, col_names = TRUE, path = "enadel_2024_rec.xlsx")
+
+
+
+
+                                                    
+
+
+
+
+
+
+
+
