@@ -1,14 +1,38 @@
- pacman::p_load("tidyverse","dplyr", "plyr", "knitr", "haven", "readxl", "writexl", "Hmisc", "survey", "labelled", "archive", "purrr")
+pacman::p_load("tidyverse","dplyr", "plyr", "knitr", "haven", "readxl", "writexl", "Hmisc", "survey", "labelled", "archive", "purrr")
 
  
-enadel_2024 <- readxl::read_excel("base_ENADEL_2024.xlsx")
+enadel_2024 <- readxl::read_excel("Datos/base_ENADEL_2024.xlsx")
 
 #Crear factor de expansión=1
 
 enadel_2024 <- enadel_2024 %>% mutate(exp=1)
 
+#Crear variable empresas=1
+
+enadel_2024 <- enadel_2024 %>% mutate(empresas=1)
+
 
 #Módulo A Identificación de la empresa ----
+
+
+
+enadel_2024$a6 <-  as.factor(enadel_2024$a6)
+
+enadel_2024$a6 <-  factor(enadel_2024$a6, levels=c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16), labels = c(
+  "Arica y Parinacota", "Tarapacá", "Antofagasta", "Atacama", 
+  "Coquimbo", "Valparaíso", "Metropolitana", "O'Higgins", 
+  "Maule", "Ñuble", "Biobío", "Araucanía", 
+  "Los Ríos", "Los Lagos", "Aysén", "Magallanes"
+))
+
+
+#Región
+
+enadel_2024$reg_muestra <-  as.factor(enadel_2024$reg_muestra)
+
+enadel_2024$reg_muestra <-  factor(enadel_2024$reg_muestra, levels=c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16))
+
+
 #Sector económico
 
 unique(enadel_2024$a2)
@@ -33,18 +57,27 @@ enadel_2024 <- enadel_2024 %>% mutate(a2=case_when(a2==1 ~ "Agricultura, silvicu
 actividades de servicios"
                                                    ))
 #Tramo de ventas
-enadel_2024 <- enadel_2024 %>% mutate(a3=case_when(a3==1 ~ "Sin ventas 2023",
-                                                   a3==2 ~ "Micro",
-                                                   a3==3 ~ "Pequeña",
-                                                   a3==4 ~ "Mediana",
-                                                   a3==5 ~ "Grande",
-                                                   TRUE ~ NA
-                                                   ))
+# enadel_2024 <- enadel_2024 %>% mutate(a3=case_when(a3==1 ~ "Sin ventas 2023",
+#                                                    a3==2 ~ "Micro",
+#                                                    a3==3 ~ "Pequeña",
+#                                                    a3==4 ~ "Mediana",
+#                                                    a3==5 ~ "Grande",
+#                                                    TRUE ~ NA
+#                                                    ))
+
+
+enadel_2024$a3 <- as.factor(enadel_2024$a3)
+enadel_2024$a3 <- factor(enadel_2024$a3, levels = c(1,2,3,4,5), labels = c("Sin ventas 2023","Micro","Pequeña","Mediana","Grande" ))
+
+table(enadel_2024$a3)
+
 #Más de una sucursal
 enadel_2024 <- enadel_2024 %>% mutate(a4=case_when(a4==1 ~"Sí",
                                                    a4==2 ~"No")) # No 444  Sí 56 
 
 #regiones de las otras sucursales= múltiple a5_1,a5_2,a5_3,a5_4,a5_5,a5_6,a5_7,a5_8,a5_9,a5_10,a5_11,a5_12,a5_13,a5_14,a5_15,a5_16
+
+
 
 #A6 Región en la que tiene más trabajadores contratados <<---------- Esta variable es la que manda en cuanto a región
 
@@ -80,6 +113,14 @@ enadel_2024 <- enadel_2024 %>% mutate(a10= case_when(a10==1 ~ "Sí",
 #b4 Dotación de personal a honorarios
 #b5 Dotación sin escrituración (personal contrato de palabra)
 #b6 Total
+
+#tamaño de empresa por cantidad de trabajadores
+
+enadel_2024$b6_1 <- as.numeric(enadel_2024$b6_1)
+enadel_2024 <- enadel_2024 %>% mutate(tam_trab= case_when(b6_1 <= 50 ~ 2,
+                                                          b6_1 > 50 & b6_1 <=199 ~ 3,
+                                                          b6_1 >= 200 ~ 4))
+
 
 #---Demanda
 #b7 vacantes actuales
@@ -846,9 +887,22 @@ enadel_2024 <- enadel_2024 %>% mutate(f15=case_when(f15==1 ~ "Nada dificultad",
 #f16_9. Otra dificultad
 
 
+###
+
+vars <- c("b2_1", "b3_1", "b4_1", "b5_1", "b6_1", "b7_1", "b8_1", 
+                     "b9_1", "b10_1", "b11_1", "b12_1", "b13_1", "c1_c_1", "c1_e_1")
+
+
+enadel_2024[vars] <- lapply(enadel_2024[vars], as.numeric)
+
+str(enadel_2024)
+
 #Guardar base etiquetada
 
-writexl::write_xlsx(enadel_2024, col_names = TRUE, path = "enadel_2024_rec.xlsx")
+writexl::write_xlsx(enadel_2024, col_names = TRUE, path = "Datos/enadel_2024_rec.xlsx")
+
+
+
 
 
 

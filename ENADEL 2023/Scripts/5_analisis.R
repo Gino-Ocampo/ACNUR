@@ -21,6 +21,7 @@ region <- seq(1,16)
 enadel_wide <- readr::read_rds("Datos/enadel_wide.rds")
 enadel_long <- readr::read_rds("Datos/enadel_long.rds")
 
+str(enadel_wide$estrato_cm)
 
 # svy
 options(survey.lonely.psu="adjust")

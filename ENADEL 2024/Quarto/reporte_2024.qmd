@@ -1,0 +1,473 @@
+---
+title: ""
+author: ""
+format:
+  pdf:
+    cap-location: "top"
+    keep-tex: true
+    fig-pos: 'H'
+    document:
+      tables:
+        float: false
+    extra_dependencies: ["pdfpages", "float"]  
+    documentclass: article
+    latex-engine: xelatex
+    toc: false
+    toc-depth: 3
+    toc-title: "Índice"
+    mainfont: "Aptos"
+fontsize: 11pt
+lang: es
+header-includes:
+  - \usepackage{pdfpages}  
+  - \usepackage{fontspec}
+  - \usepackage[bottom]{footmisc} 
+  - \setmainfont{Aptos}[Path="C:/Users/ginow/AppData/Roaming/TinyTeX/texmf-dist/fonts/truetype/aptos/", Extension=".ttf"]
+  - \usepackage{fancyhdr}
+  - \pagestyle{fancy}
+  - \fancyhf{}
+  - |
+    \fancyhead[C]{\makebox[\textwidth]{\hspace*{-1cm}\includegraphics[height=1.9cm]{../Logotipo ENADEL/encabezado_izquierda.png} \hfill \includegraphics[height=1.5cm]{../Logotipo ENADEL/encabezado_derecha.png} \hspace*{-2cm}}}
+  - \fancyfoot[L]{Subsecretaría del Trabajo}
+  - \cfoot{\thepage}
+  - \setlength{\footskip}{10pt}
+  - \setlength{\skip\footins}{15pt} 
+  - \setlength{\headheight}{3cm}  # ajusta según sea necesario
+  - \setlength{\headsep}{0.5cm}  # distancia del encabezado al cuerpo del texto
+  - \renewcommand{\footrulewidth}{0pt} 
+  - \floatplacement{figure}{H}
+  - \floatplacement{table}{H}
+  - \usepackage{geometry}
+  - \geometry{
+      left=3cm,
+      right=3cm,
+      top=2.5cm,
+      bottom=2.5cm
+    }
+  - \usepackage{placeins}
+  - \usepackage{ragged2e}
+  - \usepackage{float}
+  - \usepackage{setspace}
+  - \renewcommand{\familydefault}{\sfdefault}
+  - \AtBeginDocument{\renewcommand{\baselinestretch}{1.5}\justifying}
+  - \usepackage{xcolor}
+  - \usepackage{pagecolor}
+include-before-body: "portada.tex"
+---
+\definecolor{customblue}{HTML}{005691}
+
+
+
+
+\pagecolor{customblue} 
+\thispagestyle{empty} 
+\color{white} 
+ 
+
+::: titlingpage
+\centering
+\includegraphics[width=0.5\textwidth]{../Logotipo ENADEL/Logotipo ENADEL-02.png} \vspace{2cm}
+:::
+
+\noindent
+Ministerio del Trabajo y Previsión Social
+
+División de Políticas de Empleo\\
+Subsecretaría del Trabajo
+
+
+
+\justifying
+El presente documento analiza los resultados de la Encuesta Nacional de Demanda Laboral (ENADEL) 2024, que busca identificar y caracterizar el capital humano requerido por las empresas de los distintos sectores productivos del país, generando información sobre la demanda actual de ocupaciones de las empresas, detectando requisitos y problemas de contratación. A diferencia de las versiones anteriores de esta encuesta, la actual versión abarca 15 sectores de actividad económica, ayuda a identificar prioridades de capacitación y se añade el foco sobre el impacto que está teniendo la incorporación de nuevas tecnologías y los eventos climáticos extremos sobre los trabajadores.
+
+
+
+
+
+
+
+
+\newpage
+\nopagecolor
+\color{black}
+\renewcommand{\contentsname}{Índice} 
+\tableofcontents
+
+\newpage
+
+
+
+ 
+## Capítulo I: Contexto y caracterización de empresas
+
+### Producto/Servicio
+
+
+
+\FloatBarrier
+
+### Regiones y ubicación de sucursales 
+
+```{r eval=TRUE, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE, results='asis', fig.align = 'center'}
+
+#Cargar paquetes
+pacman::p_load(tidyverse,#universo de paquetes
+               haven,# leer archivos stata y spss
+               stargazer,# tablas de regresión??
+              kableExtra,#Tablas fancy
+              scales,#escala porcentaje 
+              patchwork,#Combinar gráficos
+              bookdown,#Referencias
+              showtext,#fuente
+              sysfonts,#habilitar fuentes
+              forcats,
+              rnaturalearth,#mapas
+              rnaturalearthdata,
+              devtools)
+
+        
+
+options(OutDec = ",")
+
+#Cargar tablas
+
+
+porc_region <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "pc_region")
+
+
+  orden_regiones <- c(
+    "Arica y Parinacota", "Tarapacá", "Antofagasta", "Atacama", 
+    "Coquimbo", "Valparaíso", "Metropolitana", "O'Higgins", 
+    "Maule", "Ñuble", "Biobío", "Araucanía", 
+    "Los Ríos", "Los Lagos", "Aysén", "Magallanes"
+  )
+
+porc_region<- porc_region %>% select(-c("region","empresas", "trabajadores")) 
+
+porc_region <- round(porc_region*100, 1)
+rownames(porc_region)<- orden_regiones
+
+
+```
+
+La muestra de ENADEL 2024 encuesta a 6.490 empresas que suman 485.256 trabajadores (a nivel muestral). Estas representan a 82.052 empresas y 5.611.196 trabajadores a nivel nacional. La @tbl-region muestra  la distribución en las distintas regiones del país, dónde un `r round(porc_region[7, 1],1 )`% de las empresas y un `r round(porc_region[7, 2],1)`% de los trabajadores se encuentran en la región Metropolitana.
+
+\vspace{5mm}
+
+\FloatBarrier
+```{r, results='asis'}
+#| label: tbl-region
+#| tbl-cap: "Resultados de la encuesta" 
+#| echo: false
+#| error: false
+#| message: false
+#| warning: false
+
+porc_region <- porc_region %>% mutate(pc_empresas = paste0(pc_empresas, "%"),
+                                      pc_trabajadores = paste0(pc_trabajadores, "%"))
+
+# Generar la tabla con kable
+kable(porc_region,
+      col.names = c("Región", "% Empresas", "% Trabajadores"),
+      format = "latex",
+      booktabs = TRUE) %>%
+  kable_classic(full_width = FALSE, html_font = "Aptos") %>%
+  column_spec(1, width = "6cm") %>%
+  column_spec(2, width = "3cm") %>%
+  column_spec(3, width = "3cm") %>%
+  footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2024, datos expandidos.",
+           general_title= "")
+
+
+```
+
+
+```{r eval=TRUE, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE, results='asis', fig.align = 'center'}
+
+
+pc_regiones_sucursal <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "pc_regiones_sucursal")
+
+pc_regiones_sucursal <- pc_regiones_sucursal %>%
+  rename(Region = Región)
+
+
+# Descargar un shapefile de Chile
+library(devtools)
+#devtools::install_github("ropensci/rnaturalearthhires")
+chile_map <- ne_states(country = "Chile", returnclass = "sf")
+
+chile_map <- chile_map %>%
+  rename(Region = name)
+
+#Homologar nombres con el del mapa
+pc_regiones_sucursal <- pc_regiones_sucursal %>%
+  mutate(Region = case_when(
+    Region == "Metropolitana" ~ "Región Metropolitana de Santiago",
+    Region == "O’Higgins" ~ "Libertador General Bernardo O'Higgins",
+    Region == "Biobío" ~ "Bío-Bío",
+    Region == "Aysén" ~ "Aisén del General Carlos Ibáñez del Campo",
+    Region == "Magallanes" ~ "Magallanes y Antártica Chilena",
+    TRUE ~ Region 
+  ))
+
+
+sucursal_orden<-pc_regiones_sucursal %>% arrange(desc(Total))
+
+```
+
+La @fig-mapa-sucursal ilustra las regiones donde las empresas tienen sucursales, las regiones con más cantidad de sucursales que corresponden a sedes no principales son `r (sucursal_orden[1,1])`, `r (sucursal_orden[2,1])` y   `r (sucursal_orden[3,1])` con un total de `r (sucursal_orden[1,2])`, `r (sucursal_orden[2,2])` y  `r (sucursal_orden[3,2])`  sucursales respectivamente. Por su parte, las regiones de `r (sucursal_orden[16,1])`, `r (sucursal_orden[15,1])` y   `r (sucursal_orden[14,1])`  registran la menor presencia de sucursales regionales de las empresas, con `r (sucursal_orden[14,2])` o menos dependencias.
+
+\FloatBarrier
+```{r, fig.cap="Sucursales por región",  fig.align='center', fig.pos='H'}
+#| fig-width: 10
+#| fig-height: 12
+#| dpi: 300
+#| label: fig-mapa-sucursal
+#| fig-cap: "Sucursales por región"
+#| echo: false
+#| fig-align: center
+#| error: false
+#| message: false
+#| warning: false
+
+# Unir los datos espaciales con el dataframe
+map_data <- chile_map %>%
+  left_join(pc_regiones_sucursal, by = "Region")
+
+ggplot(data = map_data) +
+  geom_sf(aes(fill = Total), color = "white") + # Rellenar con el valor de Total
+  geom_sf_text(aes(label = Total),color = "white" ,size = 4) + # Aumentar el tamaño de las etiquetas
+  scale_fill_gradient(low = "#64c3d2", high = "#002a51", name = "Total de sucursales") +
+  labs(title = "",
+       caption = "Fuente: Elaboración propia utilizando datos de ENADEL 2024, datos expandidos") +
+  theme_minimal() +
+  theme(
+    legend.position = "bottom", # Leyenda en la parte inferior
+    legend.text = element_text(size = 10), # Ajustar tamaño del texto de la leyenda
+    legend.title = element_text(size = 12), # Tamaño del título de la leyenda
+    panel.grid = element_blank(), # Quitar cuadrícula
+    axis.text = element_blank(),  # Quitar valores de los ejes
+    axis.ticks = element_blank(), # Quitar marcas de los ejes
+    axis.title = element_blank(),
+    plot.caption = element_text(size = 10, hjust = 0.5)
+  ) +
+  coord_sf(xlim = c(-75, -65), ylim = c(-56, -17)) # Ajusta los valores según el mapa
+
+
+```
+\FloatBarrier
+
+### Tamaño de empresas (n° de ventas y n° de trabajadores)
+
+
+La @fig-combined muestra el porcentaje de empresas y trabajadores según tamaño de empresas, utilizando la clasificación por número de trabajadores, cómo por volumen de venta. Con respecto a la primera clasificación, el 74,6% de las empresas tiene menos de 50 trabajadores –acumulando un 23,8% del total– y casi el 50% de los trabajadores están en empresas grandes –que corresponden a un 6,5% del total. Si se analiza según tamaño de ventas, más de la mitad de las empresas tienen un volumen de venta de entre 2.400 y 24.999 UF (“Pequeñas”) y más de un cuarto venden entre 25.000 y 100.000 UF al año (“Mediana”). Sin embargo, casi un tercio de los trabajadores están en empresas grandes (más de 100.000 UF).
+
+\FloatBarrier
+```{r, fig.cap="Gráfico combinado de resultados", out.width='100%', fig.align='center', fig.pos='H'}
+#| label: fig-combined
+#| fig-cap: "Gráfico combinado de resultados"
+#| echo: false
+#| fig-align: center
+#| error: false
+#| message: false
+#| warning: false
+
+
+pc_tam<- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "pc_tam")
+
+pc_tamvent<- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "pc_tamvent")
+
+#Agregar Aptos
+#font_add(family = "Aptos", regular = "C:/Windows/Fonts/APTOS.TTF")
+#habilitar para ggplot
+showtext_auto()
+
+#Gráfico de tamaño según n° de trabajadores----
+
+# Transformar los datos al formato largo para ggplot
+df_long <- pc_tam %>%
+  pivot_longer(cols = starts_with("pc_"), names_to = "tipo", values_to = "porcentaje")
+# Cambiar nombres
+df_long$tipo <- recode(df_long$tipo, "pc_empresas" = "Empresas", "pc_trabajadores" = "Trabajadores")
+
+
+
+# Gráfico de barras
+graf_tam<-ggplot(df_long, aes(x = tipo, y = porcentaje, fill = factor(tam_label, levels = c("Pequeña", "Mediana", "Grande")))) +
+  geom_bar(stat = "identity", position = position_dodge(width = 0.5), width = 0.4) +#gráfico de barras
+  scale_fill_manual(values = c("Pequeña" = "#e36444", "Mediana" = "#c36c9b", "Grande" = "#35638c")) +#color de leyendas
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 1)),#valor de etiquetas
+            position = position_dodge(width = 0.5), vjust = -0.5, size = 2.3) +#posición de las etiquetas
+   scale_y_continuous(labels = scales::percent, limits = c(0, 0.8)) + #eje y
+  labs(title = "Según N° de trabajadores",
+       x = NULL,
+       y = NULL,
+       fill = "") +
+  theme_minimal(base_family = "Aptos") +
+  theme(axis.text.x = element_text(size = 6),
+        axis.text.y = element_text(size = 6),
+        plot.title = element_text(hjust = 0.5, size = 7.5),
+        legend.position = "bottom",
+        legend.title = element_text(size = 5), # Ajustar el tamaño del título de la leyenda
+    legend.text = element_text(size = 5.5)    # Ajustar el tamaño del texto de las etiquetas de la leyenda
+  ) +
+  guides(
+    fill = guide_legend(nrow = 2) # Configurar la leyenda para tener 2 filas
+  )
+
+
+
+#Gráfico de tamaño según n° de ventas----
+
+# Transformar los datos al formato largo para ggplot
+df_long <- pc_tamvent %>%
+  pivot_longer(cols = starts_with("pc_"), names_to = "tipo", values_to = "porcentaje")
+# Cambiar nombres
+df_long$tipo <- recode(df_long$tipo, "pc_empresas" = "Empresas", "pc_trabajadores" = "Trabajadores")
+
+
+
+df_long$a3 <- factor(df_long$a3, levels = c("Sin ventas", "Micro", "Pequeña", "Mediana", "Grande"))
+
+
+# Gráfico de barras
+graf_tamvent<-ggplot(df_long, aes(x = tipo, y = porcentaje, fill = factor(a3, levels = c("Sin ventas","Micro","Pequeña", "Mediana", "Grande")))) +
+  geom_bar(stat = "identity", position = position_dodge(width = 0.7), width = 0.6) +#gráfico de barras
+  scale_fill_manual(values = c("Sin ventas"= "#bb1c42","Micro"="#f4bb54","Pequeña" = "#e36444", "Mediana" = "#c36c9b", "Grande" = "#35638c")) +#color de leyendas
+  geom_text(aes(label = scales::percent(porcentaje, accuracy = 1)),#valor de etiquetas
+            position = position_dodge(width = 0.7), vjust = -0.5, size = 2.3) +#posición de las etiquetas
+   scale_y_continuous(labels = scales::percent, limits = c(0, 0.8)) + #eje y
+  labs(title = "Según tamaño de ventas",
+       x = NULL,
+       y = NULL,
+       fill="") +
+  theme_minimal(base_family = "Aptos")+
+  theme(axis.text.x = element_text(size = 6),
+        axis.text.y = element_text(size = 6),
+        plot.title = element_text(hjust = 0.5, size = 7.5),
+        legend.position = "bottom",
+        legend.title = element_text(size = 5), # Ajustar el tamaño del título de la leyenda
+    legend.text = element_text(size = 5.5)    # Ajustar el tamaño del texto de las etiquetas de la leyenda
+  ) +
+  guides(
+    fill = guide_legend(nrow = 2) # Configurar la leyenda para tener 2 filas
+  )
+
+#Combinar gráficos
+graf_combined <- graf_tam + graf_tamvent +
+  plot_layout(ncol = 2) +  # Configurar para que los gráficos estén en 2 columnas (lado a lado)
+  plot_annotation(
+    caption = "Fuente: Elaboración propia utilizando datos de ENADEL 2024, datos expandidos.",
+    theme = theme(plot.title = element_text(family = "Aptos", size = 14, face = "bold"),
+      plot.caption = element_text(family = "Aptos", hjust = 0, size = 7.5))
+  )
+
+graf_combined
+
+
+```
+\FloatBarrier
+
+
+
+```{r, results='asis'}
+#| echo: false
+#| error: false
+#| message: false
+#| warning: false
+
+porc_acteco <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "pc_acteco") %>% select(-c("act_eco","empresas", "trabajadores"))
+
+porc_acteco <- round(porc_acteco*100, 1)
+
+porc_acteco <- porc_acteco %>% arrange(desc(pc_trabajadores))
+
+orden_acteco <-c("Agricultura, ganadería, silvicultura y pesca", "Industrias manufactureras ", "Suministro de electricidad, gas, agua  y gestión de desechos", 
+  "Construcción", "Comercio", "Transporte y almacenamiento ", "Alojamiento y de servicio de comidas", 
+  "Información y comunicaciones",  "Actividades financieras y de seguros", "Actividades inmobiliarias",
+  "Actividades profesionales, científicas y de servicios administrativos", "Actividades artísticas, de entretenimiento y otros servicios")
+
+rownames(porc_acteco)<- orden_acteco
+
+```
+
+Al revisar la distribución por sector de actividad económica @tbl-acteco se tiene que una de cada cinco empresas pertenece al sector de Comercio, seguido por el sector Construcción (`r round(porc_acteco[2,1], 1)`%) y el sector de Industrias Manufactureras (11,4%). Con respecto al volumen de trabajadores, el sector Comercio también lidera (17,8%) seguido por el sector Construcción (14,4%) y el sector de Servicios Administrativos y de Apoyo que, siendo sector intensivo en trabajo, un 9,1% de las empresas acumula el 13,5% de trabajadores y trabajadoras.
+
+\FloatBarrier
+```{r, results='asis'}
+#| label: tbl-acteco
+#| tbl-cap: "Empresas y trabajadores según sector de actividad económica" 
+#| echo: false
+#| error: false
+#| message: false
+#| warning: false
+
+
+porc_acteco <- porc_acteco %>% mutate(pc_empresas = paste0(pc_empresas, "%"),
+                                      pc_trabajadores = paste0(pc_trabajadores, "%"))
+
+
+
+# Generar la tabla con kable
+kable(porc_acteco,
+      col.names = c("Actividad Económica", "% Empresas", "% Trabajadores"),
+      format = "latex", 
+      booktabs = TRUE) %>% 
+  kable_classic(full_width = FALSE, html_font = "Aptos") %>% 
+  column_spec(1, width = "11cm") %>%
+  footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2024, datos expandidos.",
+            general_title= "") 
+
+
+
+
+```
+\FloatBarrier
+
+### Estructura corporativa (conglomerado/subcontrato)
+
+
+```{r}
+# Por qué variables cruzar?
+
+```
+
+## Capítulo II: Demanda Laboral y Ocupaciones de Difícil Cobertura
+
+### Demanda Laboral
+
+### Contrataciones
+ 
+### Ocupaciones
+
+### Ocupaciones de Difícil Cobertura
+
+### Principales Dificultades
+
+### Resultado de Movilidad
+
+## Capítulo III: Capacitación y Habilidades
+
+### Organismo Técnico Intermedio para capacitación
+
+### Capacitaciones de la empresa
+
+### Competencias en que se capacita
+
+### Fuentes de financiamiento de la capacitación 
+
+## Capítulo IV: Transiciones
+
+### Eventos climáticos extremos
+
+### Medidas de Cuidado del medioambiente
+
+### Digitalización y Automatización
+
+#### Cambios en dotación de personal
+#### Creación de nuevos puestos de trabajo
+#### Dificultad para llenar vacantes 
+
+
+
+
