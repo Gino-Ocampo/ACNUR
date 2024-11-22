@@ -1,20 +1,62 @@
-pacman::p_load("tidyverse","dplyr", "plyr", "knitr", "haven", "readxl", "writexl", "Hmisc", "survey", "labelled", "archive", "purrr")
+pacman::p_load("tidyverse","dplyr", "plyr", "knitr", "haven", "readxl", "writexl", "Hmisc", "survey", "labelled", "archive", "purrr", "stringi")
 
- 
-enadel_2024 <- readxl::read_excel("Datos/base_ENADEL_2024.xlsx")
 
-#Crear factor de expansión=1
+load("Bases/ENADEL_2024_(externa).RData")
 
-enadel_2024 <- enadel_2024 %>% mutate(exp=1)
+
+#Crear factor de expansión aleatorio entre 10 y 100
+data <- data %>% 
+  mutate(fact_emp = runif(nrow(data), min = 10, max = 100))
 
 #Crear variable empresas=1
 
-enadel_2024 <- enadel_2024 %>% mutate(empresas=1)
+data <- data %>% mutate(empresas=1)
 
+str(data$act_eco)
+
+# Ojo con act_eco, la idea es utilizar la de stata, creo que debería utilizarla como está, porque después entregarán la variable definitiva.
+data <- data %>%
+  mutate(
+    # Convertir a carácter y eliminar atributos
+    act_eco = as.character(act_eco),
+    # Reemplazar manualmente caracteres mal codificados
+    act_eco = str_replace_all(act_eco, c(
+      "Ã³" = "ó", "Ã±" = "ñ", "Ã¡" = "á", "Ã" = "a",
+      "Â" = "", "�" = "", "í" = "í", "ç" = "c",
+      "�" = "í"
+    )),
+    # Eliminar tildes y normalizar
+    act_eco = stri_trans_general(act_eco, "latin-ascii"),
+    # Convertir a minúsculas
+    act_eco = tolower(act_eco),
+    # Eliminar espacios adicionales
+    act_eco = str_trim(act_eco),
+    # Estandarizar nombres de categorías
+    act_eco = case_when(
+      str_detect(act_eco, "agricultura|ganaderia|silvicultura|pesca") ~ "Agricultura, ganadería, silvicultura y pesca",
+      str_detect(act_eco, "construcci") ~ "Construcción",
+      str_detect(act_eco, "actividades profesionales|cientificas|tecnicas") ~ "Actividades profesionales, científicas y técnicas",
+      str_detect(act_eco, "informaci") ~ "Información y comunicaciones",
+      str_detect(act_eco, "artísticas|artistas|entretenimiento|recreativas") ~ "Actividades artísticas, de entretenimiento y recreativas",
+      str_detect(act_eco, "industria manufacturera") ~ "Industria manufacturera",
+      str_detect(act_eco, "comercio") ~ "Comercio al por mayor y al por menor",
+      str_detect(act_eco, "suministro de agua") ~ "Suministro de agua",
+      str_detect(act_eco, "suministro de electricidad|gas|vapor|aire acondicionado") ~ "Suministro de electricidad, gas, vapor y aire acondicionado",
+      str_detect(act_eco, "transporte|almacenamiento") ~ "Transporte y almacenamiento",
+      TRUE ~ act_eco # Mantener valores no especificados
+    )
+  ) %>%
+  # Convertir nuevamente a factor con niveles corregidos
+  mutate(act_eco = factor(act_eco))
+
+# Verificar los niveles corregidos
+levels(data$act_eco)
+
+
+# Verificar las categorías únicas después de la limpieza
+unique(data$act_eco)
 
 #Módulo A Identificación de la empresa ----
-
-
 
 enadel_2024$a6 <-  as.factor(enadel_2024$a6)
 
@@ -35,7 +77,36 @@ enadel_2024$reg_muestra <-  factor(enadel_2024$reg_muestra, levels=c(1,2,3,4,5,6
 
 #Sector económico
 
-unique(enadel_2024$a2)
+unique(data$act_eco)
+
+data <- data %>%
+  mutate(act_eco = stri_trans_general(act_eco, "Latin-ASCII"), # Remueve caracteres especiales y tildes
+         act_eco = stri_trans_general(act_eco, "Latin-ASCII"),
+    act_eco = tolower(act_eco), # Convierte todo a minúsculas para mayor consistencia
+    act_eco = stri_trim_both(act_eco))
+    
+    
+data <- data %>%
+  mutate(act_eco = case_when( # Reemplaza las duplicidades conocidas con nombres consistentes
+      str_detect(act_eco, "agricultura|ganaderia|silvicultura|pesca") ~ "agricultura, ganadería, silvicultura y pesca",
+      str_detect(act_eco, "construcci") ~ "construcción",
+      str_detect(act_eco, "actividades profesionales") ~ "actividades profesionales, científicas y técnicas",
+      str_detect(act_eco, "informaci") ~ "información y comunicaciones",
+      str_detect(act_eco, "artísticas|artistas|entretenimiento|recreativas") ~ "actividades artísticas, de entretenimiento y recreativas",
+      TRUE ~ act_eco # Mantén las categorías no incluidas en los reemplazos
+    )
+  )
+
+
+
+data <- data %>%
+  mutate(act_eco==case_when(act_eco== "Construcci�n" |act_eco == "ConstrucciA³n" ~ "Construccion",
+                            act_eco== "Actividades profesionales, cient�ficas y t�cnicas" ~ "Actividades profesionales, cientificas y tecnicas",
+                            act_eco== "Informaci�n y comunicaciones" ~ "Informacion y comunicaciones",
+                            TRUE ~ act_eco))
+
+
+
 enadel_2024 <- enadel_2024 %>% mutate(a2=case_when(a2==1 ~ "Agricultura, silvicultura y pesca",
                                                    a2==2 ~ "Minería",
                                                    a2==3 ~ "Industrias manufactureras",

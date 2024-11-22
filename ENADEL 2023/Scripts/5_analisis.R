@@ -9,7 +9,7 @@
 # fecha última modificación: Septiembre 2024
 # ---------------------------
 # Paquetes: 
-pacman::p_load("tidyverse", "dplyr", "plyr", "knitr", "haven", "readxl", "writexl", "Hmisc", "survey", "labelled", "archive")
+pacman::p_load("tidyverse", "dplyr", "plyr", "knitr", "haven", "readxl", "writexl", "Hmisc","sjmisc", "srvyr","survey", "labelled", "archive")
 
 # ---------------------------
 
