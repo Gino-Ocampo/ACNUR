@@ -95,13 +95,11 @@ El presente documento analiza los resultados de la Encuesta Nacional de Demanda 
 
 \newpage
 
-
-
- 
 ## Capítulo I: Contexto y caracterización de empresas
 
-### Producto/Servicio
+El primer capítulo se centra en contextualizar y caracterizar a las empresas participantes de la Encuesta Nacional de Demanda Laboral (ENADEL) 2024. En este apartado se busca comprender la estructura y distribución de las empresas a nivel nacional, diferenciando por tamaño, sector productivo y dotación de personal. 
 
+Asimismo, se examinan características relevantes de las empresas que configuran la base del mercado laboral actual, con el fin de establecer un panorama detallado sobre la composición y dinámica de los sectores productivos. Este análisis otorga un marco inicial para interpretar la demanda laboral en los siguientes capítulos, destacando patrones y diferencias que permiten identificar regiones y sectores de mayor demanda laboral así como los desafíos futuros asociados a la generación de empleo en el país. 
 
 
 \FloatBarrier
@@ -111,7 +109,8 @@ El presente documento analiza los resultados de la Encuesta Nacional de Demanda 
 ```{r eval=TRUE, echo=FALSE, error=FALSE, message=FALSE, warning=FALSE, results='asis', fig.align = 'center'}
 
 #Cargar paquetes
-pacman::p_load(tidyverse,#universo de paquetes
+pacman::p_load(survey,
+               tidyverse,#universo de paquetes
                haven,# leer archivos stata y spss
                stargazer,# tablas de regresión??
               kableExtra,#Tablas fancy
@@ -123,8 +122,30 @@ pacman::p_load(tidyverse,#universo de paquetes
               forcats,
               rnaturalearth,#mapas
               rnaturalearthdata,
-              devtools)
+              devtools,
+              sf)#maps
 
+
+#datos
+enadel <- read_dta("../Bases/enadel_2024.dta")
+# Dejar -88 como perdido
+enadel <- enadel %>%
+  mutate_at(vars(starts_with("b")), ~ ifelse(is.numeric(.) & . == -88, NA, .))
+
+
+
+#Diseño muestral
+#svy
+options(survey.lonely.psu="adjust")
+design_enadel_2024 <- svydesign(ids = ~id_emp, strata =~estrato ,  weights = ~fact_emp, data = enadel, nest = TRUE)
+
+ #Cantidad de empresas
+ tot_folios <- svytotal(~empresas, design_enadel_2024, na.rm = TRUE)[1]
+ tot_folios_muestra <- length(unique(enadel$id_emp))
+
+ # total trabajadores 
+  tot_trab <- svytotal(~b6_1, design_enadel_2024, na.rm = TRUE)[1]
+  tot_trab_muestra <- sum(enadel$b6_1)
         
 
 options(OutDec = ",")
@@ -147,10 +168,13 @@ porc_region<- porc_region %>% select(-c("region","empresas", "trabajadores"))
 porc_region <- round(porc_region*100, 1)
 rownames(porc_region)<- orden_regiones
 
+tot_folios<- as.data.frame(tot_folios)
+tot_trab <- as.data.frame(tot_trab)
 
+class(tot_folios$tot_folios)
 ```
 
-La muestra de ENADEL 2024 encuesta a 6.490 empresas que suman 485.256 trabajadores (a nivel muestral). Estas representan a 82.052 empresas y 5.611.196 trabajadores a nivel nacional. La @tbl-region muestra  la distribución en las distintas regiones del país, dónde un `r round(porc_region[7, 1],1 )`% de las empresas y un `r round(porc_region[7, 2],1)`% de los trabajadores se encuentran en la región Metropolitana.
+La muestra de ENADEL 2024 encuesta a `r tot_folios_muestra` empresas que suman `r tot_trab_muestra` trabajadores (a nivel muestral). Estas representan a `r round(tot_folios[1,1],0)` empresas y  `r round(tot_trab[1,1],0)` trabajadores a nivel nacional. La @tbl-region muestra  la distribución en las distintas regiones del país, dónde un `r round(porc_region[7, 1],1 )`% de las empresas y un `r round(porc_region[7, 2],1)`% de los trabajadores se encuentran en la región Metropolitana.
 
 \vspace{5mm}
 
@@ -187,8 +211,7 @@ kable(porc_region,
 
 pc_regiones_sucursal <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "pc_regiones_sucursal")
 
-pc_regiones_sucursal <- pc_regiones_sucursal %>%
-  rename(Region = Región)
+orden_regiones_sucursal <-pc_regiones_sucursal |> arrange(desc(total))
 
 
 # Descargar un shapefile de Chile
@@ -196,29 +219,16 @@ library(devtools)
 #devtools::install_github("ropensci/rnaturalearthhires")
 chile_map <- ne_states(country = "Chile", returnclass = "sf")
 
-chile_map <- chile_map %>%
-  rename(Region = name)
+chile_map <- dplyr::rename(chile_map, Region = name)
 
-#Homologar nombres con el del mapa
-pc_regiones_sucursal <- pc_regiones_sucursal %>%
-  mutate(Region = case_when(
-    Region == "Metropolitana" ~ "Región Metropolitana de Santiago",
-    Region == "O’Higgins" ~ "Libertador General Bernardo O'Higgins",
-    Region == "Biobío" ~ "Bío-Bío",
-    Region == "Aysén" ~ "Aisén del General Carlos Ibáñez del Campo",
-    Region == "Magallanes" ~ "Magallanes y Antártica Chilena",
-    TRUE ~ Region 
-  ))
-
-
-sucursal_orden<-pc_regiones_sucursal %>% arrange(desc(Total))
 
 ```
+\newpage
 
-La @fig-mapa-sucursal ilustra las regiones donde las empresas tienen sucursales, las regiones con más cantidad de sucursales que corresponden a sedes no principales son `r (sucursal_orden[1,1])`, `r (sucursal_orden[2,1])` y   `r (sucursal_orden[3,1])` con un total de `r (sucursal_orden[1,2])`, `r (sucursal_orden[2,2])` y  `r (sucursal_orden[3,2])`  sucursales respectivamente. Por su parte, las regiones de `r (sucursal_orden[16,1])`, `r (sucursal_orden[15,1])` y   `r (sucursal_orden[14,1])`  registran la menor presencia de sucursales regionales de las empresas, con `r (sucursal_orden[14,2])` o menos dependencias.
+La @fig-mapa-sucursal ilustra las regiones donde las empresas tienen sucursales, las regiones con más cantidad de sucursales que corresponden a sedes no principales son `r (orden_regiones_sucursal[1,1])`, `r (orden_regiones_sucursal[2,1])` y   `r (orden_regiones_sucursal[3,1])` con un total de `r (orden_regiones_sucursal[1,2])`, `r (orden_regiones_sucursal[2,2])` y  `r (orden_regiones_sucursal[3,2])`  sucursales respectivamente. Por su parte, las regiones de `r (orden_regiones_sucursal[16,1])`, `r (orden_regiones_sucursal[15,1])` y   `r (orden_regiones_sucursal[14,1])`  registran la menor presencia de sucursales regionales de las empresas, con `r (orden_regiones_sucursal[14,2])` o menos dependencias.
 
 \FloatBarrier
-```{r, fig.cap="Sucursales por región",  fig.align='center', fig.pos='H'}
+```{r, fig.cap="Porcentajes de sucursales en cada región",  fig.align='center', fig.pos='H'}
 #| fig-width: 10
 #| fig-height: 12
 #| dpi: 300
@@ -231,27 +241,54 @@ La @fig-mapa-sucursal ilustra las regiones donde las empresas tienen sucursales,
 #| warning: false
 
 # Unir los datos espaciales con el dataframe
+
 map_data <- chile_map %>%
   left_join(pc_regiones_sucursal, by = "Region")
 
+
+# Crear centroides y ajustar posiciones para las etiquetas
+map_data <- map_data %>%
+  mutate(centroid = st_centroid(geometry)) %>% # Calcular centroides
+  mutate(
+    label_coords_x = st_coordinates(centroid)[, 1] - 1.5, # Ajustar posición X (hacia la izquierda)
+    label_coords_y = st_coordinates(centroid)[, 2]        # Mantener posición Y igual al centroide
+  )
+
+# Crear el gráfico
 ggplot(data = map_data) +
-  geom_sf(aes(fill = Total), color = "white") + # Rellenar con el valor de Total
-  geom_sf_text(aes(label = Total),color = "white" ,size = 4) + # Aumentar el tamaño de las etiquetas
+  geom_sf(aes(fill = `total`), color = "white") + # Mapa base con relleno
+  geom_segment(aes(
+    x = st_coordinates(centroid)[, 1], # Punto inicial (X del centroide)
+    y = st_coordinates(centroid)[, 2], # Punto inicial (Y del centroide)
+    xend = label_coords_x,             # Punto final (X ajustado)
+    yend = label_coords_y              # Punto final (Y del centroide, sin ajuste)
+  ), color = "gray", size = 0.5) + # Líneas horizontales
+   geom_point(aes(
+    x = st_coordinates(centroid)[, 1],
+    y = st_coordinates(centroid)[, 2]
+  ), color = "white", size = 2) +
+  geom_text(aes(
+    x = label_coords_x, # Coordenada X ajustada
+    y = label_coords_y, # Coordenada Y sin ajuste
+    label = paste(Region, total, sep = ": ") # Etiqueta con región y total
+  ), color = "black", size = 3, hjust = 1) + # Etiquetas alineadas a la izquierda
   scale_fill_gradient(low = "#64c3d2", high = "#002a51", name = "Total de sucursales") +
-  labs(title = "",
-       caption = "Fuente: Elaboración propia utilizando datos de ENADEL 2024, datos expandidos") +
+  labs(
+    title = "",
+    caption = "Fuente: Elaboración propia utilizando datos de ENADEL 2024, datos expandidos"
+  ) +
   theme_minimal() +
   theme(
-    legend.position = "bottom", # Leyenda en la parte inferior
-    legend.text = element_text(size = 10), # Ajustar tamaño del texto de la leyenda
-    legend.title = element_text(size = 12), # Tamaño del título de la leyenda
-    panel.grid = element_blank(), # Quitar cuadrícula
-    axis.text = element_blank(),  # Quitar valores de los ejes
-    axis.ticks = element_blank(), # Quitar marcas de los ejes
+    legend.position = "right",
+    legend.text = element_text(size = 10),
+    legend.title = element_text(size = 12),
+    panel.grid = element_blank(),
+    axis.text = element_blank(),
+    axis.ticks = element_blank(),
     axis.title = element_blank(),
     plot.caption = element_text(size = 10, hjust = 0.5)
   ) +
-  coord_sf(xlim = c(-75, -65), ylim = c(-56, -17)) # Ajusta los valores según el mapa
+  coord_sf(xlim = c(-90, -65), ylim = c(-56, -19))
 
 
 ```
@@ -290,7 +327,9 @@ df_long <- pc_tam %>%
 # Cambiar nombres
 df_long$tipo <- recode(df_long$tipo, "pc_empresas" = "Empresas", "pc_trabajadores" = "Trabajadores")
 
-
+# df_long$tam_label <- as.factor(df_long$tam_label)
+# 
+# df_long$tam_label <- factor(df_long$tam_label, levels = c("Pequeña", "Mediana", "Grande"))
 
 # Gráfico de barras
 graf_tam<-ggplot(df_long, aes(x = tipo, y = porcentaje, fill = factor(tam_label, levels = c("Pequeña", "Mediana", "Grande")))) +
@@ -298,7 +337,7 @@ graf_tam<-ggplot(df_long, aes(x = tipo, y = porcentaje, fill = factor(tam_label,
   scale_fill_manual(values = c("Pequeña" = "#e36444", "Mediana" = "#c36c9b", "Grande" = "#35638c")) +#color de leyendas
   geom_text(aes(label = scales::percent(porcentaje, accuracy = 1)),#valor de etiquetas
             position = position_dodge(width = 0.5), vjust = -0.5, size = 2.3) +#posición de las etiquetas
-   scale_y_continuous(labels = scales::percent, limits = c(0, 0.8)) + #eje y
+   scale_y_continuous(labels = scales::percent, limits = c(0, 0.85)) + #eje y
   labs(title = "Según N° de trabajadores",
        x = NULL,
        y = NULL,
@@ -319,15 +358,22 @@ graf_tam<-ggplot(df_long, aes(x = tipo, y = porcentaje, fill = factor(tam_label,
 
 #Gráfico de tamaño según n° de ventas----
 
-# Transformar los datos al formato largo para ggplot
-df_long <- pc_tamvent %>%
-  pivot_longer(cols = starts_with("pc_"), names_to = "tipo", values_to = "porcentaje")
+#Transformar los datos al formato largo para ggplot
+pc_tamvent <- pc_tamvent |> mutate(a3=case_when(a3==1~"Sin ventas",
+                                             a3==2~"Micro",
+                                             a3==3~"Pequeña",
+                                             a3==4~"Mediana",
+                                             a3==5~"Grande",
+                                             TRUE ~ NA
+                                             ))|> filter(!is.na(a3))
+
+df_long<- pc_tamvent|> pivot_longer(cols = starts_with("pc_"), names_to = "tipo", values_to = "porcentaje")
 # Cambiar nombres
 df_long$tipo <- recode(df_long$tipo, "pc_empresas" = "Empresas", "pc_trabajadores" = "Trabajadores")
 
 
 
-df_long$a3 <- factor(df_long$a3, levels = c("Sin ventas", "Micro", "Pequeña", "Mediana", "Grande"))
+
 
 
 # Gráfico de barras
@@ -336,7 +382,7 @@ graf_tamvent<-ggplot(df_long, aes(x = tipo, y = porcentaje, fill = factor(a3, le
   scale_fill_manual(values = c("Sin ventas"= "#bb1c42","Micro"="#f4bb54","Pequeña" = "#e36444", "Mediana" = "#c36c9b", "Grande" = "#35638c")) +#color de leyendas
   geom_text(aes(label = scales::percent(porcentaje, accuracy = 1)),#valor de etiquetas
             position = position_dodge(width = 0.7), vjust = -0.5, size = 2.3) +#posición de las etiquetas
-   scale_y_continuous(labels = scales::percent, limits = c(0, 0.8)) + #eje y
+   scale_y_continuous(labels = scales::percent, limits = c(0, 0.85)) + #eje y
   labs(title = "Según tamaño de ventas",
        x = NULL,
        y = NULL,
@@ -380,18 +426,34 @@ porc_acteco <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "pc_actec
 
 porc_acteco <- round(porc_acteco*100, 1)
 
+
+orden_acteco <-c("Agricultura, silvicultura y pesca",
+                 "Minería",
+                 "Industrias manufactureras",
+                 "Suministro de electricidad y gas",
+                 "Suministro de agua y gestión de  desechos",
+                 "Construcción",
+                 "Comercio",
+                 "Transporte y almacenamiento",
+                 "Alojamiento y de servicio de comida",
+                 "Información y comunicaciones",
+                 "Actividades financieras y de seguros",
+                 "Actividades inmobiliarias",
+                 "Actividades profesionales y técnicas",
+                 "Servicios administrativos y de apoyo")
+
+porc_acteco$act_eco <- orden_acteco
+
+porc_acteco <- porc_acteco |> select(act_eco, pc_empresas, pc_trabajadores)
+
 porc_acteco <- porc_acteco %>% arrange(desc(pc_trabajadores))
 
-orden_acteco <-c("Agricultura, ganadería, silvicultura y pesca", "Industrias manufactureras ", "Suministro de electricidad, gas, agua  y gestión de desechos", 
-  "Construcción", "Comercio", "Transporte y almacenamiento ", "Alojamiento y de servicio de comidas", 
-  "Información y comunicaciones",  "Actividades financieras y de seguros", "Actividades inmobiliarias",
-  "Actividades profesionales, científicas y de servicios administrativos", "Actividades artísticas, de entretenimiento y otros servicios")
+orden_empresas<- porc_acteco %>% arrange(desc(pc_empresas))
 
-rownames(porc_acteco)<- orden_acteco
 
 ```
 
-Al revisar la distribución por sector de actividad económica @tbl-acteco se tiene que una de cada cinco empresas pertenece al sector de Comercio, seguido por el sector Construcción (`r round(porc_acteco[2,1], 1)`%) y el sector de Industrias Manufactureras (11,4%). Con respecto al volumen de trabajadores, el sector Comercio también lidera (17,8%) seguido por el sector Construcción (14,4%) y el sector de Servicios Administrativos y de Apoyo que, siendo sector intensivo en trabajo, un 9,1% de las empresas acumula el 13,5% de trabajadores y trabajadoras.
+Al revisar la distribución por sector de actividad económica @tbl-acteco se tiene que el sector de `r orden_empresas[1,1]` (`r orden_empresas[1,2]`%) , seguido por el sector `r orden_empresas[2,1] ` (`r orden_empresas[2,2]`%) y el sector de `r orden_empresas[3,1]` (`r orden_empresas[3,2]`%) concentran la mayor cantidad de empresas a nivel nacional. Con respecto al volumen de trabajadores, el sector `r porc_acteco[1,1]`   lidera (`r porc_acteco[1,3]`%) seguido por el sector `r porc_acteco[2,1]` (`r porc_acteco[2,3]`%) y el sector de `r porc_acteco[3,1]` que, siendo sector intensivo en trabajo, un `r porc_acteco[3,2]`% de las empresas acumula el `r porc_acteco[3,3]` de trabajadores y trabajadoras.
 
 \FloatBarrier
 ```{r, results='asis'}
@@ -427,24 +489,501 @@ kable(porc_acteco,
 ### Estructura corporativa (conglomerado/subcontrato)
 
 
-```{r}
-# Por qué variables cruzar?
+```{r, results='asis'}
+#| echo: false
+#| error: false
+#| message: false
+#| warning: false
+
+conglomerados_sector <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "conglomerados_sector") |> select(-c(a2)) |> arrange(desc(tot_empresas))
+
+gremios_sector <-  readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "gremios_sector") |>  arrange(desc(tot_empresas))
+
+
+conglomerados_sector<- conglomerados_sector |>
+  select(sector_label,conglomerado_1) |>
+  mutate(conglomerado_1= round((conglomerado_1/sum(conglomerado_1))*100,1))
+
+
+gremios_sector<- gremios_sector |>
+  select(sector_label,gremios_1) |>
+  mutate(gremios_1= round((gremios_1/sum(gremios_1))*100,1))
+
+
+conglomerados_gremios <- conglomerados_sector |> left_join(gremios_sector, by= "sector_label")
+conglomerados_gremios<- conglomerados_gremios |> arrange(desc(conglomerado_1))
+gremios_conglomerados<- conglomerados_gremios |> arrange(desc(gremios_1))
+```
+
+La @tbl-conglomerado_gremio presenta los porcentajes de las empresas que pertencen a conglomerados y gremios. Se aprecia que los sectores de `r conglomerados_gremios[1,1]` con el `r conglomerados_gremios[2,1]` y `r conglomerados_gremios[3,1]` poseen los mayores niveles de empresas conglomeradas con el `r conglomerados_gremios[1,2]`%, `r conglomerados_gremios[2,2]`% y `r conglomerados_gremios[3,2]`% de empresas correspondientes.
+
+Con respecto al poder asociativo de las empresas, el  `r gremios_conglomerados[1,3]`% de las empresas del sector `r gremios_conglomerados[1,1]` pertenecen a un gremio empresarial. De igual forma, el sector `r gremios_conglomerados[2,1]` presenta un `r gremios_conglomerados[2,3]`% de empresas asociadas, mientras que el sector `r gremios_conglomerados[2,3]`%  cuenta con un `r gremios_conglomerados[3,1]` de empresas pertenecientes a algún gremio empresarial.
+
+
+\FloatBarrier
+```{r, results='asis'}
+#| label: tbl-conglomerado_gremio
+#| tbl-cap: "Empresas pertenecientes a Conglomerados y Gremios" 
+#| echo: false
+#| error: false
+#| message: false
+#| warning: false
+
+conglomerados_gremios <- conglomerados_gremios %>% mutate(conglomerado_1 = paste0(conglomerado_1, "%"),
+                                      gremios_1 = paste0(gremios_1, "%"))
+
+# Generar la tabla con kable
+kable(conglomerados_gremios,
+      col.names = c("Actividad Económica", "% Conglomerados", "% Gremios"),
+      format = "latex", 
+      booktabs = TRUE) %>% 
+  kable_classic(full_width = FALSE, html_font = "Aptos") %>% 
+  column_spec(1, width = "11cm") %>%
+  footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2024, datos expandidos.",
+            general_title= "") 
 
 ```
+\FloatBarrier
+
 
 ## Capítulo II: Demanda Laboral y Ocupaciones de Difícil Cobertura
 
-### Demanda Laboral
+A continuación, se  identifica y caracteriza la demanda laboral de las empresas durante 2024. En primer lugar, se presentan las cifras relativas a la dotación actual de personal en las empresas, seguido de un análisis de las salidas y contrataciones realizadas para determinar la demanda de trabajo de las organizaciones, incluyendo los principales perfiles ocupacionales contratados, sus competencias y los requisitos asociados.En segundo lugar, se presentan las vacantes actuales^[Número de ofertas de trabajo que se esperan abrir en lo que queda del año 2024.] y futuras^[Número de ofertas de trabajo que se esperan abrir durante el año 2025.]. Para finalizar el análisis se identifican las principales ocupaciones de difícil cobertura presentando las dificultades más relevantes que enfrentan estas posiciones no cubiertas.
 
-### Contrataciones
+
+### Dotación
+
+```{r}
+#| echo: false
+#| error: false
+#| message: false
+#| warning: false
+
+
+dotacion_resumen <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "dotacion_resumen") 
+
+
+dotacion_resumen<- dotacion_resumen |> mutate(`% mujer`=round(`% mujer`,1),
+                                              `% hombre`=round(`% hombre`,1)) |> 
+  mutate(`% mujer`=paste0(`% mujer`,"%"),
+         `% hombre`=paste0(`% hombre`,"%"))
+
+dotacion_resumen<- dotacion_resumen |> mutate(Mujer=round(Mujer,0),
+                                              Hombre=round(Hombre,0))
+
+```
+
+En cuanto a la dotación actual de las empresas, la @tbl-dotacion_resumen indica que la cantidad actual de personas empleadas asciende a un total de `r round(dotacion_resumen[4,2],0)` a nivel nacional. Además, se aprecia que la mayor parte de la dotación de trabajadore se encuentra en la categoría de contrato `r dotacion_resumen[1,1]` con un total de `r round(dotacion_resumen[1,2],0)` trabajadores, de los cuales el `r dotacion_resumen[1,5]` corresponden a mujeres y un  `r dotacion_resumen[1,6]` a personal masculino. Si bien la distribución según sexo del trabajador se mantiene en el resto de categorías contractuales, es la categoría de `r dotacion_resumen[3,1]` donde hay mayor presencia de mujeres trabajadoras, lo que da cuenta de que las mujeres se encuentran en una condición de independencia y flexibilidad, pero al mismo tiempo de mayor inestabilidad y ausencia de protección laboral.
+
+
+
+\FloatBarrier
+```{r, results='asis'}
+#| label: tbl-dotacion_resumen
+#| tbl-cap: "Dotación actual de las empresas segpun tipo de relación contractual"
+#| echo: false
+#| error: false
+#| message: false
+#| warning: false
+
+# Generar la tabla con kable
+kable(dotacion_resumen,
+      col.names = c("Categoría", "Total", "Mujer", "Hombre", "% Mujer", "% Hombre"),
+      format = "latex", 
+      booktabs = TRUE) %>% 
+  kable_classic(full_width = FALSE, html_font = "Aptos") %>% 
+  column_spec(1, width = "3cm") %>%
+  footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2024, datos expandidos.",
+            general_title= "") 
+
+```
+\FloatBarrier
+
+### Vacantes y Salidas
+
+```{r}
+#| echo: false
+#| error: false
+#| message: false
+#| warning: false
+
+vacantes_actuales_futuras <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "vacantes_actuales_futuras") 
+
+#Vacantes actuales y futuras
+vacantes_actuales_futuras <- pivot_longer(
+  vacantes_actuales_futuras, 
+  cols = everything(), 
+  names_to = "Columna", 
+  values_to = "Valor"
+)
+
+vacantes_actuales_futuras<-  vacantes_actuales_futuras |> mutate(Columna= case_when(Columna=="actuales"~ "Vacantes actuales",
+                                                Columna=="futuras_actuales"~ "Vacantes futuras 2024",
+                                                Columna=="futuras_prox_ano"~ "Vacantes futuras 2025"))
+
+```
+
+La @fig-vacantes presenta las vacantes actuales^[Número de ofertas de trabajo o vacantes abiertas al 31 de mayo del 2024.] y las vacantes futuras, que corresponden a la cantidad estimada de puestos de trabajo que se abrirán en los próximos doce meses. Actualmente, existen `r round(vacantes_actuales_futuras[1,2],0)` vacantes disponibles. En cuanto a las vacantes futuras, estas se dividen en dos categorías: los puestos de trabajo previstos para el resto del año 2024 (`r round(vacantes_actuales_futuras[2,2],0)`) y las ofertas de empleo proyectadas para el año 2025 (`r round(vacantes_actuales_futuras[3,2],0)`).
+
+\FloatBarrier
+```{r, fig.cap="Gráfico vacantes", out.width='100%', fig.align='center', fig.pos='H'}
+#| label: fig-vacantes
+#| fig-cap: "Gráfico Vacantes"
+#| echo: false
+#| fig-align: center
+#| error: false
+#| message: false
+#| warning: false
+
+
+# Crear el gráfico con el data frame
+ggplot(data = vacantes_actuales_futuras, aes(x = Columna, y = Valor, fill = Columna)) +
+  geom_bar(stat = "identity", width = 0.3) +
+  scale_fill_manual(values = c(
+    "Vacantes actuales" = "#e36444", 
+    "Vacantes futuras 2024" = "#35638c",
+    "Vacantes futuras 2025" = "#bb1c42"
+  )) +
+  geom_text(aes(label =scales::comma(Valor)), 
+            position = position_stack(vjust = 0.5), 
+            color = "white", 
+            size = 3.5) +
+  coord_flip()+
+  scale_x_discrete(expand = c(0.5, 0)) + 
+  scale_y_continuous(expand = c(0, 0)) +
+  theme_minimal() +
+  labs(
+    title = "",
+    x = "",
+    y = "Cantidad de Personas"
+  ) +
+  theme_classic(base_family = "Aptos") +
+  theme(axis.text.x = element_text(size = 7),
+        axis.text.y = element_text(size = 7),
+         axis.line.x = element_line(color = "grey80"), 
+        axis.line.y = element_line(color = "grey80"),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        plot.title = element_text(hjust = 0.5, size = 10),
+        legend.position = "bottom",
+        legend.title = element_blank(),
+        legend.text = element_text(size = 7),
+        plot.caption = element_text(size = 7))+
+  labs(caption = "Fuente: Elaboración propia utilizando datos de ENADEL 2024, datos expandidos." )
+
+
+```
+
+
+```{r}
+#| echo: false
+#| error: false
+#| message: false
+#| warning: false
+#Mantener el orden de estas tablas
+
+renuncia_total <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "renuncia_total") 
+despidos_total <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "despidos_total") 
+contrataciones_total <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "contrataciones_total") 
+vacantes_total <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "vacantes_total") # Este se incrusta pero no se grafica
+
+renuncia_total <- renuncia_total |> mutate(renuncia_mujer=round((renuncia_mujer/renuncia_total)*100,1),
+                                           renuncia_hombre=round((renuncia_hombre/renuncia_total)*100,1))
+
+despidos_total <- despidos_total |> mutate(despidos_mujer=round((despidos_mujer/despidos_total)*100,1),
+                                           despidos_hombre=round((despidos_hombre/despidos_total)*100,1))
+
+contrataciones_total<- contrataciones_total |> mutate(contrataciones_mujer=round((contrataciones_mujer/contrataciones_total)*100,1),
+                                           contrataciones_hombre=round((contrataciones_hombre/contrataciones_total)*100,1))
+
+
+
+
+renuncia_total <- pivot_longer(
+  renuncia_total, 
+  cols = everything(), 
+  names_to = "Columna", 
+  values_to = "Valor"
+)
+
+
+renuncia_total<-  renuncia_total |> mutate(Columna= case_when(Columna=="renuncia_total"~ "Total",
+                                                Columna=="renuncia_mujer"~ "Mujer",
+                                                Columna=="renuncia_hombre"~ "Hombre"),
+                                           condicion="Renuncias")
+
+
+despidos_total <- pivot_longer(
+  despidos_total, 
+  cols = everything(), 
+  names_to = "Columna", 
+  values_to = "Valor"
+)
+
+despidos_total<-  despidos_total |> mutate(Columna= case_when(Columna=="despidos_total"~ "Total",
+                                                Columna=="despidos_mujer"~ "Mujer",
+                                                Columna=="despidos_hombre"~ "Hombre"),
+                                           condicion="Despidos y ceses")
+
+
+contrataciones_total <- pivot_longer(
+  contrataciones_total, 
+  cols = everything(), 
+  names_to = "Columna", 
+  values_to = "Valor"
+)
+
+
+contrataciones_total<-  contrataciones_total |> mutate(Columna= case_when(Columna=="contrataciones_total"~ "Total",
+                                                Columna=="contrataciones_mujer"~ "Mujer",
+                                                Columna=="contrataciones_hombre"~ "Hombre"),
+                                                condicion="Contrataciones")
+
+#Total
+totales <- rbind(contrataciones_total, renuncia_total, despidos_total)
+
+totales <- totales |> filter(Columna != "Total")
+
+
+```
+
+En la @fig-salidas_contrataciones aparecen los porcentajes correspondientes a las salidas (renuncias, despidos o ceses)^[Renuncias y Ceses, terminaciones de empleados/as
+permanentes, de corto plazo o estacionales.] y contrataciones diferenciando por sexo de los trabajadores. Durante los últimos 12 meses a nivel nacional hubo un total de `r round(renuncia_total[1,2],0)` renuncias, de las cuales el `r renuncia_total[2,2]`% corresponde a renuncias hechas por mujeres, mientras que  el `r renuncia_total[3,2]`% de estas corresponden a renuncias hechas por hombres.
+
+En cuanto a despidos (y ceses) ^[Ceses, terminaciones de empleados/as permanentes, de corto plazo o estacionales.], en el gráfico se observa que  a nivel nacional existió un total de `r round(despidos_total[1,2],0)`, de los cuales el `r despidos_total[2,2]`% corresponde a casos de despidos o terminaciones de empleos ocupados por mujeres, y un `r despidos_total[3,2]`%  corresponde a despidos o ceses cuyos puestos de trabajos eran ocupados por hombres
+
+\FloatBarrier
+```{r, fig.cap="Gráfico salidas y contrataciones", out.width='100%', fig.align='center', fig.pos='H'}
+#| label: fig-salidas_contrataciones
+#| fig-cap: "Gráfico salidas y contrataciones"
+#| echo: false
+#| fig-align: center
+#| error: false
+#| message: false
+#| warning: false
+
+
+# Crear el gráfico de barras
+ggplot(data = totales, aes(x = condicion, y = Valor, fill = Columna)) +
+  geom_bar(position="stack",stat = "identity",  width = 0.4 ) +
+  scale_fill_manual(values = c(
+    "Mujer" = "#e36444", 
+    "Hombre" = "#35638c"
+  )) +
+  coord_flip()+
+  geom_text(aes(label = paste0(scales::comma(Valor), "%"), group = Columna), 
+            position = position_stack(vjust = 0.5), 
+            color = "white", 
+            size = 3.5) +
+  scale_y_continuous(expand = c(0, 0)) +
+  theme_minimal() +
+  labs(
+    title = "",
+    x = "",
+    y = "Cantidad de Personas"
+  ) +
+  theme_classic(base_family = "Aptos") +
+  theme(axis.text.x = element_text(size = 7),
+        axis.text.y = element_text(size = 7),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+         axis.line.x = element_line(color = "grey80"), 
+        axis.line.y = element_line(color = "grey80"),
+        plot.title = element_text(hjust = 0.5, size = 7.5),
+        legend.position = "bottom",
+        legend.title = element_blank(), # Ajustar el tamaño del título de la leyenda
+    legend.text = element_text(size = 7),
+    plot.caption = element_text(size = 7)) +
+  labs(caption = "Fuente: Elaboración propia utilizando datos de ENADEL 2024, datos expandidos." )
+
+```
+
+### Contrataciones últimos 12 meses
+
+```{r}
+#| echo: false
+#| error: false
+#| message: false
+#| warning: false
+
+
+contratados_u12 <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "contratados_u12") #Vacantes contratadas los últimos 12 meses
+
+contratados_u12<- contratados_u12 %>%select(c("c1", "oficio_label","c1_c_1", "cv"))
+contratados_u12<- contratados_u12 %>% filter(cv<0.50) %>% arrange(desc(c1_c_1)) %>% head(.,11)
+contratados_u12<- contratados_u12 |> mutate(c1_c_1= round(c1_c_1,0),
+                                             cv= round((cv)*100,1))
+
+
+
+```
+
+
+la @tbl-contratados_u12 sólo muestra aquellas ocupaciones para las cuáles el coeficiente de variación es menor a 50%^[La convención es considerar cómo robustas estimaciones con un cv menor al 15%. Dado que estas son pocas, se presentan todas las ocupaciones con un cv menor a 50%.].
+Las ocupaciones más contratadas en los últimos 12 meses fueron "`r contratados_u12[1,2]`" con `r contratados_u12[1,3]` contrataciones, en segundo lugar con `r contratados_u12[2,3]` contrataciones, "`r contratados_u12[2,2]`"  y "`r contratados_u12[3,2]`" con `r contratados_u12[3,3]` contrataciones.
+\FloatBarrier
+```{r, results='asis'}
+#| label: tbl-contratados_u12
+#| tbl-cap: "Contratados últimos 12 meses, por ocupación." 
+#| echo: false
+#| error: false
+#| message: false
+#| warning: false
+
+
+contratados_u12 <- contratados_u12 %>% mutate(cv = paste0(cv, "%"))
+
+# Generar la tabla con kable
+kable(contratados_u12,
+      col.names = c("CIUO_08", "Glosa", "Contratados", "cv"),
+      format = "latex", 
+      booktabs = TRUE) %>% 
+  kable_classic(full_width = FALSE, html_font = "Aptos") %>%
+  column_spec(2, width = "10cm") %>% 
+  footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2024, datos expandidos.",
+            general_title= "") 
+
+```
+\FloatBarrier
+
+
+```{r}
+#| echo: false
+#| error: false
+#| message: false
+#| warning: false
+#| 
+contratos_totales <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "contratados_u12_sector")
+
+contratos_totales<- contratos_totales |> group_by(sector_label,a2) |> summarise(c1_c_1=sum(c1_c_1)) |> ungroup()
+
+
+contratos_totales<-contratos_totales |> select(sector_label,c1_c_1) |> mutate(c1_c_1= round(c1_c_1,0)) |>  arrange(desc(c1_c_1))
+
+
+```
+
+La @tab-contratados-sector muestra la comparativa entre los sectores de actividad económica con respecto a la cantidad de puestos de trabajos contratados los últimos 12 meses, el sector de `r contratos_totales[1,1]` con `r contratos_totales[1,2]` contrataciones. En segundo lugar, el sector de `r contratos_totales[2,1]` contrató un total de `r contratos_totales[2,2]` personas, seguido del sector de `r contratos_totales[3,1]` con un total de  `r contratos_totales[3,2]` ocupaciones contratadas durante los últimos 12 meses. Dentro de los sectores que menos vacantes contratados tuvieron fueron los sectores de `r contratos_totales[12,1]` con `r contratos_totales[12,2]` puestos de trabajo, el sector `r contratos_totales[13,1]` con `r contratos_totales[13,2]`vacantes contratadas y el sector `r contratos_totales[14,1]` con `r contratos_totales[14,2]` vacantes contratadas durante el último año.
+
+\FloatBarrier
+```{r, results='asis',  out.width='100%', fig.align='center', fig.pos='H'}
+#| label: tab-contratados-sector
+#| tbl-cap: "Contratados últimos 12 meses por sector de actividad económica." 
+#| echo: false
+#| error: false
+#| message: false
+#| warning: false
+
+
+# Generar la tabla con kable
+kable(contratos_totales,
+      col.names = c("Glosa", "Contratados"),
+      format = "latex", 
+      booktabs = TRUE) %>% 
+  kable_classic(full_width = FALSE, html_font = "Aptos") %>%
+  column_spec(2, width = "10cm") %>% 
+  footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2024, datos expandidos.",
+            general_title= "") 
+
  
+
+```
+
+
 ### Ocupaciones
+
+
 
 ### Ocupaciones de Difícil Cobertura
 
+
+```{r}
+#| echo: false
+#| error: false
+#| message: false
+#| warning: false
+
+cuadro8_odc <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "cuadro8_odc") 
+
+
+cuadro8_odc <- cuadro8_odc %>% filter(cv<0.4 & cv!=0) %>% 
+  filter(n_region==0) %>% 
+  mutate(d2=round(d2,0),
+         cv=round(cv*100,1)) %>% 
+  arrange(desc(d2)) %>% 
+  select(d3,oficio_label, d2, cv)
+
+```
+
+La @tbl-cuadro8_odc sólo muestra aquellas para las cuáles el coeficiente de variación es menor a 40%^[La convención es considerar cómo robustas estimaciones con un cv menor al 15%. Dado que esto no se cumple, se presentan todas las ocupaciones con un cv menor a 40%.]. La ocupación más dificiles de cubrir es la de `r cuadro8_odc[1,2]` con un total de `r cuadro8_odc[1,3]` vacantes sin llenar. En segundo lugar, la ocupación `r cuadro8_odc[2,2]` tuvo un total de `r cuadro8_odc[2,3]` vacantes sin llenar. La ocupación de `r cuadro8_odc[3,2]` tuvo un total de `r cuadro8_odc[3,3]` vacantes sin cubrir. 
+
+
+
+```{r, fig.align='center'}
+#| label: tbl-cuadro8_odc
+#| tbl-cap: "Ocupaciones de difícil cobertura, ENADEL 2023."
+#| echo: false
+#| error: false
+#| message: false
+#| warning: false
+
+cuadro8_odc<- cuadro8_odc %>% mutate(cv= paste0(cv, "%"))
+
+# Generar la tabla con kable
+kable(cuadro8_odc,
+      col.names = c("CIUO 08", "Glosa", "Vacantes", "cv"),
+      format = "latex", 
+      booktabs = TRUE) %>% 
+  kable_classic(full_width = FALSE, html_font = "Aptos") %>%
+  footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2024, datos expandidos.",
+            general_title= "") 
+```
+
 ### Principales Dificultades
 
-### Resultado de Movilidad
+```{r}
+#| echo: false
+#| error: false
+#| message: false
+#| warning: false
+
+dificultad <- readxl::read_xlsx("../Tablas/porcentajes.xlsx", sheet = "dificultad")
+
+#Recodificación
+dificultad <- dificultad %>%
+  mutate(oficios = round((oficios / sum(oficios)) * 100, 1)) %>% 
+  select(dif_label, oficios)
+
+dificultad<- dificultad|> arrange(desc(oficios))
+
+
+
+```
+
+La @tbl-dificultad muestra las principales dificultades de contratación. La dificultad más reportada es `r dificultad[1,1]`, presente en el `r dificultad[1,2]`% de los casos, seguida por `r dificultad[2,1]` con un `r dificultad[2,2]`% y `r dificultad[3,1]`, que representa el `r dificultad[3,2]`%.
+
+
+```{r}
+#| label: tbl-dificultad
+#| tbl-cap: "Dificultades de contratación."
+#| echo: false
+#| error: false
+#| message: false
+#| warning: false
+
+dificultad<- dificultad %>% mutate(oficios= paste0(oficios, "%"))
+
+# Generar la tabla con kable
+kable(dificultad,
+      col.names = c("Primera dificultad", "% de 1ra dificultad"),
+      format = "latex", 
+      booktabs = TRUE) %>% 
+  kable_classic(full_width = FALSE, html_font = "Aptos") %>%
+  column_spec(1, width = "5cm") %>%
+  column_spec(2, width = "3cm") %>%
+  footnote(general = "Fuente: Elaboración propia utilizando datos de ENADEL 2024, datos expandidos.",
+            general_title= "")
+```
 
 ## Capítulo III: Capacitación y Habilidades
 

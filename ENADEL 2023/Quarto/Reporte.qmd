@@ -205,17 +205,7 @@ graf_tam<-ggplot(df_long, aes(x = tipo, y = porcentaje, fill = factor(tam_label,
        x = NULL,
        y = NULL,
        fill = "") +
-  theme_minimal(base_family = "Aptos") +
-  theme(axis.text.x = element_text(size = 6),
-        axis.text.y = element_text(size = 6),
-        plot.title = element_text(hjust = 0.5, size = 7.5),
-        legend.position = "bottom",
-        legend.title = element_text(size = 5), # Ajustar el tamaño del título de la leyenda
-    legend.text = element_text(size = 5.5)    # Ajustar el tamaño del texto de las etiquetas de la leyenda
-  ) +
-  guides(
-    fill = guide_legend(nrow = 2) # Configurar la leyenda para tener 2 filas
-  )
+  ¬
 
 
 
