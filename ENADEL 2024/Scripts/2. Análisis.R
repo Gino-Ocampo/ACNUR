@@ -136,6 +136,33 @@ design_enadel_2024 <- svydesign(ids = ~id_emp, strata =~estrato ,  weights = ~fa
   totales_regiones_df <- totales_regiones_df |> mutate(total= round(total,0),
                                                        porc = total/ sum(total) )
   
+  
+  #subcontrato
+  subcontratos <- svyby(~empresas, ~a8, design_enadel_2024, svytotal, na.rm = TRUE) [1:2]
+  
+  #subcontratos_sector
+  subcontratos_sector <- svyby(~empresas, ~a8+a2, design_enadel_2024, svytotal, na.rm = TRUE)[1:3] |>
+    pivot_wider(names_from = "a8", values_from = "empresas", names_glue = "empresas_{a8}") |> 
+    mutate(tot_empresas = empresas_1+empresas_2) |> 
+    dplyr::rename(subcontrato_1 = empresas_1) |> 
+    dplyr::rename(subcontrato_2 = empresas_2)
+  unique_subcontrato <- unique(subcontratos_sector$a2)
+  labels_subcontrato <- attr(subcontratos_sector$a2, "labels")
+  matched_labels <- names(labels_subcontrato)[match(unique_subcontrato, labels_subcontrato)]
+  subcontratos_sector$sector_label <- matched_labels[match(subcontratos_sector$a2, unique_subcontrato)]
+  
+  #subcontratos_region
+  subcontratos_region <- svyby(~empresas, ~a8+reg_muestra, design_enadel_2024, svytotal, na.rm = TRUE)[1:3] |>
+    pivot_wider(names_from = "a8", values_from = "empresas", names_glue = "empresas_{a8}") |> 
+    mutate(tot_empresas = empresas_1+empresas_2) |> 
+    dplyr::rename(subcontrato_1 = empresas_1) |> 
+    dplyr::rename(subcontrato_2 = empresas_2)
+  unique_subcontrato <- unique(subcontratos_region$reg_muestra)
+  labels_subcontrato <- attr(subcontratos_region$reg_muestra, "labels")
+  matched_labels <- names(labels_subcontrato)[match(unique_subcontrato, labels_subcontrato)]
+  subcontratos_region$region_label <- matched_labels[match(subcontratos_region$reg_muestra, unique_subcontrato)]
+  
+  
   #Conglomerado
   conglomerados <- svyby(~empresas, ~a9, design_enadel_2024, svytotal, na.rm = TRUE) [1:2]
   
@@ -611,8 +638,39 @@ design_enadel_2024 <- svydesign(ids = ~id_emp, strata =~estrato ,  weights = ~fa
     unique_dif <- unique(dif_1$d3_c_1)
     labels_dif <- attr(dif_1$d3_c_1, "labels")
     matched_labels <- names(labels_dif)[match(unique_dif, labels_dif)]
-    dif_1$dif_label <- matched_labels[match(dif_1$d3, unique_dif)]
+    dif_1$dif_label <- matched_labels[match(dif_1$d3_c_1, unique_dif)]
     dif_1 <- dif_1  %>% select(dif_label, oficios, se, cv)
+    
+    
+    # DIFICULTAD 2
+    dif_2 <- svyby(~oficios, ~d3_c_2, design_enadel_2024, svytotal, na.rm = TRUE) |> 
+      arrange(desc(oficios)) 
+    dif_2$cv_2 <- cv(dif_2)
+    
+    unique_dif <- unique(dif_2$d3_c_2)
+    labels_dif <- attr(dif_2$d3_c_2, "labels")
+    matched_labels <- names(labels_dif)[match(unique_dif, labels_dif)]
+    dif_2$dif_label <- matched_labels[match(dif_2$d3_c_2, unique_dif)]
+    dif_2 <- dif_2  %>% select(dif_label, oficios, se, cv_2)
+    
+    
+    # DIFICULTAD 3
+    dif_3 <- svyby(~oficios, ~d3_c_3, design_enadel_2024, svytotal, na.rm = TRUE) |> 
+      arrange(desc(oficios)) 
+    dif_3$cv_3 <- cv(dif_3)
+    
+    unique_dif <- unique(dif_3$d3_c_3)
+    labels_dif <- attr(dif_3$d3_c_3, "labels")
+    matched_labels <- names(labels_dif)[match(unique_dif, labels_dif)]
+    dif_3$dif_label <- matched_labels[match(dif_3$d3_c_3, unique_dif)]
+    dif_3 <- dif_3  %>% select(dif_label, oficios, se, cv_3)
+    
+    
+    # join 
+    dificultad_tot <- dif_1 |> left_join(dif_2, by = "dif_label") |> left_join(dif_3, by = "dif_label") |> arrange(oficios)
+    
+    
+    
     
     
     # --------------------------- AÑOS DE EXPERIENCIA MÍNIMO --------------------------- #
@@ -677,7 +735,7 @@ design_enadel_2024 <- svydesign(ids = ~id_emp, strata =~estrato ,  weights = ~fa
                   "pc_tamvent" = pc_tamvent,
                   "Tipo_propiedad"=cuadro_resumen,
                   "cuadro8_odc" = cuadro8_odc,#vacantes por ocupación
-                  "dificultad"= dif_1, #por mientras se presenta sólo la primera dificultad
+                  "dificultad_tot"=dificultad_tot,
                   "vacantes_sector" = odc_sector,
                   "vacantes_region" = odc_region,
                   "vacantes_tam" = odc_tam,
@@ -686,6 +744,8 @@ design_enadel_2024 <- svydesign(ids = ~id_emp, strata =~estrato ,  weights = ~fa
                   "exp_mean_sector" = exp_mean_sector,
                   "exp_0_sector" = exp_0_sector,
                   "exp_mean_tam" = exp_mean_tam,
+                  "subcontratos_sector"=subcontratos_sector,
+                  "subcontratos_region"=subcontratos_region, 
                   "conglomerados_sector"=conglomerados_sector,
                   "conglomerados_region"=conglomerados_region,
                   "gremios_sector"=gremios_sector,
