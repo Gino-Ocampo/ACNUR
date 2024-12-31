@@ -13,7 +13,7 @@ long<- readRDS("Bases/enadel_long.rds") #Utilizar oficio4 de aquí
 enadel <- enadel[!is.na(enadel$a2), ]
 enadel$estrato <- as.numeric(interaction(enadel$reg_muestra, enadel$a2, drop = TRUE))
 
-#Crear factor de expansión aleatorio entre 10 y 100
+#Crear factor de expansión aleatorio entre 1 y 100
 enadel <- enadel %>% 
   mutate(fact_emp = runif(nrow(enadel), min = 1, max = 100))
 
@@ -23,7 +23,72 @@ enadel <- enadel %>% mutate(empresas=1)
 #Crear variable oficios=1
 enadel <- enadel |> mutate(oficios=1)
 
-#c (cantidad), d3 (ODC), e8 (Requiere capacitación), f9 (disminución por avances tecnológicos), f12 (creación por avances tecnológicos)
+
+#### Crear variables de cargos####
+
+#c1 (cantidad), d3 (ODC), e8 (Requiere capacitación), f9 (disminución por avances tecnológicos), f12 (creación por avances tecnológicos)
+
+
+# Función para procesar cargos
+procesar_cargos <- function(data) {
+  # Crear una lista para almacenar los resultados por cada fila
+  resultado <- lapply(1:nrow(data), function(i) {
+    # Seleccionar la fila actual
+    fila <- data[i, ]
+    
+    # Filtrar los cargos con contrataciones mayores a 0
+    contrataciones <- fila[1, grepl("^c1_c_", names(fila))]
+    cargos_validos <- contrataciones > 0 & !is.na(contrataciones)
+    nombres_cargos <- fila[1, grepl("^c1_a_", names(fila))]
+    
+    # Si no hay cargos válidos, devolver NULL
+    if (!any(cargos_validos)) return(NULL)
+    
+    # Mantener solo los nombres de cargos válidos
+    nombres_validos <- nombres_cargos[cargos_validos]
+    contrataciones_validas <- contrataciones[cargos_validos]
+    
+    # Crear un dataframe temporal con nombres y contrataciones
+    temp_df <- data.frame(
+      nombre_cargo = as.character(nombres_validos),
+      cantidad = as.numeric(contrataciones_validas)
+    )
+    
+    # Sumar contrataciones por cargo
+    resultado_agrupado <- aggregate(cantidad ~ nombre_cargo, data = temp_df, sum)
+    
+    return(resultado_agrupado)
+  })
+  
+  # Eliminar elementos NULL en la lista de resultados
+  resultado <- resultado[!sapply(resultado, is.null)]
+  
+  # Convertir la lista de resultados en un dataframe final
+  if (length(resultado) > 0) {
+    resultado_final <- do.call(rbind, resultado)
+    return(resultado_final)
+  } else {
+    return(data.frame(nombre_cargo = character(), cantidad = numeric()))
+  }
+}
+
+###
+resultado <- procesar_cargos(enadel)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 enadel$c1 <- long$oficio4[1:5066] #Ocupación
 enadel$d3 <- long$oficio4[4001:9066] #Ocupaciones de Difícil Cobertura
@@ -74,7 +139,7 @@ enadel <- enadel |> mutate(act_eco=case_when(act_eco=="Actividades artisticas, d
 
 enadel$act_eco <- as.factor(enadel$act_eco)
 
-enadel$act_eco <- factor(enadel$act_eco, levels = c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15), labels = c("Actividades artísticas, de entretenimiento y recreativas",
+enadel$act_eco <- factor(enadel$act_eco, levels = c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15), labels = c("Actividades artísticas, de entretenimiento y recreativas",#########unidas
                                                                                                      "Actividades de alojamiento y de servicio de comidas",
                                                                                                      "Actividades de servicios administrativos y de apoyo",
                                                                                                      "Actividades financieras y de seguros",
@@ -85,7 +150,7 @@ enadel$act_eco <- factor(enadel$act_eco, levels = c(1,2,3,4,5,6,7,8,9,10,11,12,1
                                                                                                      "Construcción",
                                                                                                      "Industria manufacturera",
                                                                                                      "Información y comunicaciones",
-                                                                                                     "Otras actividades de servicios",
+                                                                                                     "Otras actividades de servicios", #########unidas
                                                                                                      "Suministro de agua",
                                                                                                      "Suministro de electricidad, gas, vapor y aire acondicionado",
                                                                                                      "Transporte y almacenamiento"))

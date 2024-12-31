@@ -227,6 +227,85 @@ design_enadel_2024 <- svydesign(ids = ~id_emp, strata =~estrato ,  weights = ~fa
   
   indefinido_total<- cbind(indefinido_total,indefinido_mujer,indefinido_hombre)# total = Mujer + hombre
   
+  
+ 
+  
+  
+  
+  
+
+  
+  
+  
+  procesar_cargos_agrupados <- function(design) {
+    # Extraer los datos originales del diseño
+    data <- design$variables
+    
+    # Transformar las variables de nombres y contrataciones a formato largo
+    cargos_largos <- data %>%
+      select(id_emp, starts_with("c1_a_"), starts_with("c1_c_")) %>%
+      pivot_longer(
+        cols = -id_emp,  # Excluir id_emp de la transformación
+        names_to = c(".value", "grupo"),
+        names_pattern = "c1_(a|c)_(\\d+)"
+      ) %>%
+      filter(!is.na(a), c > 0) %>%  # Filtrar nombres no válidos y cantidades <= 0
+      mutate(nombre_cargo = a, cantidad = c) %>%  # Crear columnas explícitamente
+      select(-a, -c)  # Eliminar las columnas originales
+    
+    # Asociar con las variables necesarias del diseño
+    cargos_completos <- cargos_largos %>%
+      left_join(data %>% select(id_emp, estrato, fact_emp), by = "id_emp")  # Combinar por id_emp
+    
+    return(cargos_completos)  # Devolver cargos_completos para inspección
+  }
+  
+  # Ejecutar y guardar el resultado
+  cargos_completos <- procesar_cargos_agrupados(design_enadel_2024)
+  
+  
+  # Filtrar valores extremos en cantidad
+  cargos_completos <- cargos_completos %>%
+    filter(cantidad <= quantile(cantidad, 0.99))
+  
+  # Crear un diseño muestral ajustado sin valores extremos
+  design_cargos <- svydesign(
+    ids = ~id_emp,
+    strata = ~estrato,
+    weights = ~fact_emp,
+    data = cargos_completos,
+    nest = TRUE
+  )
+  
+  # Calcular el total ponderado por cargo
+  resultado_ponderado <- svyby(
+    ~cantidad,
+    ~nombre_cargo,
+    design = design_cargos,
+    svytotal,
+    na.rm = TRUE
+  )
+  
+  # Mostrar los resultados
+  print(as.data.frame(resultado_ponderado))
+  
+  
+  
+  
+  #aHORA ES d2 CON d3 #######33
+  
+  enadel_2<-enadel |> filter(enadel$d2==2) 
+  
+  
+ table(enadel_2$d3_a_1)
+  
+  
+  
+  
+  
+
+  
+  
   # por ocupación
   indefinido <- svyby(~b1_1, ~c1, design_enadel_2024, svytotal, na.rm = TRUE) |> arrange(desc(b1_1))
   indefinido$cv <- cv(indefinido)
@@ -290,9 +369,6 @@ design_enadel_2024 <- svydesign(ids = ~id_emp, strata =~estrato ,  weights = ~fa
   plazofijo_sector <- plazofijo_sector |> arrange(sector_label, desc(b2_1)) |> 
     subset(b2_1>0) |> select(sector_label, a2, oficio_label, c1, b2_1, se, cv)
   
-  
-  
-  
   #Personal a Honorarios(b4)
   honorario_total <- svytotal(~b4_1, design_enadel_2024, na.rm = TRUE)
   honorario_mujer <- svytotal (~b4_2,design_enadel_2024, na.rm = TRUE)
@@ -325,10 +401,6 @@ design_enadel_2024 <- svydesign(ids = ~id_emp, strata =~estrato ,  weights = ~fa
   
   honorario_sector <- honorario_sector |> arrange(sector_label, desc(b4_1)) |> 
     subset(b4_1>0) |> select(sector_label, a2, oficio_label, c1, b4_1, se, cv)
-  
-  
-  
-  
 
   #Dotación total (b6)
   dotacion_total <- svytotal(~b6_1, design_enadel_2024, na.rm = TRUE)
@@ -416,6 +488,7 @@ design_enadel_2024 <- svydesign(ids = ~id_emp, strata =~estrato ,  weights = ~fa
   
   contrataciones_total<- cbind(contrataciones_total,contrataciones_mujer,contrataciones_hombre)
   contrataciones_total <- as.data.frame(contrataciones_total)
+  
   #vacantes que no pudo llenar
   vacantes_total <- svytotal(~b13_1, design_enadel_2024, na.rm = TRUE) #da un n° negativo
   vacantes_total <- as.data.frame(vacantes_total)
@@ -533,10 +606,21 @@ design_enadel_2024 <- svydesign(ids = ~id_emp, strata =~estrato ,  weights = ~fa
     odc_dummy_sector$sector_label <- matched_labels[match(odc_dummy_sector$a2, unique_odc_dummy)]
     odc_dummy_sector<- odc_dummy_sector |> select(sector=a2, odc_dummy_1, odc_dummy_2, tot_empresas, sector_label)
 
-    
+    #odc_dummy_region
+    odc_dummy_region <- svyby(~empresas, ~d1+reg_muestra, design_enadel_2024, svytotal, na.rm = TRUE)[1:3] |>
+      pivot_wider(names_from = "d1", values_from = "empresas", names_glue = "empresas_{d1}") |> 
+      mutate(tot_empresas = empresas_1+empresas_2) |> 
+      dplyr::rename(odc_dummy_1 = empresas_1) |> 
+      dplyr::rename(odc_dummy_2 = empresas_2)
+    unique_odc_dummy <- unique(odc_dummy_region$reg_muestra)
+    labels_odc_dummy <- attr(odc_dummy_region$reg_muestra, "labels")
+    matched_labels <- names(labels_odc_dummy)[match(unique_odc_dummy, labels_odc_dummy)]
+    odc_dummy_region$region_label <- matched_labels[match(odc_dummy_region$reg_muestra, unique_odc_dummy)]
+    odc_dummy_region<- odc_dummy_region |> select(region=reg_muestra, odc_dummy_1, odc_dummy_2, tot_empresas, region_label)
     
     #Total de ODC ¿Cuántos cargos/ocupaciones no pudo llenar?
     odc_total <- svytotal(~d2, design_enadel_2024, na.rm = TRUE)
+    odc_total <- as.data.frame(odc_total)
     #(MÓDULO D) d3: ODC
     
     # por ocupación
@@ -590,6 +674,9 @@ design_enadel_2024 <- svydesign(ids = ~id_emp, strata =~estrato ,  weights = ~fa
         arrange(reg_muestra, desc(d2)) |> 
         dplyr::mutate(orden = row_number()) |> 
         subset(orden == 1)
+      
+      
+      
     }
     # -------------------- VACANTES NO LLENADAS POR TAMAÑO EMPRESA -------------------- #
     {
@@ -675,7 +762,7 @@ design_enadel_2024 <- svydesign(ids = ~id_emp, strata =~estrato ,  weights = ~fa
     
     # --------------------------- AÑOS DE EXPERIENCIA MÍNIMO --------------------------- #
     
-           exp <- svyby(~oficios, ~d3_e_1, design_enadel_2024, svytotal, na.rm = TRUE) |>
+           exp <- svyby(~oficios, ~d3_e_1, design_enadel_2024, svytotal, na.rm = TRUE) |> #d3_a
         mutate(cv =se/oficios*100, 
                pc = oficios/sum(oficios)*100)
       
@@ -686,7 +773,8 @@ design_enadel_2024 <- svydesign(ids = ~id_emp, strata =~estrato ,  weights = ~fa
       
       
       exp_mean <- svymean(~d3_e_1, exp_design, na.rm = TRUE)
-      exp_mean$cv <- cv(exp_mean)
+      exp_mean <- as.data.frame(exp_mean)
+
       
       exp_mean_sector <- svyby(~d3_e_1, ~a2, exp_design, svymean, na.rm = TRUE)
       exp_mean_sector$cv <- cv(exp_mean_sector)
@@ -706,6 +794,407 @@ design_enadel_2024 <- svydesign(ids = ~id_emp, strata =~estrato ,  weights = ~fa
     
     
   #Aquí queda pendiente ver posibles profundizaciones en algunos sectores
+      
+      # --------------Capítulo III: Capacitación y Habilidades----------------------#   
+      #OTIC
+      otic <- svyby(~empresas, ~e1, design_enadel_2024, svytotal, na.rm = TRUE)
+      
+      #OTIC_sector
+      otic_sector <- svyby(~empresas, ~e1+a2, design_enadel_2024, svytotal, na.rm = TRUE)[1:3] |>
+        pivot_wider(names_from = "e1", values_from = "empresas", names_glue = "empresas_{e1}") |> 
+        mutate(tot_empresas = empresas_1+empresas_2) |> 
+        dplyr::rename(otic_1 = empresas_1) |> 
+        dplyr::rename(otic_2 = empresas_2)
+      unique_otic <- unique(otic_sector$a2)
+      labels_otic <- attr(otic_sector$a2, "labels")
+      matched_labels <- names(labels_otic)[match(unique_otic, labels_otic)]
+      otic_sector$sector_label <- matched_labels[match(otic_sector$a2, unique_otic)]
+      
+      #OTIC_region
+      otic_region <- svyby(~empresas, ~e1+reg_muestra, design_enadel_2024, svytotal, na.rm = TRUE)[1:3] |>
+        pivot_wider(names_from = "e1", values_from = "empresas", names_glue = "empresas_{e1}") |> 
+        mutate(tot_empresas = empresas_1+empresas_2) |> 
+        dplyr::rename(otic_1 = empresas_1) |> 
+        dplyr::rename(otic_2 = empresas_2)
+      unique_otic <- unique(otic_region$reg_muestra)
+      labels_otic <- attr(otic_region$reg_muestra, "labels")
+      matched_labels <- names(labels_otic)[match(unique_otic, labels_otic)]
+      otic_region$region_label <- matched_labels[match(otic_region$reg_muestra, unique_otic)]
+      
+      
+      #capacitacion
+      capacitacion <- svyby(~empresas, ~e2, design_enadel_2024, svytotal, na.rm = TRUE)
+      
+      #capacitacion_sector
+      capacitacion_sector <- svyby(~empresas, ~e2+a2, design_enadel_2024, svytotal, na.rm = TRUE)[1:3] |>
+        pivot_wider(names_from = "e2", values_from = "empresas", names_glue = "empresas_{e2}") |> 
+        mutate(tot_empresas = empresas_1+empresas_2) |> 
+        dplyr::rename(capacitacion_1 = empresas_1) |> 
+        dplyr::rename(capacitacion_2 = empresas_2)
+      unique_capacitacion <- unique(capacitacion_sector$a2)
+      labels_capacitacion <- attr(capacitacion_sector$a2, "labels")
+      matched_labels <- names(labels_capacitacion)[match(unique_capacitacion, labels_capacitacion)]
+      capacitacion_sector$sector_label <- matched_labels[match(capacitacion_sector$a2, unique_capacitacion)]
+      
+      #capacitacion_region
+      capacitacion_region <- svyby(~empresas, ~e2+reg_muestra, design_enadel_2024, svytotal, na.rm = TRUE)[1:3] |>
+        pivot_wider(names_from = "e2", values_from = "empresas", names_glue = "empresas_{e2}") |> 
+        mutate(tot_empresas = empresas_1+empresas_2) |> 
+        dplyr::rename(capacitacion_1 = empresas_1) |> 
+        dplyr::rename(capacitacion_2 = empresas_2)
+      unique_capacitacion <- unique(capacitacion_region$reg_muestra)
+      labels_capacitacion <- attr(capacitacion_region$reg_muestra, "labels")
+      matched_labels <- names(labels_capacitacion)[match(unique_capacitacion, labels_capacitacion)]
+      capacitacion_region$region_label <- matched_labels[match(capacitacion_region$reg_muestra, unique_capacitacion)]
+      
+      
+      
+      #---------------------------Competencias---------------------------------#
+      # Competencias básicas
+      e3_a <- svyby(~empresas, ~e3_a, design_enadel_2024, svytotal, na.rm = TRUE)  
+      e3_a$cv <- cv(e3_a)
+      
+      unique_com <- unique(e3_a$e3_a)
+      labels_com <- attr(e3_a$e3_a, "labels")
+      matched_labels <- names(labels_com)[match(unique_com, labels_com)]
+      e3_a$com_label <- matched_labels[match(e3_a$e3_a, unique_com)]
+      e3_a <- e3_a  %>% select(com_label, empresas, se, cv)
+      
+      
+      #Competencias técnicas
+      e3_b <- svyby(~empresas, ~e3_b, design_enadel_2024, svytotal, na.rm = TRUE)  
+      e3_b$cv <- cv(e3_b)
+      
+      unique_com <- unique(e3_b$e3_b)
+      labels_com <- attr(e3_b$e3_b, "labels")
+      matched_labels <- names(labels_com)[match(unique_com, labels_com)]
+      e3_b$com_label <- matched_labels[match(e3_b$e3_b, unique_com)]
+      e3_b <- e3_b  %>% select(com_label, empresas, se, cv)
+      
+      #Competencias actitudinales, conductuales, emocionales y/o valóricas
+      e3_c <- svyby(~empresas, ~e3_c, design_enadel_2024, svytotal, na.rm = TRUE)  
+      e3_c$cv <- cv(e3_c)
+      
+      unique_com <- unique(e3_c$e3_c)
+      labels_com <- attr(e3_c$e3_c, "labels")
+      matched_labels <- names(labels_com)[match(unique_com, labels_com)]
+      e3_c$com_label <- matched_labels[match(e3_c$e3_c, unique_com)]
+      e3_c <- e3_c  %>% select(com_label, empresas, se, cv)
+      
+      #Competencias Competencias en idiomas extranjeros
+      e3_d <- svyby(~empresas, ~e3_d, design_enadel_2024, svytotal, na.rm = TRUE)  
+      e3_d$cv <- cv(e3_d)
+      
+      unique_com <- unique(e3_d$e3_d)
+      labels_com <- attr(e3_d$e3_d, "labels")
+      matched_labels <- names(labels_com)[match(unique_com, labels_com)]
+      e3_d$com_label <- matched_labels[match(e3_d$e3_d, unique_com)]
+      e3_d <- e3_d  %>% select(com_label, empresas, se, cv)
+      
+      #Competencias directivas o de gestión
+      e3_e <- svyby(~empresas, ~e3_e, design_enadel_2024, svytotal, na.rm = TRUE)  
+      e3_e$cv <- cv(e3_e)
+      
+      unique_com <- unique(e3_e$e3_e)
+      labels_com <- attr(e3_e$e3_e, "labels")
+      matched_labels <- names(labels_com)[match(unique_com, labels_com)]
+      e3_e$com_label <- matched_labels[match(e3_e$e3_e, unique_com)]
+      e3_e <- e3_e  %>% select(com_label, empresas, se, cv)
+      
+      #Competencias digitales básicas
+      e3_f <- svyby(~empresas, ~e3_f, design_enadel_2024, svytotal, na.rm = TRUE)  
+      e3_f$cv <- cv(e3_f)
+      
+      unique_com <- unique(e3_f$e3_f)
+      labels_com <- attr(e3_f$e3_f, "labels")
+      matched_labels <- names(labels_com)[match(unique_com, labels_com)]
+      e3_f$com_label <- matched_labels[match(e3_f$e3_f, unique_com)]
+      e3_f <- e3_f  %>% select(com_label, empresas, se, cv)
+      
+      
+      #Competencias digitales avanzadas
+      e3_g <- svyby(~empresas, ~e3_g, design_enadel_2024, svytotal, na.rm = TRUE)  
+      e3_g$cv <- cv(e3_g)
+      
+      unique_com <- unique(e3_g$e3_g)
+      labels_com <- attr(e3_g$e3_g, "labels")
+      matched_labels <- names(labels_com)[match(unique_com, labels_com)]
+      e3_g$com_label <- matched_labels[match(e3_g$e3_g, unique_com)]
+      e3_g <- e3_g  %>% select(com_label, empresas, se, cv)
+      
+      #Competencias dde salud ocupacional y prevención
+      e3_h <- svyby(~empresas, ~e3_h, design_enadel_2024, svytotal, na.rm = TRUE)  
+      e3_h$cv <- cv(e3_h)
+      
+      unique_com <- unique(e3_h$e3_h)
+      labels_com <- attr(e3_h$e3_h, "labels")
+      matched_labels <- names(labels_com)[match(unique_com, labels_com)]
+      e3_h$com_label <- matched_labels[match(e3_h$e3_h, unique_com)]
+      e3_h <- e3_h  %>% select(com_label, empresas, se, cv)
+      
+
+      
+      competencias_capacitadas<-rbind(e3_a[1,],
+                                 e3_b[1,],
+                                 e3_c[1,],
+                                 e3_d[1,],
+                                 e3_e[1,],
+                                 e3_f[1,],
+                                 e3_g[1,],
+                                 e3_h[1,])
+      
+      competencias_capacitadas$com_label<- c("Competencias básicas", "Competencias técnicas","Competencias actitudinales, conductuales, emocionales y/o valóricas", 
+                                        "Competencias en idiomas extranjeros", "Competencias directivas o de gestión", "Competencias digitales básicas",
+                                        "Competencias digitales avanzadas", "Competencias de salud ocupacional y prevención")
+      
+      
+      competencias_capacitadas<- as.data.frame(competencias_capacitadas) |> arrange(desc(empresas))
+      
+      
+      #Fuentes de financiamiento
+      capacitacion_finan <- svyby(~empresas, ~e5_1, design_enadel_2024, svytotal, na.rm = TRUE)
+      
+      
+      # Necesidad de capacitar (¿Ha requerido la empresa capacitar a sus empleado/as en alguna de las siguientes competencias?)#
+      
+      # Competencias básicas
+      e6_a <- svyby(~empresas, ~e6_a, design_enadel_2024, svytotal, na.rm = TRUE)  
+      e6_a$cv <- cv(e6_a)
+      
+      unique_com <- unique(e6_a$e6_a)
+      labels_com <- attr(e6_a$e6_a, "labels")
+      matched_labels <- names(labels_com)[match(unique_com, labels_com)]
+      e6_a$com_label <- matched_labels[match(e6_a$e6_a, unique_com)]
+      e6_a <- e6_a  %>% select(com_label, empresas, se, cv)
+      
+      
+      #Competencias técnicas
+      e6_b <- svyby(~empresas, ~e6_b, design_enadel_2024, svytotal, na.rm = TRUE)  
+      e6_b$cv <- cv(e6_b)
+      
+      unique_com <- unique(e6_b$e6_b)
+      labels_com <- attr(e6_b$e6_b, "labels")
+      matched_labels <- names(labels_com)[match(unique_com, labels_com)]
+      e6_b$com_label <- matched_labels[match(e6_b$e6_b, unique_com)]
+      e6_b <- e6_b  %>% select(com_label, empresas, se, cv)
+      
+      #Competencias actitudinales, conductuales, emocionales y/o valóricas
+      e6_c <- svyby(~empresas, ~e6_c, design_enadel_2024, svytotal, na.rm = TRUE)  
+      e6_c$cv <- cv(e6_c)
+      
+      unique_com <- unique(e6_c$e6_c)
+      labels_com <- attr(e6_c$e6_c, "labels")
+      matched_labels <- names(labels_com)[match(unique_com, labels_com)]
+      e6_c$com_label <- matched_labels[match(e6_c$e6_c, unique_com)]
+      e6_c <- e6_c  %>% select(com_label, empresas, se, cv)
+      
+      #Competencias Competencias en idiomas extranjeros
+      e6_d <- svyby(~empresas, ~e6_d, design_enadel_2024, svytotal, na.rm = TRUE)  
+      e6_d$cv <- cv(e6_d)
+      
+      unique_com <- unique(e6_d$e6_d)
+      labels_com <- attr(e6_d$e6_d, "labels")
+      matched_labels <- names(labels_com)[match(unique_com, labels_com)]
+      e6_d$com_label <- matched_labels[match(e6_d$e6_d, unique_com)]
+      e6_d <- e6_d  %>% select(com_label, empresas, se, cv)
+      
+      #Competencias directivas o de gestión
+      e6_e <- svyby(~empresas, ~e6_e, design_enadel_2024, svytotal, na.rm = TRUE)  
+      e6_e$cv <- cv(e6_e)
+      
+      unique_com <- unique(e6_e$e6_e)
+      labels_com <- attr(e6_e$e6_e, "labels")
+      matched_labels <- names(labels_com)[match(unique_com, labels_com)]
+      e6_e$com_label <- matched_labels[match(e6_e$e6_e, unique_com)]
+      e6_e <- e6_e  %>% select(com_label, empresas, se, cv)
+      
+      #Competencias digitales básicas
+      e6_f <- svyby(~empresas, ~e6_f, design_enadel_2024, svytotal, na.rm = TRUE)  
+      e6_f$cv <- cv(e6_f)
+      
+      unique_com <- unique(e6_f$e6_f)
+      labels_com <- attr(e6_f$e6_f, "labels")
+      matched_labels <- names(labels_com)[match(unique_com, labels_com)]
+      e6_f$com_label <- matched_labels[match(e6_f$e6_f, unique_com)]
+      e6_f <- e6_f  %>% select(com_label, empresas, se, cv)
+      
+      
+      #Competencias digitales avanzadas
+      e6_g <- svyby(~empresas, ~e6_g, design_enadel_2024, svytotal, na.rm = TRUE)  
+      e6_g$cv <- cv(e6_g)
+      
+      unique_com <- unique(e6_g$e6_g)
+      labels_com <- attr(e6_g$e6_g, "labels")
+      matched_labels <- names(labels_com)[match(unique_com, labels_com)]
+      e6_g$com_label <- matched_labels[match(e6_g$e6_g, unique_com)]
+      e6_g <- e6_g  %>% select(com_label, empresas, se, cv)
+      
+      #Competencias de salud ocupacional y prevención
+      e6_h <- svyby(~empresas, ~e6_h, design_enadel_2024, svytotal, na.rm = TRUE)  
+      e6_h$cv <- cv(e6_h)
+      
+      unique_com <- unique(e6_h$e6_h)
+      labels_com <- attr(e6_h$e6_h, "labels")
+      matched_labels <- names(labels_com)[match(unique_com, labels_com)]
+      e6_h$com_label <- matched_labels[match(e6_h$e6_h, unique_com)]
+      e6_h <- e6_h  %>% select(com_label, empresas, se, cv)
+      
+      competencias_necesarias<-rbind(e6_a[1,],
+            e6_b[1,],
+            e6_c[1,],
+            e6_d[1,],
+            e6_e[1,],
+            e6_f[1,],
+            e6_g[1,],
+            e6_h[1,])
+      
+      competencias_necesarias$com_label<- c("Competencias básicas", "Competencias técnicas","Competencias actitudinales, conductuales, emocionales y/o valóricas", 
+                                        "Competencias en idiomas extranjeros", "Competencias directivas o de gestión", "Competencias digitales básicas",
+                                        "Competencias digitales avanzadas", "Competencias de salud ocupacional y prevención")
+      
+      competencias_necesarias<-as.data.frame(competencias_necesarias) |> arrange(desc(empresas))
+      
+      
+      
+     #E7 Durante los próximos doce meses, ¿El personal de su empresa requerirá capacitación?
+      #capacitacion
+      capacitacion_futura <- svyby(~empresas, ~e7, design_enadel_2024, svytotal, na.rm = TRUE)
+      
+      #capacitacion_futura_sector
+      capacitacion_futura_sector <- svyby(~empresas, ~e7+a2, design_enadel_2024, svytotal, na.rm = TRUE)[1:3] |>
+        pivot_wider(names_from = "e7", values_from = "empresas", names_glue = "empresas_{e7}") |> 
+        mutate(tot_empresas = empresas_1+empresas_2) |> 
+        dplyr::rename(capacitacion_futura_1 = empresas_1) |> 
+        dplyr::rename(capacitacion_futura_2 = empresas_2)
+      unique_capacitacion_futura <- unique(capacitacion_futura_sector$a2)
+      labels_capacitacion_futura <- attr(capacitacion_futura_sector$a2, "labels")
+      matched_labels <- names(labels_capacitacion_futura)[match(unique_capacitacion_futura, labels_capacitacion_futura)]
+      capacitacion_futura_sector$sector_label <- matched_labels[match(capacitacion_futura_sector$a2, unique_capacitacion_futura)]
+      
+      #capacitacion_futura_region
+      capacitacion_futura_region <- svyby(~empresas, ~e7+reg_muestra, design_enadel_2024, svytotal, na.rm = TRUE)[1:3] |>
+        pivot_wider(names_from = "e7", values_from = "empresas", names_glue = "empresas_{e7}") |> 
+        mutate(tot_empresas = empresas_1+empresas_2) |> 
+        dplyr::rename(capacitacion_futura_1 = empresas_1) |> 
+        dplyr::rename(capacitacion_futura_2 = empresas_2)
+      unique_capacitacion_futura <- unique(capacitacion_futura_region$reg_muestra)
+      labels_capacitacion_futura <- attr(capacitacion_futura_region$reg_muestra, "labels")
+      matched_labels <- names(labels_capacitacion_futura)[match(unique_capacitacion_futura, labels_capacitacion_futura)]
+      capacitacion_futura_region$region_label <- matched_labels[match(capacitacion_futura_region$reg_muestra, unique_capacitacion_futura)]
+      
+      #E8 principales cargos/ocupaciones que requerirán capacitación
+      
+      orc <- svyby(~oficios, ~ e8, design_enadel_2024, svytotal, na.rm = TRUE)|> arrange(desc(oficios))
+      orc$cv <- cv(orc)
+      # labels
+      unique_oficio <- unique(orc$e8)#Esta variable debería ser triple: e8_1, e8_2 y e8_3
+      labels_oficio <- attr(orc$e8, "labels")
+      matched_labels <- names(labels_oficio)[match(unique_oficio, labels_oficio)]
+      orc$oficio_label <- matched_labels[match(orc$e8, unique_oficio)]
+      
+      
+      #Competencias de la ocupacion n° 1 que requerirán capacitación (principales cargos/ocupaciones que requerirán capacitación)
+      
+      # 1. Competencias básicas
+      e8_c1_1 <- svyby(~empresas, ~e8_c1_1, design_enadel_2024, svytotal, na.rm = TRUE) 
+      e8_c1_1$cv <- cv(e8_c1_1)
+      
+      unique_com <- unique(e8_c1_1$e8_c1_1)
+      labels_com <- attr(e8_c1_1$e8_c1_1, "labels")
+      matched_labels <- names(labels_com)[match(unique_com, labels_com)]
+      e8_c1_1$com_label <- matched_labels[match(e8_c1_1$e8_c1_1, unique_com)]
+      e8_c1_1 <- e8_c1_1  %>% select(com_label, empresas, se, cv)
+      
+      # 2. Competencias técnicas
+      e8_c2_1 <- svyby(~empresas, ~e8_c2_1, design_enadel_2024, svytotal, na.rm = TRUE) 
+      e8_c2_1$cv <- cv(e8_c2_1)
+      
+      unique_com <- unique(e8_c2_1$e8_c2_1)
+      labels_com <- attr(e8_c2_1$e8_c2_1, "labels")
+      matched_labels <- names(labels_com)[match(unique_com, labels_com)]
+      e8_c2_1$com_label <- matched_labels[match(e8_c2_1$e8_c2_1, unique_com)]
+      e8_c2_1 <- e8_c2_1  %>% select(com_label, empresas, se, cv)
+      
+      # 3. Competencias actitudinales, conductuales, emocionales y/o valóricas
+      e8_c3_1 <- svyby(~empresas, ~e8_c3_1, design_enadel_2024, svytotal, na.rm = TRUE) 
+      e8_c3_1$cv <- cv(e8_c3_1)
+      
+      unique_com <- unique(e8_c3_1$e8_c3_1)
+      labels_com <- attr(e8_c3_1$e8_c3_1, "labels")
+      matched_labels <- names(labels_com)[match(unique_com, labels_com)]
+      e8_c3_1$com_label <- matched_labels[match(e8_c3_1$e8_c3_1, unique_com)]
+      e8_c3_1 <- e8_c3_1  %>% select(com_label, empresas, se, cv)
+      
+      # 4. Competencias en idiomas extranjeros
+      e8_c4_1 <- svyby(~empresas, ~e8_c4_1, design_enadel_2024, svytotal, na.rm = TRUE) 
+      e8_c4_1$cv <- cv(e8_c4_1)
+      
+      unique_com <- unique(e8_c4_1$e8_c4_1)
+      labels_com <- attr(e8_c4_1$e8_c4_1, "labels")
+      matched_labels <- names(labels_com)[match(unique_com, labels_com)]
+      e8_c4_1$com_label <- matched_labels[match(e8_c4_1$e8_c4_1, unique_com)]
+      e8_c4_1 <- e8_c4_1  %>% select(com_label, empresas, se, cv)
+      
+      # 5. Competencias directivas o de gestión
+      e8_c5_1 <- svyby(~empresas, ~e8_c5_1, design_enadel_2024, svytotal, na.rm = TRUE) 
+      e8_c5_1$cv <- cv(e8_c5_1)
+      
+      unique_com <- unique(e8_c5_1$e8_c5_1)
+      labels_com <- attr(e8_c5_1$e8_c5_1, "labels")
+      matched_labels <- names(labels_com)[match(unique_com, labels_com)]
+      e8_c5_1$com_label <- matched_labels[match(e8_c5_1$e8_c5_1, unique_com)]
+      e8_c5_1 <- e8_c5_1  %>% select(com_label, empresas, se, cv)
+      
+      # 6 Competencias digitales básicas
+      e8_c6_1 <- svyby(~empresas, ~e8_c6_1, design_enadel_2024, svytotal, na.rm = TRUE) 
+      e8_c6_1$cv <- cv(e8_c6_1)
+      
+      unique_com <- unique(e8_c6_1$e8_c6_1)
+      labels_com <- attr(e8_c6_1$e8_c6_1, "labels")
+      matched_labels <- names(labels_com)[match(unique_com, labels_com)]
+      e8_c6_1$com_label <- matched_labels[match(e8_c6_1$e8_c6_1, unique_com)]
+      e8_c6_1 <- e8_c6_1  %>% select(com_label, empresas, se, cv)
+      
+      # 7 Competencias digitales avanzadas
+      e8_c7_1 <- svyby(~empresas, ~e8_c7_1, design_enadel_2024, svytotal, na.rm = TRUE) 
+      e8_c7_1$cv <- cv(e8_c7_1)
+      
+      unique_com <- unique(e8_c7_1$e8_c7_1)
+      labels_com <- attr(e8_c7_1$e8_c7_1, "labels")
+      matched_labels <- names(labels_com)[match(unique_com, labels_com)]
+      e8_c7_1$com_label <- matched_labels[match(e8_c7_1$e8_c7_1, unique_com)]
+      e8_c7_1 <- e8_c7_1  %>% select(com_label, empresas, se, cv)
+      
+      # 8. Competencias de salud ocupacional y prevención
+      e8_c8_1 <- svyby(~empresas, ~e8_c8_1, design_enadel_2024, svytotal, na.rm = TRUE) 
+      e8_c8_1$cv <- cv(e8_c8_1)
+      
+      unique_com <- unique(e8_c8_1$e8_c8_1)
+      labels_com <- attr(e8_c8_1$e8_c8_1, "labels")
+      matched_labels <- names(labels_com)[match(unique_com, labels_com)]
+      e8_c8_1$com_label <- matched_labels[match(e8_c8_1$e8_c8_1, unique_com)]
+      e8_c8_1 <- e8_c8_1  %>% select(com_label, empresas, se, cv)
+      
+      
+      competencias_futuras<-rbind(e8_c1_1[2,],
+                                  e8_c2_1[2,],
+                                  e8_c3_1[2,],
+                                  e8_c4_1[2,],
+                                  e8_c5_1[2,],
+                                  e8_c6_1[2,],
+                                  e8_c7_1[2,],
+                                  e8_c8_1[2,])
+      
+      competencias_futuras$com_label<- c("Competencias básicas",
+                                            "Competencias técnicas",
+                                            "Competencias actitudinales, conductuales, emocionales y/o valóricas", 
+                                            "Competencias en idiomas extranjeros",
+                                            "Competencias directivas o de gestión",
+                                            "Competencias digitales básicas",
+                                            "Competencias digitales avanzadas",
+                                            "Competencias de salud ocupacional y prevención")
+      
+      competencias_futuras<- as.data.frame(competencias_futuras) |> arrange(desc(empresas))
   
   # ********************************************************************************** #
   # -------------------------------- GUARDAR EN EXCEL -------------------------------- #
@@ -740,7 +1229,13 @@ design_enadel_2024 <- svydesign(ids = ~id_emp, strata =~estrato ,  weights = ~fa
                   "vacantes_region" = odc_region,
                   "vacantes_tam" = odc_tam,
                   "vacantes_tamvent" = odc_tamvent,
+                  "odc_sector"=odc_sector,
+                  "odc_region"=odc_region,
                   "odc_dummy_sector"=odc_dummy_sector,#Si es que tiene ODC por sector
+                  "odc_dummy_region"= odc_dummy_region,
+                  "odc_total"=odc_total,
+                  "exp"=exp,
+                  "exp_mean"=exp_mean,
                   "exp_mean_sector" = exp_mean_sector,
                   "exp_0_sector" = exp_0_sector,
                   "exp_mean_tam" = exp_mean_tam,
@@ -749,8 +1244,22 @@ design_enadel_2024 <- svydesign(ids = ~id_emp, strata =~estrato ,  weights = ~fa
                   "conglomerados_sector"=conglomerados_sector,
                   "conglomerados_region"=conglomerados_region,
                   "gremios_sector"=gremios_sector,
-                  "gremios_region"=gremios_region),
-  path = "Tablas/porcentajes.xlsx" )
+                  "gremios_region"=gremios_region,
+                  "otic"= otic,
+                  "otic_sector"=otic_sector,
+                  "otic_region"= otic_region,
+                  "capacitacion"=capacitacion,
+                  "capacitacion_sector"=capacitacion_sector,
+                  "capacitacion_region"=capacitacion_region,
+                  "capacitacion_finan"=capacitacion_finan,
+                  "competencias_capacitadas"=competencias_capacitadas,
+                  "competencias_necesarias"=competencias_necesarias,
+                  "capacitacion_futura"=capacitacion_futura,
+                  "capacitacion_futura_sector"=capacitacion_futura_sector,
+                  "capacitacion_futura_region"=capacitacion_futura_region,
+                  "orc"=orc, #Ocupaciones que requerirán capacitación
+                  "competencias_futuras"=competencias_futuras),
+             path = "Tablas/porcentajes.xlsx" )
   
   
   
