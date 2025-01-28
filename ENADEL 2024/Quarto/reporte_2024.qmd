@@ -264,6 +264,10 @@ pc_regiones_sucursal<- pc_regiones_sucursal |> mutate(total2= format(total, big.
 pc_regiones_sucursal <- pc_regiones_sucursal |> mutate(Region = fct_rev(factor(Region, levels = Region)))
 
 orden_regiones_sucursal <-pc_regiones_sucursal |> arrange(desc(total)) |> select(c(Region, total2, porc))
+
+
+orden_regiones_sucursal$Region<- as.character (orden_regiones_sucursal$Region)
+
 orden_regiones_sucursal <-orden_regiones_sucursal |> mutate( porc= paste0(round(porc*100,1), "%"))
 
 #orden_regiones_sucursal<- orden_regiones_sucursal |> mutate(total= format(total, big.mark= "."))
@@ -526,7 +530,7 @@ ggplot(df_long, aes(x = tipo, y = porcentaje, fill = factor(a3, levels = c("Sin 
   scale_fill_manual(values = c("Sin ventas"= "#bb1c42","Micro"="#f4bb54","Pequeña" = "#e36444", "Mediana" = "#c36c9b", "Grande" = "#35638c", "No sabe"= "#64c3d2" , "No responde"= "#002a51")) +#color de leyendas
   geom_text(aes(label = scales::percent(porcentaje, accuracy = 0.1)),#valor de etiquetas
             position = position_dodge(width = 0.7), vjust = -0.5, size = 2.3) +#posición de las etiquetas
-   scale_y_continuous(labels = scales::percent, limits = c(0, 0.85)) + #eje y
+   scale_y_continuous(labels = scales::percent, limits = c(0, 0.65)) + #eje y
   labs(title = "",
        x = NULL,
        y = NULL,
@@ -705,8 +709,7 @@ subcontratos_sector<- as.data.frame(subcontratos_sector)
 ```
 
 En la @fig-subcontratos_sector  se aprecia la distribución de empresas que prestan servicios a otras empresas a través del subcontrato^[La subcontratación se entiende como el trabajo realizado para un empleador denominado contratista o
-subcontratista, quien ejecuta obras o servicios por cuenta y riesgo propio para una empresa principal, dueña de la
-obra o faena.] según sector de actividad económica. Los sectores de actividad económica con mayor presencia de empresas que prestan servicios de subcontrato son los sectores de  `r subcontratos_sector[1,1]` (`r (subcontratos_sector[1,2])`%), `r subcontratos_sector[2,1]` (`r (subcontratos_sector[2,2])`%) y `r subcontratos_sector[3,1]` (`r (subcontratos_sector[3,2])`%) respectivamente. Los sectores que tienen menor presencia de empresas que prestan servicios de subcontratación son los sectores de `r subcontratos_sector[12,1]` (`r (subcontratos_sector[12,2])`%), `r subcontratos_sector[13,1]` (`r (subcontratos_sector[13,2])`%) y `r subcontratos_sector[14,1]` (`r (subcontratos_sector[14,2])`%).
+subcontratista, quien ejecuta obras o servicios por cuenta y riesgo propio para una empresa principal, dueña de la obra o faena.] según sector de actividad económica. Los sectores de actividad económica con mayor presencia de empresas que prestan servicios de subcontrato son los sectores de  `r subcontratos_sector[1,1]` (`r (subcontratos_sector[1,2])`%), `r subcontratos_sector[2,1]` (`r (subcontratos_sector[2,2])`%) y `r subcontratos_sector[3,1]` (`r (subcontratos_sector[3,2])`%) respectivamente. Los sectores que tienen menor presencia de empresas que prestan servicios de subcontratación son los sectores de `r subcontratos_sector[12,1]` (`r (subcontratos_sector[12,2])`%), `r subcontratos_sector[13,1]` (`r (subcontratos_sector[13,2])`%) y `r subcontratos_sector[14,1]` (`r (subcontratos_sector[14,2])`%).
 
 
 ```{r,  out.width='100%', fig.align='center', fig.pos='H'}
@@ -732,7 +735,7 @@ ggplot(subcontratos_sector, aes(x= sector_label, y=subcontrato_1))+
  geom_text(aes(label = paste0(gsub("\\.", ",", scales::label_number(accuracy = 0.1)(subcontrato_1)), "%")), 
             position = position_stack(vjust = 0.6), 
             color = "white", 
-            size = 3) +
+            size = 5) +
   scale_y_continuous(expand = c(0, 0)) +
   theme_minimal() +
   labs(
@@ -741,8 +744,8 @@ ggplot(subcontratos_sector, aes(x= sector_label, y=subcontrato_1))+
     y = ""
   ) +
   theme_classic(base_family = "Aptos") +
-  theme(axis.text.x = element_text(size = 7),
-        axis.text.y = element_text(size = 8),
+  theme(axis.text.x = element_text(size = 17),
+        axis.text.y = element_text(size = 15),
          axis.line.x = element_line(color = "grey80"), 
         axis.line.y = element_line(color = "grey80"),
         axis.title.x = element_blank(),
@@ -751,7 +754,7 @@ ggplot(subcontratos_sector, aes(x= sector_label, y=subcontrato_1))+
         legend.position = "bottom",
         legend.title = element_blank(),
         legend.text = element_text(size = 7),
-        plot.caption = element_text(size = 7))+
+        plot.caption = element_text(size = 15))+
   labs(caption = "Fuente: Elaboración propia utilizando datos de ENADEL 2024.")
   
   
@@ -1626,8 +1629,8 @@ geom_text(aes(label = scales::label_number(scale_cut = scales::cut_si(""))(abs(V
     y = "Cantidad de Personas"
   ) +
   theme_classic(base_family = "Aptos") +
-  theme(axis.text.x = element_text(size = 10),
-        axis.text.y = element_text(size = 10),
+  theme(axis.text.x = element_text(size = 13),
+        axis.text.y = element_text(size = 13),
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
          axis.line.x = element_line(color = "grey80"), 
@@ -1635,8 +1638,8 @@ geom_text(aes(label = scales::label_number(scale_cut = scales::cut_si(""))(abs(V
         plot.title = element_text(hjust = 0.5, size = 7.5),
         legend.position = "bottom",
         legend.title = element_blank(), # Ajustar el tamaño del título de la leyenda
-    legend.text = element_text(size = 7),
-    plot.caption = element_text(size = 7)) +
+    legend.text = element_text(size = 13),
+    plot.caption = element_text(size = 13)) +
   labs(caption = "Fuente: Elaboración propia utilizando datos de ENADEL 2024." )
 
 ```
